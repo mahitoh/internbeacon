@@ -1,0 +1,52 @@
+import { Internship } from "@/types";
+
+export const MOCK_INTERNSHIPS: Internship[] = [
+  {
+    id: "1",
+    title: "Full Stack Developer Intern",
+    company: "TechNexus",
+    location: "Remote",
+    description: "Join our dynamic team to build scalable web applications using React and Node.js.",
+    requirements: ["Proficiency in JavaScript/TypeScript", "Experience with React", "Understanding of REST APIs"],
+    tags: ["React", "Node.js", "TypeScript"],
+    postedAt: "2024-03-20",
+    duration: "3 Months",
+    stipend: "$2000/mo",
+  },
+  {
+    id: "2",
+    title: "UI/UX Design Intern",
+    company: "CreativeFlow",
+    location: "San Francisco, CA",
+    description: "Help us design beautiful and intuitive user interfaces for our flagship products.",
+    requirements: ["Figma proficiency", "Strong portfolio", "Knowledge of design systems"],
+    tags: ["UI/UX", "Figma", "Design"],
+    postedAt: "2024-03-18",
+    duration: "6 Months",
+    stipend: "$2500/mo",
+  },
+  {
+    id: "3",
+    title: "Data Science Intern",
+    company: "DataViz AI",
+    location: "New York, NY",
+    description: "Analyze large datasets and build predictive models to drive business insights.",
+    requirements: ["Python knowledge", "Statistical analysis Skills", "Experience with Pandas/NumPy"],
+    tags: ["Python", "ML", "SQL"],
+    postedAt: "2024-03-15",
+    duration: "4 Months",
+    stipend: "$2200/mo",
+  },
+  {
+    id: "4",
+    title: "Marketing Strategy Intern",
+    company: "BrandBoost",
+    location: "Austin, TX",
+    description: "Assist in developing and executing marketing campaigns for global brands.",
+    requirements: ["Strong communication", "Social media Savvy", "Analytical mindset"],
+    tags: ["Marketing", "SEO", "Content"],
+    postedAt: "2024-03-10",
+    duration: "3 Months",
+    stipend: "$1500/mo",
+  }
+];
