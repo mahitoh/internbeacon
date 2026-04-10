@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Browse &amp; Discover | InternBeacon</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#0F172A",
+                    "tertiary-fixed": "#d3e4fe",
+                    "tertiary": "#000000",
+                    "error": "#ba1a1a",
+                    "on-surface-variant": "#45464d",
+                    "on-secondary-container": "#684000",
+                    "surface-container-low": "#f2f4f6",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-background": "#191c1e",
+                    "surface-tint": "#565e74",
+                    "surface-container-high": "#e6e8ea",
+                    "on-tertiary-fixed-variant": "#38485d",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "tertiary-container": "#0b1c30",
+                    "surface-variant": "#e0e3e5",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eceef0",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "on-secondary-fixed": "#2a1700",
+                    "on-primary-container": "#7c839b",
+                    "secondary-container": "#F59E0B",
+                    "inverse-surface": "#2d3133",
+                    "secondary-fixed": "#ffddb8",
+                    "primary-fixed": "#dae2fd",
+                    "on-tertiary-fixed": "#0b1c30",
+                    "on-primary-fixed": "#131b2e",
+                    "inverse-primary": "#bec6e0",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#f7f9fb",
+                    "secondary": "#F59E0B",
+                    "inverse-on-surface": "#eff1f3",
+                    "on-primary": "#ffffff",
+                    "surface": "#f7f9fb",
+                    "tertiary-fixed-dim": "#b7c8e1",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#75859d",
+                    "on-error": "#ffffff",
+                    "on-surface": "#191c1e",
+                    "primary-container": "#131b2e",
+                    "error-container": "#ffdad6",
+                    "background": "#f7f9fb",
+                    "surface-dim": "#d8dadc",
+                    "outline-variant": "#c6c6cd",
+                    "outline": "#76777d",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "on-error-container": "#93000a",
+                    "surface-container-highest": "#e0e3e5"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #E6E8EA;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-secondary-container selection:text-white">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 glass-nav shadow-sm dark:shadow-none h-20">
+<div class="max-w-screen-2xl mx-auto flex justify-between items-center px-8 h-full">
+<div class="flex items-center gap-12">
+<span class="text-2xl font-bold tracking-tighter text-slate-900 dark:text-slate-50">InternBeacon</span>
+<div class="hidden md:flex gap-8 items-center">
+<a class="text-slate-900 dark:text-slate-50 border-b-2 border-amber-500 pb-1 plus-jakarta-sans text-sm font-medium tracking-tight" href="#">Explore</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50 transition-all duration-300 ease-in-out hover:opacity-80 plus-jakarta-sans text-sm font-medium tracking-tight" href="#">Companies</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50 transition-all duration-300 ease-in-out hover:opacity-80 plus-jakarta-sans text-sm font-medium tracking-tight" href="#">Resources</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-500 dark:text-slate-400 hover:text-slate-900 font-medium text-sm px-4 py-2">Login</button>
+<button class="bg-primary text-white px-6 py-2.5 rounded-DEFAULT font-semibold text-sm hover:opacity-90 transition-all active:scale-95">Post Internship</button>
+</div>
+</div>
+</nav>
+<main class="pt-20 min-h-screen">
+<!-- Sticky Search Bar Section -->
+<section class="sticky top-20 z-40 bg-surface py-6 px-8">
+<div class="max-w-screen-2xl mx-auto">
+<div class="bg-surface-container-lowest rounded-DEFAULT shadow-sm flex flex-col md:flex-row items-center p-2 gap-2 border border-outline-variant/20">
+<div class="flex-grow flex items-center px-4 w-full">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="w-full border-none focus:ring-0 bg-transparent text-sm py-3 px-3" placeholder="Search roles, skills, or keywords" type="text"/>
+</div>
+<div class="hidden md:block w-[1px] h-8 bg-outline-variant/30"></div>
+<div class="flex-grow flex items-center px-4 w-full">
+<span class="material-symbols-outlined text-outline">location_on</span>
+<input class="w-full border-none focus:ring-0 bg-transparent text-sm py-3 px-3" placeholder="Location" type="text"/>
+</div>
+<button class="w-full md:w-auto bg-secondary-container text-white px-8 py-3 rounded-DEFAULT font-bold text-sm tracking-wide hover:opacity-90 transition-all">
+                        Find Opportunities
+                    </button>
+</div>
+</div>
+</section>
+<div class="max-w-screen-2xl mx-auto px-8 flex flex-col lg:flex-row gap-12 pb-20">
+<!-- Filters Sidebar -->
+<aside class="w-full lg:w-72 flex-shrink-0 space-y-10">
+<div class="space-y-6">
+<h3 class="font-headline font-bold text-lg tracking-tight">Refine Results</h3>
+<!-- Category -->
+<div class="space-y-4">
+<label class="text-xs font-bold uppercase tracking-widest text-outline">Category</label>
+<div class="space-y-2">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="rounded-sm border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Software Engineering</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">UI/UX Design</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Data Science</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded-sm border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<span class="text-sm font-medium group-hover:text-primary transition-colors">Marketing</span>
+</label>
+</div>
+</div>
+<!-- Duration -->
+<div class="space-y-4">
+<label class="text-xs font-bold uppercase tracking-widest text-outline">Duration</label>
+<div class="grid grid-cols-2 gap-2">
+<button class="px-3 py-2 text-xs font-semibold rounded-DEFAULT bg-surface-container-high text-primary hover:bg-primary hover:text-white transition-all">3 Months</button>
+<button class="px-3 py-2 text-xs font-semibold rounded-DEFAULT bg-primary text-white transition-all">6 Months</button>
+<button class="px-3 py-2 text-xs font-semibold rounded-DEFAULT bg-surface-container-high text-primary hover:bg-primary hover:text-white transition-all">Remote</button>
+<button class="px-3 py-2 text-xs font-semibold rounded-DEFAULT bg-surface-container-high text-primary hover:bg-primary hover:text-white transition-all">Hybrid</button>
+</div>
+</div>
+<!-- Minimum Stipend slider -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<label class="text-xs font-bold uppercase tracking-widest text-outline">Min Stipend</label>
+<span class="text-sm font-bold text-primary">$1,200/mo</span>
+</div>
+<input class="w-full h-1 bg-surface-container-high rounded-lg appearance-none cursor-pointer accent-secondary-container" type="range"/>
+<div class="flex justify-between text-[10px] font-bold text-outline uppercase tracking-tighter">
+<span>$0</span>
+<span>$5,000+</span>
+</div>
+</div>
+<!-- Reset Filters -->
+<button class="w-full py-4 border border-outline-variant/30 rounded-DEFAULT text-xs font-bold uppercase tracking-widest hover:bg-surface-container-low transition-colors">
+                        Clear All Filters
+                    </button>
+</div>
+<!-- Curator Selection Card -->
+<div class="p-6 bg-primary rounded-lg text-white space-y-4 relative overflow-hidden">
+<div class="relative z-10">
+<h4 class="font-headline font-bold text-lg">Curated for You</h4>
+<p class="text-xs text-primary-fixed-dim leading-relaxed">Our elite curators hand-pick roles that match your portfolio geometry.</p>
+<button class="mt-4 text-xs font-bold text-secondary-container uppercase tracking-widest flex items-center gap-2 group">
+                            View Vetted Only 
+                            <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-secondary-container/10 rounded-full blur-2xl"></div>
+</div>
+</aside>
+<!-- Main Results Area -->
+<section class="flex-grow space-y-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<span class="text-xs font-bold text-secondary tracking-widest uppercase mb-2 block">Available Opportunities</span>
+<h2 class="font-headline font-extrabold text-3xl tracking-tight">Featured Placements</h2>
+</div>
+<div class="flex items-center gap-4 text-sm font-medium text-outline">
+<span>Sort by:</span>
+<select class="border-none bg-transparent focus:ring-0 text-primary font-bold cursor-pointer pr-8">
+<option>Best Match</option>
+<option>Newest</option>
+<option>Highest Stipend</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-6">
+<!-- Internship Card 1 -->
+<article class="group bg-surface-container-lowest rounded-lg p-6 flex flex-col md:flex-row gap-8 items-start transition-all hover:shadow-xl hover:shadow-primary/5 border border-transparent hover:border-outline-variant/20">
+<div class="w-20 h-20 rounded-lg overflow-hidden bg-surface-container-low flex-shrink-0">
+<img alt="Company Logo" class="w-full h-full object-cover" data-alt="minimalist geometric tech company logo on clean white background with professional branding" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEG0I-6AwMEyKAKjwJ4jCdbyk8xyHNdmTJ8-maS7IdWs2OUkbJzMaNG4V0O3fK9fVNbBxK9voChxkb9IKs61sycpuPVK0y2SR2ccQhxYee22qvCJmunRuvM7RUcmOYsslxswiVMruZKcO3rOt16uvpsG6b6GFY_PjMfitfPWZhzihMqWBiMYti2_U_9INK64z5AoOFevzUUqG0edx3qBo3vx6c9HiQMYthu1tb3qrT2k1YTs2CCYN2m6nuzYyA9nYa8TJh2eVa_9o"/>
+</div>
+<div class="flex-grow space-y-4">
+<div class="flex flex-col md:flex-row justify-between items-start gap-2">
+<div>
+<h3 class="font-headline font-bold text-xl text-primary group-hover:text-secondary transition-colors">Senior Software Engineering Intern</h3>
+<p class="text-sm font-semibold text-outline">Lumina Systems • Remote / New York</p>
+</div>
+<div class="bg-secondary/10 text-secondary px-4 py-1.5 rounded-full flex items-center gap-2">
+<span class="w-2 h-2 bg-secondary rounded-full"></span>
+<span class="text-xs font-bold tracking-tight">98% Match</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-tighter">React</span>
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-tighter">TypeScript</span>
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-tighter">Cloud Architecture</span>
+</div>
+<div class="flex items-center gap-8 pt-2">
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-lg">calendar_today</span>
+<span class="text-xs font-bold">6 Months</span>
+</div>
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-lg">payments</span>
+<span class="text-xs font-bold">$4,500/mo</span>
+</div>
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-lg">schedule</span>
+<span class="text-xs font-bold">2 days left</span>
+</div>
+</div>
+</div>
+<div class="md:self-center">
+<button class="bg-primary text-white px-8 py-3 rounded-DEFAULT font-bold text-sm hover:bg-primary/90 transition-all">Apply Now</button>
+</div>
+</article>
+<!-- Internship Card 2 -->
+<article class="group bg-surface-container-lowest rounded-lg p-6 flex flex-col md:flex-row gap-8 items-start transition-all hover:shadow-xl hover:shadow-primary/5 border border-transparent hover:border-outline-variant/20">
+<div class="w-20 h-20 rounded-lg overflow-hidden bg-surface-container-low flex-shrink-0">
+<img alt="Company Logo" class="w-full h-full object-cover" data-alt="elegant abstract design agency logo with minimalist shapes and professional warm aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBek_dKrVY6xu1e2hjjQj8uyTQXpJX-310mHjo8hfj-EhVl4hCYfEHw6jAdW8MJmQqwJ-xxpCw_-bqAgiMoFjYR2e-MyFXKInmDpprVgzVPsqfv1irvJ-PhusYpTMT_hkkxPFzcZuF3hqf8Fz-2nWXvTleYHjilyZP317POpClGBZuZw-Q2wv5GUQXdWurzHSU1bGysCvy2x7TQzziQDpbv8u2hC2fFDJdd1QJ-ecksJObe4biboPY6CXr0Rys29HHIQuRe8AHV3zM"/>
+</div>
+<div class="flex-grow space-y-4">
+<div class="flex flex-col md:flex-row justify-between items-start gap-2">
+<div>
+<h3 class="font-headline font-bold text-xl text-primary group-hover:text-secondary transition-colors">Product UI/UX Research Intern</h3>
+<p class="text-sm font-semibold text-outline">Atmosphere Design • London, UK</p>
+</div>
+<div class="bg-primary/5 text-primary px-4 py-1.5 rounded-full flex items-center gap-2">
+<span class="w-2 h-2 bg-primary/30 rounded-full"></span>
+<span class="text-xs font-bold tracking-tight">85% Match</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-tighter">Figma</span>
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-tighter">User Testing</span>
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-tighter">Prototyping</span>
+</div>
+<div class="flex items-center gap-8 pt-2">
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-lg">calendar_today</span>
+<span class="text-xs font-bold">3 Months</span>
+</div>
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-lg">payments</span>
+<span class="text-xs font-bold">$2,800/mo</span>
+</div>
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-lg">schedule</span>
+<span class="text-xs font-bold">1 week left</span>
+</div>
+</div>
+</div>
+<div class="md:self-center">
+<button class="bg-primary text-white px-8 py-3 rounded-DEFAULT font-bold text-sm hover:bg-primary/90 transition-all">Apply Now</button>
+</div>
+</article>
+<!-- Internship Card 3 -->
+<article class="group bg-surface-container-lowest rounded-lg p-6 flex flex-col md:flex-row gap-8 items-start transition-all hover:shadow-xl hover:shadow-primary/5 border border-transparent hover:border-outline-variant/20">
+<div class="w-20 h-20 rounded-lg overflow-hidden bg-surface-container-low flex-shrink-0">
+<img alt="Company Logo" class="w-full h-full object-cover" data-alt="clean professional fintech startup logo with navy blue accents and modern corporate identity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6HFDPsEhHZuWImUoDK5epDarVUnQmppUCZiSzRy0facL-3kg3OR7JYGAfMUXp8NQP1AhGbshCYZnUdnvAAeLSPN3OK4Yn-DsIG1CIW1CSYW-KQSWuIA40BPNCHmLPJKQ9DWna8ZwMBNUqoijBxSU4DU5iQunTBAe109cjdx4SthQVMdZECa66-zxchvAOs7aJ3xitVaKmoEjYbPSx7-X4JiugZ_i-3dbyeAVc_xSOjHAD2__4RhjeyG0-5kjF9-zKqFMNSlVtZZA"/>
+</div>
+<div class="flex-grow space-y-4">
+<div class="flex flex-col md:flex-row justify-between items-start gap-2">
+<div>
+<h3 class="font-headline font-bold text-xl text-primary group-hover:text-secondary transition-colors">Data Analysis &amp; Visualization</h3>
+<p class="text-sm font-semibold text-outline">Quantify Financial • San Francisco, CA</p>
+</div>
+<div class="bg-secondary/10 text-secondary px-4 py-1.5 rounded-full flex items-center gap-2">
+<span class="w-2 h-2 bg-secondary rounded-full"></span>
+<span class="text-xs font-bold tracking-tight">94% Match</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-tighter">Python</span>
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-tighter">SQL</span>
+<span class="bg-surface-container-low text-on-surface-variant px-3 py-1 text-[11px] font-bold rounded-full uppercase tracking-tighter">PowerBI</span>
+</div>
+<div class="flex items-center gap-8 pt-2">
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-lg">calendar_today</span>
+<span class="text-xs font-bold">6 Months</span>
+</div>
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-lg">payments</span>
+<span class="text-xs font-bold">$3,200/mo</span>
+</div>
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-lg">schedule</span>
+<span class="text-xs font-bold">Expires Today</span>
+</div>
+</div>
+</div>
+<div class="md:self-center">
+<button class="bg-primary text-white px-8 py-3 rounded-DEFAULT font-bold text-sm hover:bg-primary/90 transition-all">Apply Now</button>
+</div>
+</article>
+</div>
+<!-- Pagination -->
+<div class="flex justify-center items-center gap-2 pt-8">
+<button class="w-10 h-10 flex items-center justify-center rounded-DEFAULT bg-surface-container-low text-primary disabled:opacity-50">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-DEFAULT bg-primary text-white font-bold text-sm">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-DEFAULT bg-surface-container-low hover:bg-surface-container-high text-primary font-bold text-sm transition-colors">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-DEFAULT bg-surface-container-low hover:bg-surface-container-high text-primary font-bold text-sm transition-colors">3</button>
+<span class="px-2 text-outline">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-DEFAULT bg-surface-container-low hover:bg-surface-container-high text-primary font-bold text-sm transition-colors">12</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-DEFAULT bg-surface-container-low text-primary">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer Component -->
+<footer class="w-full py-12 mt-auto border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-8 py-12 flex flex-col md:flex-row justify-between items-center">
+<div class="mb-8 md:mb-0">
+<span class="text-lg font-bold text-slate-900 dark:text-slate-50">InternBeacon</span>
+<p class="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-600 mt-2">© 2024 InternBeacon Cameroon. All rights reserved.</p>
+</div>
+<div class="flex gap-8">
+<a class="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-600 hover:text-slate-900 dark:hover:text-slate-50 transition-colors" href="#">Legal</a>
+<a class="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-600 hover:text-slate-900 dark:hover:text-slate-50 transition-colors" href="#">Privacy</a>
+<a class="text-xs uppercase tracking-widest text-slate-400 dark:text-slate-600 hover:text-slate-900 dark:hover:text-slate-50 transition-colors" href="#">Contact</a>
+<a class="text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400 font-bold" href="#">FR/EN</a>
+</div>
+</footer>
+</body></html>

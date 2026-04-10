@@ -1,54 +1,33 @@
-"use client";
-
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import React from "react";
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "py-4 glass shadow-lg" : "py-6 bg-transparent"
-      }`}
-    >
-      <div className="container mx-auto px-6 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl group-hover:rotate-12 transition-transform">
-            IB
+    <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm">
+      <div className="flex justify-between items-center px-8 h-20 max-w-screen-2xl mx-auto">
+        <div className="flex items-center gap-12">
+          <Link href="/" className="text-2xl font-bold tracking-tighter text-slate-900 font-headline">
+            InternBeacon
+          </Link>
+          <div className="hidden md:flex gap-8">
+            <Link className="text-slate-900 border-b-2 border-secondary-container pb-1 font-headline text-sm font-medium tracking-tight" href="/listings">
+              Explore
+            </Link>
+            <Link className="text-slate-500 hover:text-slate-900 transition-all duration-300 ease-in-out hover:opacity-80 font-headline text-sm font-medium tracking-tight" href="/employer/dashboard">
+              Companies
+            </Link>
+            <Link className="text-slate-500 hover:text-slate-900 transition-all duration-300 ease-in-out hover:opacity-80 font-headline text-sm font-medium tracking-tight" href="/dashboard">
+              Resources
+            </Link>
           </div>
-          <span className="font-bold text-xl tracking-tight text-foreground">
-            Intern<span className="text-primary">Beacon</span>
-          </span>
-        </Link>
-
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/listings" className="hover:text-primary transition-colors">
-            Find Internships
-          </Link>
-          <Link href="/companies" className="hover:text-primary transition-colors">
-            For Companies
-          </Link>
-          <Link href="/about" className="hover:text-primary transition-colors">
-            About Us
-          </Link>
         </div>
-
         <div className="flex items-center gap-4">
-          <button className="text-sm font-semibold hover:text-primary transition-colors px-4 py-2">
-            Sign In
-          </button>
-          <button className="bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all shadow-md shadow-primary/20 hover:scale-105">
-            Post an Internship
-          </button>
+          <Link href="/login" className="px-5 py-2.5 rounded-full text-slate-500 hover:text-slate-900 font-headline text-sm font-medium transition-all duration-300 ease-in-out hover:opacity-80 active:scale-95">
+            Login
+          </Link>
+          <Link href="/employer/post" className="px-6 py-2.5 bg-primary-container text-white rounded-full font-headline text-sm font-semibold hover:opacity-90 transition-all duration-300 ease-in-out active:scale-95 inline-block">
+            Post Internship
+          </Link>
         </div>
       </div>
     </nav>

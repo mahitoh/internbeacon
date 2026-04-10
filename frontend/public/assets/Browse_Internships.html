@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Browse Internships | InternBeacon</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#eceef0",
+                    "error-container": "#ffdad6",
+                    "surface": "#f7f9fb",
+                    "outline": "#76777d",
+                    "on-surface": "#191c1e",
+                    "secondary-container": "#fea619",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "surface-tint": "#565e74",
+                    "inverse-surface": "#2d3133",
+                    "surface-container-highest": "#e0e3e5",
+                    "outline-variant": "#c6c6cd",
+                    "surface-bright": "#f7f9fb",
+                    "secondary": "#855300",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed": "#131b2e",
+                    "on-tertiary-container": "#75859d",
+                    "inverse-on-surface": "#eff1f3",
+                    "primary": "#0F172A",
+                    "surface-container-low": "#f2f4f6",
+                    "surface-dim": "#d8dadc",
+                    "on-background": "#191c1e",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "secondary-fixed": "#ffddb8",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "surface-variant": "#e0e3e5",
+                    "on-secondary-container": "#684000",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-tertiary-fixed": "#0b1c30",
+                    "tertiary": "#000000",
+                    "primary-fixed": "#dae2fd",
+                    "on-tertiary": "#ffffff",
+                    "inverse-primary": "#bec6e0",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "background": "#f7f9fb",
+                    "on-secondary-fixed": "#2a1700",
+                    "on-primary-container": "#7c839b",
+                    "tertiary-fixed-dim": "#b7c8e1",
+                    "tertiary-fixed": "#d3e4fe",
+                    "primary-container": "#131b2e",
+                    "on-tertiary-fixed-variant": "#38485d",
+                    "surface-container-high": "#e6e8ea",
+                    "tertiary-container": "#0b1c30",
+                    "on-surface-variant": "#45464d",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar Component -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
+<div class="text-2xl font-bold tracking-tighter text-slate-900 dark:text-slate-50">InternBeacon</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-slate-900 dark:text-amber-500 font-semibold border-b-2 border-amber-500 pb-1" href="#">Browse Internships</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900 transition-opacity" href="#">For Companies</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900 transition-opacity" href="#">How It Works</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-slate-900 transition-opacity" href="#">Login</a>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-full font-semibold hover:opacity-80 transition-opacity active:scale-95 duration-100">
+                Post Internship
+            </button>
+</div>
+</nav>
+<main class="pt-32 pb-20 max-w-7xl mx-auto px-6">
+<!-- Hero Search Section -->
+<header class="mb-12">
+<h1 class="text-5xl font-extrabold tracking-tight text-primary mb-4 leading-tight">
+                Discover your next <span class="text-secondary-container">career chapter.</span>
+</h1>
+<p class="text-on-surface-variant text-lg max-w-2xl mb-8">
+                Curated opportunities from world-class companies, designed for the next generation of talent.
+            </p>
+<!-- Search Bar Floating -->
+<div class="bg-surface-container-lowest p-2 rounded-2xl shadow-2xl shadow-primary/5 flex flex-col md:flex-row items-center gap-2">
+<div class="flex items-center flex-1 px-4 w-full">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="w-full border-none focus:ring-0 bg-transparent text-on-surface placeholder:text-outline py-4 font-medium" placeholder="Search by role, company or keyword..." type="text"/>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant/20 hidden md:block"></div>
+<div class="flex items-center px-4 w-full md:w-auto">
+<span class="material-symbols-outlined text-outline">location_on</span>
+<input class="w-full md:w-40 border-none focus:ring-0 bg-transparent text-on-surface placeholder:text-outline py-4 font-medium" placeholder="City or Remote" type="text"/>
+</div>
+<button class="w-full md:w-auto bg-secondary-container text-on-secondary-container px-8 py-4 rounded-xl font-bold hover:opacity-90 transition-all active:scale-95">
+                    Find Internships
+                </button>
+</div>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+<!-- Sidebar Filters -->
+<aside class="lg:col-span-3 sticky top-32 space-y-8">
+<div class="bg-surface-container-low p-6 rounded-lg space-y-8">
+<div>
+<h3 class="font-headline font-bold text-primary text-sm uppercase tracking-widest mb-6">Sector</h3>
+<div class="space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-5 h-5 rounded border-2 border-outline-variant group-hover:border-primary transition-colors flex items-center justify-center">
+<div class="w-2.5 h-2.5 bg-primary rounded-sm opacity-0 group-has-[:checked]:opacity-100"></div>
+</div>
+<input checked="" class="hidden" type="checkbox"/>
+<span class="text-on-surface font-medium">Technology</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-5 h-5 rounded border-2 border-outline-variant group-hover:border-primary transition-colors flex items-center justify-center">
+<div class="w-2.5 h-2.5 bg-primary rounded-sm opacity-0 group-has-[:checked]:opacity-100"></div>
+</div>
+<input class="hidden" type="checkbox"/>
+<span class="text-on-surface font-medium">Design &amp; Creative</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<div class="w-5 h-5 rounded border-2 border-outline-variant group-hover:border-primary transition-colors flex items-center justify-center">
+<div class="w-2.5 h-2.5 bg-primary rounded-sm opacity-0 group-has-[:checked]:opacity-100"></div>
+</div>
+<input class="hidden" type="checkbox"/>
+<span class="text-on-surface font-medium">Marketing</span>
+</label>
+</div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-primary text-sm uppercase tracking-widest mb-6">Level</h3>
+<div class="grid grid-cols-1 gap-2">
+<button class="text-left px-4 py-2 rounded-lg bg-surface-container-lowest text-primary font-semibold text-sm">Undergraduate</button>
+<button class="text-left px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors text-sm">Postgraduate</button>
+<button class="text-left px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors text-sm">Fresh Graduate</button>
+</div>
+</div>
+<div>
+<h3 class="font-headline font-bold text-primary text-sm uppercase tracking-widest mb-6">Duration</h3>
+<div class="space-y-4">
+<input class="w-full accent-primary" max="12" min="1" type="range" value="6"/>
+<div class="flex justify-between text-xs font-bold text-outline uppercase">
+<span>1 Month</span>
+<span>12 Months</span>
+</div>
+</div>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-lg group aspect-[4/5] flex items-end p-6">
+<img alt="Premium support" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Modern office interior with diverse young professionals collaborating around a light wood table in a sunlit architectural space" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdx2zABCR8UzjsglDKd6nkoGPqm5zjOFxG4ZSgKBWLsYMs0VmDc-JGuKoXo6ilJ-7KGx-4XwEpCQ3BlJsnJji7xfs-J0o5O_24I7490yyaHxjmG6qXKzyxQ48kJmi2UqUCHqLcm3VZrbmR-o2XEAuo-fdY8IQS7r_woz3T64LT0J2W3nWikLwLqILNOZsLORFZTjnQRF-jG_Y7mo1tJ0fwY3upkOano8U_TeioaSPz59QCkMPvv7pbqRFK0OTlyfqLinNOwFzwoYg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
+<div class="relative z-10">
+<p class="text-amber-500 font-bold text-xs uppercase tracking-widest mb-2">Exclusive Access</p>
+<h4 class="text-white font-headline font-bold text-xl leading-tight mb-4">Get personalized career coaching.</h4>
+<button class="bg-white text-primary px-4 py-2 rounded-lg font-bold text-sm">Upgrade Plan</button>
+</div>
+</div>
+</aside>
+<!-- Results Grid -->
+<section class="lg:col-span-9">
+<div class="flex justify-between items-end mb-8">
+<div>
+<p class="text-outline font-bold text-sm uppercase tracking-widest mb-1">Results</p>
+<h2 class="text-2xl font-bold text-primary">124 Internships Available</h2>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg bg-surface-container-high text-primary"><span class="material-symbols-outlined">grid_view</span></button>
+<button class="p-2 rounded-lg text-outline"><span class="material-symbols-outlined">list</span></button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-8 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<div class="flex justify-between items-start mb-6">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center p-2">
+<img alt="Stripe" class="w-full object-contain" data-alt="Corporate logo for Stripe financial technology company clean aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj5z0ED0iLuQJuwtL2jzguXFBUxIuyRHLhown1f4DoFW9Z4ZQ0Y0vmQoCeXkOjDEv45tY5EwYJfh4oX-MRwY4cc4krBcj5dn27qlTW9s6G8hS8buN3UY3l1JfbV_xDHME7ggSM7wazEwqaX3-pG05sDBzuAQ0DUX2n7PBOgLrtNkeqheFQocjTfwm6xBD6nZpplWoeB7Tk6XRlYOQlvQKwgHZyqFewFRbwo0nistOKaKONLDiRSH1GV_mo7a2IaWGg_qx-WDyWjac"/>
+</div>
+<span class="bg-primary/5 text-primary text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Vetted</span>
+</div>
+<h3 class="text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors">Product Design Intern</h3>
+<p class="text-on-surface-variant font-medium mb-6">Stripe • San Francisco / Remote</p>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-semibold rounded-full">6 Months</span>
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-semibold rounded-full">$4500/mo</span>
+</div>
+<div class="flex items-center justify-between pt-6 border-t border-outline-variant/10">
+<div class="flex items-center text-outline text-xs font-medium">
+<span class="material-symbols-outlined text-sm mr-1">schedule</span>
+                                Deadline: Oct 15
+                            </div>
+<button class="text-primary font-bold text-sm flex items-center group/btn">
+                                Details
+                                <span class="material-symbols-outlined ml-1 transition-transform group-hover/btn:translate-x-1">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-8 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<div class="flex justify-between items-start mb-6">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center p-2">
+<img alt="Airbnb" class="w-full object-contain" data-alt="Airbnb corporate logo modern travel brand aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAknq6QEzb7LbgHkJdHl4LcBCCiCLrQ1RTBrfOjkM3xbfniGWSGShIkqVbTuAw6vSYkzvd3IztG9ywoV8afdxh26MZf8UcnYKxsSlNwGemRFp8SxCqTSVhjAZ1MK-DgvgerF6_X7wOG4zyQxx9QfprQ8WLUDST4YDpb3H9kpY2VQ3ZCPWOndeYn0pGP8-UlVJ2bu6vF42KqEAQei2vva2kbt9eiG-8xdaDDi7taQLVVO6Bbr6rvQOzDK_iIBFM2tSP09KkBah4geq0"/>
+</div>
+<span class="bg-amber-500/10 text-amber-600 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Urgent</span>
+</div>
+<h3 class="text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors">Frontend Engineering</h3>
+<p class="text-on-surface-variant font-medium mb-6">Airbnb • London, UK</p>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-semibold rounded-full">3 Months</span>
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-semibold rounded-full">Relocation</span>
+</div>
+<div class="flex items-center justify-between pt-6 border-t border-outline-variant/10">
+<div class="flex items-center text-outline text-xs font-medium">
+<span class="material-symbols-outlined text-sm mr-1">schedule</span>
+                                Deadline: Sep 30
+                            </div>
+<button class="text-primary font-bold text-sm flex items-center group/btn">
+                                Details
+                                <span class="material-symbols-outlined ml-1 transition-transform group-hover/btn:translate-x-1">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-8 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all">
+<div class="flex justify-between items-start mb-6">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center p-2">
+<img alt="Notion" class="w-full object-contain" data-alt="Notion logo minimal black and white aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMBGkKZimjmzY98VdQyusnEzFt825Io5gWKAGLnVpW9zh5CJJNjd52Vj_N01gb57LQBk3V08QvIhDXXYiuQRxM8ymy-tOKbBfqSnEoBsUI3ZqADQ3e5_55WPnSinx7YEq5BdW3CK0qSb8TQ9azt5_9hMAlVandoLdugBxYaHzZDFbyENHMz36EQUBpqe1OAZ_WxhRL9cz7cq8lTKMUlDTbBwlb3v-phlLXQ2a4GNrf572HvodhGtWb55ailxMKlvlghnJwM34vAaw"/>
+</div>
+</div>
+<h3 class="text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors">Marketing Strategy</h3>
+<p class="text-on-surface-variant font-medium mb-6">Notion • New York City</p>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-semibold rounded-full">6 Months</span>
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-semibold rounded-full">Hybrid</span>
+</div>
+<div class="flex items-center justify-between pt-6 border-t border-outline-variant/10">
+<div class="flex items-center text-outline text-xs font-medium">
+<span class="material-symbols-outlined text-sm mr-1">schedule</span>
+                                Deadline: Nov 05
+                            </div>
+<button class="text-primary font-bold text-sm flex items-center group/btn">
+                                Details
+                                <span class="material-symbols-outlined ml-1 transition-transform group-hover/btn:translate-x-1">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest p-8 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all border border-secondary-container/20">
+<div class="flex justify-between items-start mb-6">
+<div class="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center p-2">
+<img alt="Tesla" class="w-full object-contain" data-alt="Tesla logo modern electric vehicle brand identity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkR-9TWmQFko3Wgu3tJS-JkK6UHoYRvR_F6h36BoziCM297ij98-tePA23b7PeoJ0GUP6XB0EN0q5KUYCmmNaRsPaNi8a_xlTe3OmE-K_5T9xwy-ujOhu95KHnwjViAlSCMTHPsl7QdRLKqp9_Z6JO9n_jRaBBJLKMlAhXObr3s9IwmG0OJY86C01nSU1nnCrcnTkuYI1Qsh_sB9FWYEZR39zalJVts7oAdB7luUXppfe_QXkZYCuULMOzzSHQB5Vdhsb_q40u8QI"/>
+</div>
+<span class="bg-secondary-container text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Curated</span>
+</div>
+<h3 class="text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors">Autopilot Systems Intern</h3>
+<p class="text-on-surface-variant font-medium mb-6">Tesla • Palo Alto, CA</p>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-semibold rounded-full">12 Months</span>
+<span class="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-semibold rounded-full">Equity</span>
+</div>
+<div class="flex items-center justify-between pt-6 border-t border-outline-variant/10">
+<div class="flex items-center text-outline text-xs font-medium">
+<span class="material-symbols-outlined text-sm mr-1">schedule</span>
+                                Deadline: Dec 01
+                            </div>
+<button class="text-primary font-bold text-sm flex items-center group/btn">
+                                Details
+                                <span class="material-symbols-outlined ml-1 transition-transform group-hover/btn:translate-x-1">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<nav class="mt-16 flex items-center justify-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-outline">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors font-semibold text-on-surface-variant">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors font-semibold text-on-surface-variant">3</button>
+<span class="text-outline px-2">...</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors font-semibold text-on-surface-variant">12</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-outline">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</nav>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-primary text-white pt-20 pb-10">
+<div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+<div class="col-span-1 md:col-span-1">
+<h2 class="text-2xl font-bold tracking-tighter mb-6">InternBeacon</h2>
+<p class="text-slate-400 text-sm leading-relaxed">
+                    Bridging the gap between ambitious students and the world's most innovative companies.
+                </p>
+</div>
+<div>
+<h4 class="font-headline font-bold text-sm uppercase tracking-widest mb-6">Platform</h4>
+<ul class="space-y-4 text-slate-400 text-sm">
+<li><a class="hover:text-amber-500 transition-colors" href="#">Browse Internships</a></li>
+<li><a class="hover:text-amber-500 transition-colors" href="#">Talent Pool</a></li>
+<li><a class="hover:text-amber-500 transition-colors" href="#">Pricing</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold text-sm uppercase tracking-widest mb-6">Company</h4>
+<ul class="space-y-4 text-slate-400 text-sm">
+<li><a class="hover:text-amber-500 transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-amber-500 transition-colors" href="#">Success Stories</a></li>
+<li><a class="hover:text-amber-500 transition-colors" href="#">Contact</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold text-sm uppercase tracking-widest mb-6">Join Our Newsletter</h4>
+<div class="flex bg-white/10 rounded-lg p-1">
+<input class="bg-transparent border-none focus:ring-0 text-sm flex-1 px-4" placeholder="Your email" type="email"/>
+<button class="bg-amber-500 text-primary p-2 rounded-md"><span class="material-symbols-outlined">send</span></button>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-6 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-slate-500 text-xs">© 2024 InternBeacon. All rights reserved.</p>
+<div class="flex gap-6 text-slate-500 text-xs">
+<a class="hover:text-white" href="#">Privacy Policy</a>
+<a class="hover:text-white" href="#">Terms of Service</a>
+<a class="hover:text-white" href="#">Cookie Settings</a>
+</div>
+</div>
+</footer>
+</body></html>

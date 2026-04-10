@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#000000",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#0b1c30",
+                        "surface-container": "#eceef0",
+                        "outline-variant": "#c6c6cd",
+                        "background": "#f7f9fb",
+                        "on-surface-variant": "#45464d",
+                        "inverse-primary": "#bec6e0",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "on-surface": "#191c1e",
+                        "outline": "#76777d",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#ffddb8",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "surface-container-high": "#e6e8ea",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#d3e4fe",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "surface-dim": "#d8dadc",
+                        "surface": "#f7f9fb",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-background": "#191c1e",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "secondary": "#F59E0B",
+                        "primary": "#0F172A",
+                        "on-primary-fixed": "#131b2e",
+                        "primary-fixed": "#dae2fd",
+                        "primary-container": "#131b2e",
+                        "on-secondary-container": "#684000",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-tertiary-container": "#75859d",
+                        "secondary-container": "#fea619",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "on-error": "#ffffff",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-bright": "#f7f9fb",
+                        "surface-tint": "#565e74",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ambient-shadow {
+            box-shadow: 0 32px 64px -4px rgba(25, 28, 30, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-secondary/30">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm shadow-slate-200/50">
+<div class="flex justify-between items-center h-20 px-8 max-w-[1440px] mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold tracking-tighter text-slate-900">InternBeacon</span>
+<div class="hidden md:flex gap-6">
+<a class="text-slate-500 hover:text-slate-900 transition-colors font-medium" href="#">Discover</a>
+<a class="text-slate-900 font-semibold border-b-2 border-amber-500 pb-1" href="#">Vetted Talent</a>
+<a class="text-slate-500 hover:text-slate-900 transition-colors font-medium" href="#">Insights</a>
+<a class="text-slate-500 hover:text-slate-900 transition-colors font-medium" href="#">About</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-6 py-2.5 rounded-full text-slate-900 font-medium hover:bg-slate-50 transition-all">Sign In</button>
+<button class="px-6 py-2.5 rounded-full bg-primary text-white font-medium shadow-lg shadow-primary/10 hover:scale-[1.02] transition-all">Post Internship</button>
+</div>
+</div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<header class="relative w-full">
+<div class="h-[400px] w-full relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="architectural shot of a modern glass skyscraper reflecting a clear blue sky at dusk with warm interior lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbxl5mof8QuyN8FUoH2FS9AqinABx-7QfdJuFbDl5VpmpxWy2CTfw7c-MVU78JFEbNr-eDrbhx0wGmnkyoKexgFVwhr_D5vKYEuA6TtWu32_QBGySUQYZoocqCSVsNrNzIPqXwOYVGfwGvAMJheowg9DrQpfmCZ5idP81p-GXyLeMKja74ivlACoZkxF97cZZP4EVaCBW0C9kBC3Wy2596L6l_VzHpO-x93bZJMz6gXfAq_iFnnJ-Uud_TjgxVPtF-xvnPPW8rjDQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+</div>
+<div class="max-w-[1440px] mx-auto px-8 relative -mt-24">
+<div class="flex flex-col md:flex-row items-end gap-6">
+<div class="p-2 bg-white rounded-lg ambient-shadow">
+<img class="w-40 h-40 object-cover rounded-lg" data-alt="minimalist geometric logo of a tech company using deep navy and gold colors on a white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByZt_mwmB2L3PEMY34XmJ9hhSfIuAWyDVRtiLrdYEg6Ss75_hIryU2Dna6qtZiIPsrWZ5Oq_7F_41Y4lYh7xeXfxFgV4OeSiORNvS97jamOwCXYqpRdYGD7RzL-52A1lripLc0PL3DkcEts1OM7Vj3aYWtN2ZZafJM-7rFO0FW7JOiCnJlVIuNs1wa5Qrx3GD09H--vTAnaO-vag_pUC2A-CxaHtsJ9pEJ7BKu82nbj6rtBKXodan1Q-YZ76sBOO1Lv2FkjPqKToM"/>
+</div>
+<div class="pb-4 flex-1">
+<div class="flex items-center gap-3 mb-2">
+<h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white font-headline">StellarPath Technologies</h1>
+<span class="flex items-center justify-center bg-secondary text-primary p-1 rounded-full">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+</span>
+</div>
+<p class="text-white/90 text-lg max-w-2xl font-medium">Pioneering the next generation of cloud-native infrastructure and distributed systems.</p>
+</div>
+<div class="pb-4 flex gap-3">
+<button class="bg-secondary text-primary font-bold px-8 py-4 rounded-DEFAULT hover:scale-95 transition-all duration-150">Follow Company</button>
+<button class="bg-white/10 backdrop-blur-md text-white border border-white/20 px-4 py-4 rounded-DEFAULT hover:bg-white/20 transition-all">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Grid -->
+<div class="max-w-[1440px] mx-auto px-8 mt-16 grid grid-cols-1 lg:grid-cols-12 gap-12 pb-24">
+<!-- Main Content Area -->
+<div class="lg:col-span-8 space-y-16">
+<!-- About Us -->
+<section>
+<div class="flex items-center gap-4 mb-8">
+<span class="text-xs font-bold uppercase tracking-[0.2em] text-secondary">The Narrative</span>
+<div class="h-[1px] flex-1 bg-outline-variant/20"></div>
+</div>
+<h2 class="text-3xl font-bold font-headline mb-6 text-primary">About Us</h2>
+<div class="bg-surface-container-low p-10 rounded-lg">
+<p class="text-on-surface-variant leading-relaxed text-lg mb-6">
+                            At StellarPath, we don't just build software; we architect the digital future. Founded in 2018, our mission has been to simplify the complexities of global data distribution. We serve over 500 enterprise clients, helping them navigate the transition to decentralized computing.
+                        </p>
+<p class="text-on-surface-variant leading-relaxed text-lg">
+                            Our team of curators and engineers work at the intersection of performance and aesthetics. We believe that tools should be as beautiful as they are powerful.
+                        </p>
+</div>
+</section>
+<!-- Our Culture (Bento Style) -->
+<section>
+<div class="flex items-center gap-4 mb-8">
+<span class="text-xs font-bold uppercase tracking-[0.2em] text-secondary">The Essence</span>
+<div class="h-[1px] flex-1 bg-outline-variant/20"></div>
+</div>
+<h2 class="text-3xl font-bold font-headline mb-8 text-primary">Our Culture</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-primary text-white p-10 rounded-lg flex flex-col justify-between">
+<span class="material-symbols-outlined text-secondary text-4xl mb-6">auto_awesome</span>
+<div>
+<h3 class="text-2xl font-bold mb-3">Innovation by Default</h3>
+<p class="text-white/70">We allocate 20% of our week to pure exploration and research projects that challenge our existing stack.</p>
+</div>
+</div>
+<div class="bg-surface-container-high p-8 rounded-lg border border-outline-variant/10">
+<h3 class="text-xl font-bold mb-4 text-primary">Asynchronous</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">Deep work is prioritized. We minimize meetings and maximize documentation and thoughtful communication.</p>
+</div>
+<div class="bg-white p-8 rounded-lg ambient-shadow border border-outline-variant/10">
+<h3 class="text-xl font-bold mb-4 text-primary">Radical Inclusion</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">Perspectives from every background fuel our creative engine. Diversity is our structural strength.</p>
+</div>
+<div class="md:col-span-2 bg-secondary/10 p-10 rounded-lg border border-secondary/20 flex items-center gap-8">
+<div class="flex-1">
+<h3 class="text-2xl font-bold mb-3 text-primary">Wellness First</h3>
+<p class="text-on-surface-variant">Unlimited PTO, mental health stipends, and a strictly enforced 'no-pings' weekend policy.</p>
+</div>
+<span class="material-symbols-outlined text-secondary text-6xl opacity-50">spa</span>
+</div>
+</div>
+</section>
+<!-- Office Gallery -->
+<section>
+<div class="flex items-center gap-4 mb-8">
+<span class="text-xs font-bold uppercase tracking-[0.2em] text-secondary">The Space</span>
+<div class="h-[1px] flex-1 bg-outline-variant/20"></div>
+</div>
+<h2 class="text-3xl font-bold font-headline mb-8 text-primary">Office Gallery</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="col-span-2 row-span-2 rounded-lg overflow-hidden h-[400px]">
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" data-alt="spacious minimalist office lounge with floor to ceiling windows, mid-century modern furniture, and many lush indoor plants" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyek1TF8WWrUd9YqBxid8BLg2wHwJV_aqsgVzSotyIpUd2PC8iQFf5KtUeYYYkEPBRRfYzDMygz6Siw382UfrZUTPjPvl6NbfJzlB44aM4W5hGBebkbtJoBRVLjivg1GL3S7U21ZTRU1kwYH_ncV1adQDSdFRotKvIIaniLWFb94_gg001HNz3H6W_pmaiHy6kFk2t8zSyMbVzpA9EiOAZJKXpnYD7v3Or9eSkSLpGK2B6MHEAMpnUAGgLixUUzTEDMpyqqrJ_7b8"/>
+</div>
+<div class="rounded-lg overflow-hidden h-[192px]">
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" data-alt="close up of a modern workstation with high-end monitors, mechanical keyboard, and a designer desk lamp in a moody setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4ZYMwpRpzTbq4qeDNNEH8iSJBxm5RC2YKckW2w-Y_JK8l6m66EbpxLZ8z-30WlxYEQ0a_c5LNwqSjRgaJZU08r0nzsJNQ6fOu1HIYObsf-sl3qoE09IqkY0nqqh2F-XsmNIQbGp0TY1UUTaO0H9vn5cX_aoEIvOtnbRYqQ4Tii_V5eTzlTd_ROaRP5mZb28vgWzRmoEyHBWXXutJy8g6-wyOUQO4IZ8DswfIVoJMyuJLIkuRpsR36c0XlEfqBWqS4-vNiD3YYa5U"/>
+</div>
+<div class="rounded-lg overflow-hidden h-[192px]">
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" data-alt="sleek modern cafeteria area with long wooden communal tables and industrial hanging pendant lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCM7214xHTdrFxNywcF8yseAm3MDX4JormgTJ6OaUtaaYV6g21VhAvtcAB7MPXHjuABPHdpxAMnnNEdRZcvufOGUoUuWPzMVFMc6VsPWc2vAO9q-5KUEG0GwKqgwfJJY3Va_5KAMJbOd8g05N7oHKY5VECgeHwGBDEIfx754TtYOWyv2a1BPYDe_ZAZXjRNrHyzv9fI6v3T2g89pD5WpPefHsM7ypD_focNEO2Be5-RWjxikIJlaTTBRhwpVPWm47eMOMv-z-t5hQ4"/>
+</div>
+<div class="col-span-2 rounded-lg overflow-hidden h-[192px]">
+<img class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" data-alt="creative collaboration room with whiteboard walls filled with complex diagrams and colorful sticky notes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMxJbuDf-cDMMUYrQ8DeLzM74__7VTH9OgjOv3MQlGNpN8ct1YK9BOm1-5RFNTMwNzU7w2jtcDUBlJ01_FjYD2zVjNNpSmpePjHQnxckdNEddCsc4Bq4AnQiSx2k0lfXRHjgLA16_gxomxfSRbBNET8NYE1YFWtq7DQAj5sijZjcMq60bsF1e1Ycx5TazN2nq0po75REvUGnbFVBH0i_GH8CM-SfF2kaN5vpeOx5Egr1to6dDb1VaGv-tNkc-dZ1sVZgrQtiT0dJg"/>
+</div>
+</div>
+</section>
+<!-- Active Internships -->
+<section>
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-4 flex-1">
+<span class="text-xs font-bold uppercase tracking-[0.2em] text-secondary">Opportunities</span>
+<div class="h-[1px] flex-1 bg-outline-variant/20"></div>
+</div>
+</div>
+<h2 class="text-3xl font-bold font-headline mb-8 text-primary">Active Internships</h2>
+<div class="space-y-4">
+<!-- Internship Card 1 -->
+<div class="group bg-white p-8 rounded-lg ambient-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all hover:translate-x-1">
+<div>
+<div class="flex gap-2 mb-3">
+<span class="bg-primary text-secondary text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Featured</span>
+<span class="bg-surface-container text-on-surface-variant text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Remote</span>
+</div>
+<h4 class="text-xl font-bold text-primary mb-1">Frontend Engineering Intern</h4>
+<p class="text-on-surface-variant text-sm">Design Systems &amp; React Frameworks • 3 Months • $3.5k/mo</p>
+</div>
+<button class="bg-surface-container-high text-primary font-bold px-6 py-3 rounded-DEFAULT group-hover:bg-secondary group-hover:text-primary transition-colors">Apply Now</button>
+</div>
+<!-- Internship Card 2 -->
+<div class="group bg-white p-8 rounded-lg ambient-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all hover:translate-x-1">
+<div>
+<div class="flex gap-2 mb-3">
+<span class="bg-surface-container text-on-surface-variant text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Hybrid</span>
+</div>
+<h4 class="text-xl font-bold text-primary mb-1">Product Design Intern</h4>
+<p class="text-on-surface-variant text-sm">UI/UX Research &amp; Prototyping • 6 Months • $4k/mo</p>
+</div>
+<button class="bg-surface-container-high text-primary font-bold px-6 py-3 rounded-DEFAULT group-hover:bg-secondary group-hover:text-primary transition-colors">Apply Now</button>
+</div>
+<!-- Internship Card 3 -->
+<div class="group bg-white p-8 rounded-lg ambient-shadow flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all hover:translate-x-1">
+<div>
+<div class="flex gap-2 mb-3">
+<span class="bg-surface-container text-on-surface-variant text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Full-time</span>
+</div>
+<h4 class="text-xl font-bold text-primary mb-1">Data Science Intern</h4>
+<p class="text-on-surface-variant text-sm">Machine Learning &amp; Analytics • 4 Months • $3.8k/mo</p>
+</div>
+<button class="bg-surface-container-high text-primary font-bold px-6 py-3 rounded-DEFAULT group-hover:bg-secondary group-hover:text-primary transition-colors">Apply Now</button>
+</div>
+</div>
+</section>
+</div>
+<!-- Sidebar -->
+<aside class="lg:col-span-4 space-y-8">
+<!-- Quick Facts Card -->
+<div class="bg-white p-8 rounded-lg ambient-shadow border border-outline-variant/10">
+<h3 class="text-sm font-bold uppercase tracking-widest text-primary mb-8 border-b border-outline-variant/10 pb-4">Quick Facts</h3>
+<div class="space-y-6">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary">business</span>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60">Industry</p>
+<p class="text-primary font-semibold">Software &amp; Cloud Tech</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary">groups</span>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60">Company Size</p>
+<p class="text-primary font-semibold">250 - 500 Employees</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary">location_on</span>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60">Headquarters</p>
+<p class="text-primary font-semibold">San Francisco, CA</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary">language</span>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/60">Website</p>
+<a class="text-primary font-semibold hover:text-secondary transition-colors underline decoration-secondary/30 underline-offset-4" href="#">stellarpath.io</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Recruiter Card -->
+<div class="bg-primary text-white p-8 rounded-lg overflow-hidden relative">
+<div class="relative z-10">
+<h3 class="text-xl font-bold mb-4">Questions?</h3>
+<p class="text-white/70 text-sm mb-6">Connect with our lead university recruiter to learn more about our 2024 cohorts.</p>
+<div class="flex items-center gap-4 p-4 bg-white/10 rounded-lg mb-6">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="professional portrait of a smiling woman with glasses in a professional studio setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmG6fDiEJqcQQ5UWlL_y7qUGTG16jOVRllvwMs0ScjRiRR-BLuB4jfdeTCU3xb-h_E_LJT7UVwzReWMH4DP8fymeS7yZr1ezajks06OzdywoEh5NuLxmR5kIso0ei_zj83Fm6G6uJactUkhR35-MCyBDurl_Qbw_8nL9INhum8n5I343I9ZqQ6IPymkTJuat3yLpP-JcarenSISqs-5IFKbAvBCLZph4REaQcnmEChAniC6WFoRyEXuH8QPL7QZxKxYhZp48FcC3M"/>
+<div>
+<p class="font-bold text-sm">Elena Rodriguez</p>
+<p class="text-xs text-white/50">Lead Recruiter</p>
+</div>
+</div>
+<button class="w-full bg-secondary text-primary font-bold py-3 rounded-DEFAULT hover:scale-95 transition-all">Message Elena</button>
+</div>
+<span class="material-symbols-outlined absolute -bottom-8 -right-8 text-9xl text-white/5">chat_bubble</span>
+</div>
+<!-- Social Presence -->
+<div class="bg-surface-container-low p-8 rounded-lg">
+<h3 class="text-xs font-bold uppercase tracking-widest text-primary mb-6">Follow Our Journey</h3>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary hover:bg-secondary transition-colors ambient-shadow" href="#">
+<span class="material-symbols-outlined text-xl">brand_family</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary hover:bg-secondary transition-colors ambient-shadow" href="#">
+<span class="material-symbols-outlined text-xl">play_circle</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary hover:bg-secondary transition-colors ambient-shadow" href="#">
+<span class="material-symbols-outlined text-xl">rss_feed</span>
+</a>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-white border-t-0">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 py-16 max-w-[1440px] mx-auto">
+<div>
+<span class="text-lg font-bold text-slate-900 block mb-6">InternBeacon</span>
+<p class="text-slate-500 text-sm leading-relaxed max-w-xs">Connecting elite talent with world-class opportunities through a curated gallery of internships.</p>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 mb-6">Platform</h4>
+<ul class="space-y-4 text-sm text-slate-500">
+<li><a class="hover:text-amber-500 transition-colors" href="#">Discover Roles</a></li>
+<li><a class="hover:text-amber-500 transition-colors" href="#">Vetted Talent</a></li>
+<li><a class="hover:text-amber-500 transition-colors" href="#">Success Stories</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 mb-6">Company</h4>
+<ul class="space-y-4 text-sm text-slate-500">
+<li><a class="hover:text-amber-500 transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-amber-500 transition-colors" href="#">Careers</a></li>
+<li><a class="hover:text-amber-500 transition-colors" href="#">Contact Us</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 mb-6">Legal</h4>
+<ul class="space-y-4 text-sm text-slate-500">
+<li><a class="hover:text-amber-500 transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-amber-500 transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-amber-500 transition-colors" href="#">Cookie Policy</a></li>
+</ul>
+</div>
+</div>
+<div class="px-8 py-8 max-w-[1440px] mx-auto border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+<p>© 2024 InternBeacon Cameroon. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="hover:text-amber-500 transition-colors" href="#">Twitter</a>
+<a class="hover:text-amber-500 transition-colors" href="#">LinkedIn</a>
+<a class="hover:text-amber-500 transition-colors" href="#">Instagram</a>
+</div>
+</div>
+</footer>
+</body></html>

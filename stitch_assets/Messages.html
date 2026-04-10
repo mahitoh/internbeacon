@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, .headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "error-container": "#ffdad6",
+                        "surface": "#f7f9fb",
+                        "outline": "#76777d",
+                        "on-surface": "#191c1e",
+                        "secondary-container": "#fea619",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-highest": "#e0e3e5",
+                        "outline-variant": "#c6c6cd",
+                        "surface-bright": "#f7f9fb",
+                        "secondary": "#855300",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#131b2e",
+                        "on-tertiary-container": "#75859d",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary": "#0f172a",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-dim": "#d8dadc",
+                        "on-background": "#191c1e",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "secondary-fixed": "#ffddb8",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary-container": "#684000",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "tertiary": "#000000",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#bec6e0",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "background": "#f7f9fb",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-primary-container": "#7c839b",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "tertiary-fixed": "#d3e4fe",
+                        "primary-container": "#131b2e",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary-container": "#0b1c30",
+                        "on-surface-variant": "#45464d",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface h-screen overflow-hidden flex flex-col md:flex-row">
+<!-- SideNavBar (Authority: JSON & Contextual State) -->
+<aside class="hidden md:flex flex-col h-screen w-64 bg-slate-900 dark:bg-slate-950 py-8 px-4 flex-shrink-0 z-50">
+<div class="mb-10 px-4">
+<h1 class="text-xl font-bold text-white tracking-tighter">InternBeacon</h1>
+<p class="text-[10px] text-slate-400 font-medium uppercase tracking-widest mt-1">Recruiter Workspace</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="text-slate-400 hover:text-white px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-xs font-semibold uppercase tracking-wider">Dashboard</span>
+</a>
+<a class="bg-white/10 text-white rounded-xl px-4 py-3 flex items-center gap-3 transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+<span class="text-xs font-semibold uppercase tracking-wider">Applications</span>
+</a>
+<a class="text-slate-400 hover:text-white px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-xs font-semibold uppercase tracking-wider">Talent Pool</span>
+</a>
+<a class="text-slate-400 hover:text-white px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-xs font-semibold uppercase tracking-wider">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-4">
+<div class="bg-secondary-container rounded-xl p-4 text-on-secondary-container">
+<p class="text-xs font-bold mb-2">Upgrade Plan</p>
+<p class="text-[10px] opacity-80 leading-relaxed">Access unlimited talent credits and advanced filters.</p>
+</div>
+<div class="mt-6 flex items-center gap-3">
+<img class="h-10 w-10 rounded-full object-cover grayscale" data-alt="Professional headshot of a recruitment manager in a minimalist studio setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3u_PcfdRfv0_pHU_EeTRvY7Aniq4DAZqW3mgvFStrJub7lriJJp0PTGiZ2Mp1qlR_9Qm1sfLSyqrn-0Dxcw6-vGcn9S0GpQhMLQJCTgUWhAicAJKysnsbJf2q72jcCv2kkNnZALh6okQoBVHln_-QGDN0-9B7L7a9pGOXsSETI0gW0Vmk9o-QnfHRTSHwt51hSzYBVK5xff0J4wMQwsaCxgzI3uUwiVuGnFgqLNpdzSDVkJWQg0ahzAK5C2HQ_zPEdUs8Qy34bFM"/>
+<div class="overflow-hidden">
+<p class="text-xs font-semibold text-white truncate">Marcus Chen</p>
+<p class="text-[10px] text-slate-500 truncate">Senior Talent Lead</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas (Two Panel Chat Layout) -->
+<main class="flex-1 flex flex-col h-screen relative bg-surface overflow-hidden">
+<!-- Mobile Header (Contextual) -->
+<header class="md:hidden flex items-center justify-between px-6 h-20 bg-white/80 backdrop-blur-xl z-40">
+<h1 class="text-2xl font-bold tracking-tighter text-slate-900">InternBeacon</h1>
+<span class="material-symbols-outlined text-primary">menu</span>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Panel 1: Conversation List -->
+<section class="w-full md:w-80 lg:w-[400px] flex flex-col border-r-0 bg-surface-container-low z-20">
+<div class="p-6">
+<h2 class="text-2xl font-extrabold tracking-tight text-primary mb-6">Messages</h2>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="w-full pl-11 pr-4 py-3 bg-surface-container-lowest border-none rounded-xl text-sm focus:ring-2 focus:ring-primary transition-all placeholder:text-outline-variant" placeholder="Search conversations..." type="text"/>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto px-4 space-y-2 pb-10">
+<!-- Active Chat Item -->
+<div class="p-4 bg-surface-container-lowest rounded-xl shadow-sm border-none flex gap-4 cursor-pointer">
+<div class="relative flex-shrink-0">
+<img class="h-12 w-12 rounded-full object-cover" data-alt="Portrait of a young creative professional with a friendly expression in a bright modern office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcEKUzOiadTW2EI8weyU2rw8ODJTyMtLu2Juj8Bf0Vc99m3MZY9Qu4F_0h7nXG2OP4wai7fDKrqCrKW5EFj7JXPORzesdKflC0kqwLqkhJhnaR2tXz0_Do4NynIiPtZ7v20UCI4kCzvi43xCV93CJuSaheb33_1R7rtRKWV6Qx7eoCFypfgZN_3vrN96uiXTnT9a0bJv36PDLg3ZFOv1Lyio1HEoRcsH4__EmxgNYbG-HfthF4791AgRrVwnmbJMTDBYnBilNRIkg"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary rounded-full border-2 border-surface-container-lowest"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-sm text-primary truncate">Alex Rivera</h3>
+<span class="text-[10px] font-semibold text-outline">12:45 PM</span>
+</div>
+<p class="text-xs text-primary font-medium truncate">That sounds perfect! I've attached the updated portfolio...</p>
+</div>
+</div>
+<!-- Inactive Chat Items -->
+<div class="p-4 hover:bg-surface-container-high rounded-xl transition-colors flex gap-4 cursor-pointer">
+<div class="relative flex-shrink-0">
+<img class="h-12 w-12 rounded-full object-cover" data-alt="Woman with professional attire looking confident against a clean grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0skbt_jlvfQw0vvj4N2z0pj37ks0KEgCmzr6UcLZeH1rymNduJWABfEQW3VuP7Dy-6q17ulOVh3a_aEgZnf691WLUyZWLBQHvjH_Lb7EL5sREm4gHB-CjOtbq47kVlrORWJBBFoY9IwJKmYLShVrqaD5GSAzROAcLvl_fFfFriE6XvTPtTUdqRr7VUf4a1X3hxxd6-0NzNZp9olCTpPJuzwYrKRwyiYrrldkD2qGieMi7-ggSVXqUYsuamlgM4y1prgu-FFxnkaM"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-sm text-primary truncate">Sarah Jenkins</h3>
+<span class="text-[10px] font-medium text-outline">Yesterday</span>
+</div>
+<p class="text-xs text-outline truncate">Regarding the UX Designer internship opening for Summer...</p>
+</div>
+</div>
+<div class="p-4 hover:bg-surface-container-high rounded-xl transition-colors flex gap-4 cursor-pointer">
+<div class="h-12 w-12 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">GM</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-sm text-primary truncate">Google Recruiting</h3>
+<span class="text-[10px] font-medium text-outline">Oct 24</span>
+</div>
+<p class="text-xs text-outline truncate">We'd love to schedule a follow-up interview next Tuesday.</p>
+</div>
+<div class="bg-secondary text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full mt-1">2</div>
+</div>
+<div class="p-4 hover:bg-surface-container-high rounded-xl transition-colors flex gap-4 cursor-pointer opacity-70">
+<div class="relative flex-shrink-0">
+<img class="h-12 w-12 rounded-full object-cover" data-alt="Young man in a casual business sweater in a blurred urban setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPN8pHH2LIRwXdpqzEq9vDsPrIo4QEbYzE0I5uhHGRUnDO8-jnbOsC762FOJoh-QC-0T_LRcPTMkSr3wxnBPZTyhcOrqfL3rYH-KUCkvVof1_9kxKHedZ3prnn2v_3F0_l0IzKHosemdLg5lqsjxmGoNPrJ6Rjo4EXPTEIZueyqI1VOUFa7AJAYna0E-b2pzR2ywm4Y24jEpt8m0LoiQEMCSFR4skEMWmlQ1EVGXlDsZxHIGT28d05y-XIQIiFwJbE8xy72r9fZCc"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-bold text-sm text-primary truncate">David Park</h3>
+<span class="text-[10px] font-medium text-outline">Oct 20</span>
+</div>
+<p class="text-xs text-outline truncate">Thank you for the opportunity!</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Panel 2: Active Thread -->
+<section class="hidden md:flex flex-1 flex-col bg-surface-container-lowest">
+<!-- Thread Header -->
+<header class="h-24 px-8 flex items-center justify-between border-b border-surface-container-low">
+<div class="flex items-center gap-4">
+<img class="h-10 w-10 rounded-full object-cover" data-alt="Detail view of candidate profile photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBORfeEWxzeCq7HhNWfa406cfY_masDRvjQY4IEkrWwx-o8AjIs-kNb02Zpl1o2RaLMykzo3IyaVkuv-LdaPbryRhmnjEO2YOB2NzEU90Pt8qr8QY3Mstzf1Tq5qL7ilk6Ox6E4NfO-_R9J-P-NHFEHEvI5hDMerKlAYdkk95LA5hNWTxHe3XUdoTT5dM8C84eV-Sgn6-YLuTENaVuRKVY6JxootTK9UQAaUHKanJsEa1OmTzu9SeL7YYXWtu94LRY4bNJSFNeoF5I"/>
+<div>
+<h2 class="text-lg font-extrabold text-primary leading-none mb-1">Alex Rivera</h2>
+<div class="flex items-center gap-2">
+<span class="block w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-[11px] font-semibold text-outline uppercase tracking-wider">Candidate • UI Design Intern</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-primary hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="p-2 text-primary hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">video_call</span>
+</button>
+<button class="p-2 text-primary hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+<button class="ml-4 bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary/10 hover:opacity-90 transition-all">
+                            View Profile
+                        </button>
+</div>
+</header>
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto p-8 space-y-8 bg-surface/30">
+<div class="flex justify-center">
+<span class="text-[11px] font-bold text-outline-variant bg-surface-container-low px-4 py-1.5 rounded-full uppercase tracking-widest">October 25, 2023</span>
+</div>
+<!-- Received Message -->
+<div class="flex gap-4 max-w-[80%]">
+<img class="h-8 w-8 rounded-full object-cover mt-auto" data-alt="Candidate profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARUgxR2MIdLE8RM9dXEnKOodxahRznxQFb6ZSrYqLGEEGrzvRnp7yrTR2lIqLIEXfmeMshEBjkASShK3b2Rq9dD_siRtQDSww8NDeX5oe3c3xNEqonzSXxc1g5KRyrEejQCZvwwlPvLJtXLB5-ai9eq0PIbi2KjDtXV28z9uTiYnMPVR1GjWPR6zZdVSxqxv7J3I6nZD6CpUTKkuKmafsAdELhHyvXQpxOq9oQVdBUw4YIVS4qNV6xEiC6xdUUPkvuK2TcyIuuC3E"/>
+<div class="space-y-2">
+<div class="bg-surface-container text-on-surface p-4 rounded-2xl rounded-bl-none">
+<p class="text-sm leading-relaxed">Hi Marcus! Thank you for following up. I'm very excited about the potential internship opportunity at InternBeacon. I've had a chance to look over the project brief you sent earlier.</p>
+</div>
+<span class="text-[10px] font-medium text-outline ml-1">11:02 AM</span>
+</div>
+</div>
+<!-- Sent Message -->
+<div class="flex flex-row-reverse gap-4 max-w-[80%] ml-auto text-right">
+<div class="space-y-2">
+<div class="bg-primary text-white p-4 rounded-2xl rounded-br-none shadow-xl shadow-primary/10">
+<p class="text-sm leading-relaxed">Glad to hear that, Alex. Your portfolio really stood out to the team, especially the architectural UI work. Would you be available for a brief technical call this Thursday?</p>
+</div>
+<div class="flex items-center justify-end gap-1">
+<span class="text-[10px] font-medium text-outline mr-1">11:15 AM</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">done_all</span>
+</div>
+</div>
+</div>
+<!-- Received Message with Attachment -->
+<div class="flex gap-4 max-w-[80%]">
+<img class="h-8 w-8 rounded-full object-cover mt-auto" data-alt="Candidate profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-u2V4N5X0VujbnLs1jx6B0stS7N7WtL8duiZX_AzcTAeNdBQonHb7qzz4sPcpSHTo24a1Qme_Hm3p2tCv-1nySzi8kABlQfSeAm_ID0pPKa0LPSubqDtOT6tzXJdE5Dja6EcHlWhP26WBEx5HRKHu-0Xuu6pabAk8YjQ7PXRY8QOlKbc80xPZoua7nxnUOg3qcCFbtItMr_wefb36ontmQGc2NcpJglMW2SR12S9Bz4Tz3cMh2xTdfrqyrvv4InftxD6oGc53QBs"/>
+<div class="space-y-3">
+<div class="bg-surface-container text-on-surface p-4 rounded-2xl rounded-bl-none">
+<p class="text-sm leading-relaxed">Absolutely, Thursday afternoon works perfectly for me. In the meantime, I've prepared a more detailed case study of my latest design system project. Looking forward to it!</p>
+</div>
+<!-- Attachment Card -->
+<div class="bg-white border border-outline-variant/30 rounded-xl p-3 flex items-center gap-3 w-72 shadow-sm">
+<div class="h-10 w-10 bg-error-container text-error rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">picture_as_pdf</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-xs font-bold text-primary truncate">Alex_Rivera_UI_Case_Study.pdf</p>
+<p class="text-[10px] text-outline">4.2 MB • PDF Document</p>
+</div>
+<button class="text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">download</span>
+</button>
+</div>
+<span class="text-[10px] font-medium text-outline ml-1">12:45 PM</span>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-6 bg-white">
+<div class="bg-surface-container-low rounded-2xl p-2 flex items-end gap-2 group focus-within:ring-2 focus-within:ring-primary transition-all">
+<button class="p-3 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 px-2 resize-none placeholder:text-outline-variant" placeholder="Type a message to Alex..." rows="1"></textarea>
+<div class="flex gap-1 pb-1 pr-1">
+<button class="p-2 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined">mood</span>
+</button>
+<button class="bg-secondary text-white h-10 w-10 flex items-center justify-center rounded-xl shadow-lg shadow-secondary/20 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Empty State for Small Screens (Handled via mobile-first) -->
+<section class="md:hidden flex-1 flex flex-col items-center justify-center p-8 text-center bg-surface-container-lowest">
+<div class="w-20 h-20 bg-surface-container-low rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-4xl text-outline-variant">forum</span>
+</div>
+<h3 class="text-xl font-extrabold text-primary mb-2">Your Conversations</h3>
+<p class="text-sm text-outline max-w-xs mb-8">Select a candidate or company from the list to start messaging.</p>
+<button class="bg-primary text-white px-8 py-4 rounded-2xl font-bold w-full shadow-xl shadow-primary/20">
+                    New Message
+                </button>
+</section>
+</div>
+<!-- Mobile Bottom Nav -->
+<nav class="md:hidden h-20 bg-white shadow-2xl flex items-center justify-around px-4 border-t border-surface-container-low">
+<a class="flex flex-col items-center gap-1 text-outline" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Messages</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-outline" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Explore</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-outline" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+</a>
+</nav>
+</main>
+</body></html>

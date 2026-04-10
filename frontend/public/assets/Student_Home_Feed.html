@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InternBeacon | Feed</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "primary-fixed-dim": "#bec6e0",
+                "on-background": "#191c1e",
+                "tertiary": "#000000",
+                "surface-container-low": "#f2f4f6",
+                "surface-variant": "#e0e3e5",
+                "surface": "#f7f9fb",
+                "error-container": "#ffdad6",
+                "inverse-primary": "#bec6e0",
+                "secondary-container": "#fea619",
+                "surface-dim": "#d8dadc",
+                "surface-bright": "#f7f9fb",
+                "on-secondary-fixed": "#2a1700",
+                "on-primary-fixed": "#131b2e",
+                "on-secondary": "#ffffff",
+                "on-primary-container": "#7c839b",
+                "error": "#ba1a1a",
+                "on-primary-fixed-variant": "#3f465c",
+                "on-tertiary": "#ffffff",
+                "secondary-fixed-dim": "#ffb95f",
+                "surface-container-high": "#e6e8ea",
+                "inverse-on-surface": "#eff1f3",
+                "surface-container": "#eceef0",
+                "primary-container": "#131b2e",
+                "primary": "#000000",
+                "surface-container-highest": "#e0e3e5",
+                "background": "#f7f9fb",
+                "on-primary": "#ffffff",
+                "on-surface": "#191c1e",
+                "on-secondary-container": "#684000",
+                "on-surface-variant": "#45464d",
+                "on-tertiary-container": "#75859d",
+                "tertiary-fixed": "#d3e4fe",
+                "outline-variant": "#c6c6cd",
+                "inverse-surface": "#2d3133",
+                "surface-container-lowest": "#ffffff",
+                "surface-tint": "#565e74",
+                "secondary": "#855300",
+                "outline": "#76777d",
+                "on-tertiary-fixed-variant": "#38485d",
+                "on-tertiary-fixed": "#0b1c30",
+                "on-secondary-fixed-variant": "#653e00",
+                "primary-fixed": "#dae2fd",
+                "on-error": "#ffffff",
+                "on-error-container": "#93000a",
+                "tertiary-container": "#0b1c30",
+                "tertiary-fixed-dim": "#b7c8e1",
+                "secondary-fixed": "#ffddb8"
+            },
+            "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+            },
+            "fontFamily": {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #F1F5F9; }
+        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-shadow {
+            box-shadow: 0 32px 64px -4px rgba(25, 28, 30, 0.04);
+        }
+    </style>
+</head>
+<body class="text-on-background selection:bg-secondary-container/30">
+<!-- SideNavBar Anchor -->
+<aside class="bg-slate-900 dark:bg-slate-950 h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-8 px-4 font-plus-jakarta-sans tracking-tight shadow-2xl z-50">
+<div class="mb-10 px-4">
+<span class="text-2xl font-bold text-white tracking-tighter">InternBeacon</span>
+</div>
+<div class="flex items-center gap-3 px-4 mb-8">
+<div class="w-10 h-10 rounded-full overflow-hidden ring-2 ring-amber-500/20">
+<img alt="Student Profile Portrait" class="w-full h-full object-cover" data-alt="Close up portrait of a young professional student smiling warmly in soft natural indoor lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDul119QmUzWPOv6viXyizXYkfQPCugmGeUK2TkgkeQhS50UFlD-YVXWwymGKgX8gmkxm05WaE32FRR9aux3fXWF_RWLvjxJdKqkwihNaDA8MzzLQqlOlrs6275PL_48Zg_7oL2cA5ZjeQhE-Dkf2pBK7U2C3k2BmD35FL9xXe9tJNTkxkd3-EeUL1w1rPxNdAQk_X_lq2q5mkdbyKSiEHFftSboe9Xp9725hW4e9FrJETe3cYvfN9h4SPFe8zV5i4owtNfsEjod6c"/>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-bold text-sm">Alex Sterling</span>
+<span class="text-slate-400 text-xs">Elite Talent • Vetted</span>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active Tab: Home -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-white font-bold border-r-4 border-amber-500 bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-sm">Home</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 font-medium hover:bg-slate-800 hover:text-white transition-colors group" href="#">
+<span class="material-symbols-outlined">work</span>
+<span class="text-sm">Opportunities</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 font-medium hover:bg-slate-800 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+<span class="text-sm">Applications</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 font-medium hover:bg-slate-800 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm">Network</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 font-medium hover:bg-slate-800 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">book</span>
+<span class="text-sm">Resources</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 space-y-1">
+<button class="w-full bg-amber-500 text-slate-900 font-bold py-3 rounded-xl mb-6 text-sm scale-95 active:duration-150 active:scale-90 transition-all">
+                View Portfolio
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 font-medium hover:bg-slate-800 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 font-medium hover:bg-slate-800 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm">Support</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar Anchor -->
+<header class="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-xl flex justify-between items-center h-16 px-8 ml-64 font-plus-jakarta-sans text-sm font-semibold">
+<div class="flex items-center gap-8">
+<div class="relative">
+<span class="absolute inset-y-0 left-3 flex items-center text-slate-400">
+<span class="material-symbols-outlined text-lg">search</span>
+</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full w-64 focus:ring-2 focus:ring-amber-500/20 text-xs font-medium" placeholder="Search internships..." type="text"/>
+</div>
+<nav class="flex gap-6">
+<a class="text-slate-900 border-b-2 border-amber-500 pb-1" href="#">Discover</a>
+<a class="text-slate-500 hover:text-amber-600 transition-all" href="#">Vetted Only</a>
+<a class="text-slate-500 hover:text-amber-600 transition-all" href="#">Mentorship</a>
+</nav>
+</div>
+<div class="flex items-center gap-6 pr-64">
+<div class="flex gap-4">
+<button class="text-slate-900 opacity-80 active:opacity-100 hover:text-amber-600 transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-slate-900 opacity-80 active:opacity-100 hover:text-amber-600 transition-all">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+</div>
+<button class="bg-slate-900 text-white px-6 py-2 rounded-full hover:bg-slate-800 transition-all">
+                Apply Now
+            </button>
+</div>
+</header>
+<!-- Main Content Grid -->
+<main class="ml-64 pt-24 px-8 pb-12 grid grid-cols-12 gap-8">
+<!-- Left Column: Profile Summary & Stats -->
+<section class="col-span-3 space-y-6">
+<!-- Profile Card -->
+<div class="bg-surface-container-lowest rounded-DEFAULT custom-shadow p-6 flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 to-amber-200 mb-4">
+<img alt="Alex Sterling" class="w-full h-full object-cover rounded-full border-4 border-white" data-alt="Young professional man with a confident expression in a clean studio setting with warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOl0XR_rNwKIylUYq7dyYJqx8NSyBAjUyH8pwNSaSG3rOBcYl89oifCr7ueANh9t0kHh_n0T4GqDJU9Ypi4Eu4H8HxMus0krGAI5M734PZK3TJETJ2pA7Z8C6baBBACAUP9UtiWQY4oIMvCYb8n7C0-oW0loF3J8cKud7mdk8t-RcLm7meyVFBw2Fj4n0kbg-7wiizcb8oTYUepQOpneeezekKo09if4QCcbDxL-a8EoSq-0VPYO2dvjbrsSNSMGjc4UCKx_Xp1FU"/>
+</div>
+<h2 class="font-headline text-xl font-extrabold text-slate-900 tracking-tight">Alex Sterling</h2>
+<p class="text-slate-500 text-sm font-medium mb-4">Stanford University • CS '25</p>
+<div class="flex gap-2 w-full">
+<div class="flex-1 bg-surface-container-low p-3 rounded-xl">
+<span class="block text-xl font-bold text-slate-900">12</span>
+<span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Apps Sent</span>
+</div>
+<div class="flex-1 bg-surface-container-low p-3 rounded-xl">
+<span class="block text-xl font-bold text-amber-600">85%</span>
+<span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Interview</span>
+</div>
+</div>
+</div>
+<!-- Fast Actions -->
+<div class="bg-slate-900 text-white rounded-DEFAULT p-6 shadow-xl relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="font-headline font-bold text-lg mb-2">Resume Score</h3>
+<p class="text-slate-400 text-xs mb-4">Your profile is in the top 5% of applicants this week.</p>
+<div class="h-1.5 bg-slate-800 rounded-full w-full overflow-hidden">
+<div class="h-full bg-amber-500 w-[95%]"></div>
+</div>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-8xl">verified</span>
+</div>
+</div>
+</section>
+<!-- Center Column: Scrollable Feed -->
+<section class="col-span-6 space-y-6">
+<!-- Google Post -->
+<article class="bg-surface-container-lowest rounded-DEFAULT custom-shadow overflow-hidden group">
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center p-2">
+<img alt="Google" class="w-full object-contain" data-alt="Clean minimalist Google G logo on a white square background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmHC2bTDYicAWOaianiwsfAMbVWb3fOgBN3S2-HKqcdg2wSlm850_B_11fqTylcAQ-odRzbU5KrphBwmSWeyhM65DYb9_FlM4vlc2Cc9B6kiX-h6xZ_HimekJKPpV7mzYn3A0y18ItHgidiK_SChhEoasRwZCXKgyNaX_9D8gIVcBVeQpxMyZ-LVZKFO8BwQeX9ZiHIOXDD1qyZQEeiPmm6KV5tFWNqOth_b2dAHYynml52tn69fbuXM6jwRJxFgQ9HMiSJP4N-vk"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-slate-900">Google</h3>
+<p class="text-slate-400 text-xs">2 hours ago • New Opportunity</p>
+</div>
+</div>
+<span class="bg-amber-500/10 text-amber-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">Featured</span>
+</div>
+<h4 class="font-headline text-lg font-bold text-slate-900 mb-2 leading-snug">Product Management Intern, Summer 2024</h4>
+<p class="text-slate-600 text-sm leading-relaxed mb-6">Join the Google Maps team to build the future of immersive navigation. Looking for students with a passion for UX and data-driven decisions.</p>
+<div class="flex gap-3">
+<button class="bg-slate-900 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-amber-500 transition-all flex items-center gap-2">
+                            Apply Fast Track <span class="material-symbols-outlined text-sm">bolt</span>
+</button>
+<button class="bg-surface-container-low text-slate-600 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all">
+                            Save
+                        </button>
+</div>
+</div>
+</article>
+<!-- Stripe Status Update -->
+<article class="bg-surface-container-lowest rounded-DEFAULT custom-shadow p-6 border-l-4 border-amber-500">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center p-2">
+<img alt="Stripe" class="w-full object-contain" data-alt="Minimalist Stripe wordmark logo in a bold purple blue hue" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx0Z02q1l1wzBVJMU1G5OxPHoKFDbl50SjyXl5L_fr8MhnhQ2ny1sGXs8qSgwtMpqym53FmDrHrVsqAtsbRHPY7MeL_VZD2l4JXqvSSWhdTqClBXNhDYxaLDMXMcCK5ctU8mOGnDqOpR3ESjEskHM-tdG41GC7dIe4VTfoKEI6w4uFCQuyy6ZCGJ7N62VF5wpG1_InoGreVklkQBzNWgFMaotSHf2p0rekcTT0Gh-dmKCVAgjXxkxm0Qr8gDYZCtLnk-qOQrk6z30"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center mb-1">
+<h3 class="font-headline font-bold text-slate-900">Application Update</h3>
+<span class="text-slate-400 text-[10px]">Just now</span>
+</div>
+<p class="text-slate-600 text-sm">Your application for <span class="font-bold text-slate-900">Software Engineering Intern</span> at Stripe has moved to the <span class="text-amber-600 font-bold">Technical Interview</span> stage.</p>
+<div class="mt-4 flex items-center gap-4">
+<a class="text-amber-600 text-xs font-bold underline decoration-2 underline-offset-4" href="#">Schedule Interview</a>
+<a class="text-slate-400 text-xs font-bold hover:text-slate-600" href="#">View Details</a>
+</div>
+</div>
+</div>
+</article>
+<!-- Orange Announcement -->
+<article class="bg-surface-container-lowest rounded-DEFAULT custom-shadow overflow-hidden">
+<img alt="Office" class="w-full h-48 object-cover" data-alt="Ultra modern minimalist corporate office interior with glass walls and warm designer lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-fqU4-mLTAqk-TgXfSZaVxcurTXogzR6kJSwqwHKYeit4R8wpxpMEkQ3ze6xNZwRRtdS836wRwa1PvEkOM8b8qpEDSNR3-XsA1HQnHpPnJ7Ani0umBtpYqRWk2saRjEnsFckaZkCO0RlEQl6R0i4Ws2e8wOuED9caVyferelYZ6nTMaxS_IWXKezx_p9oj3bQY2CC2CyNQevsGob_jpbqQEu2QqoKJtBu6XXzD0RdkfJ9WfPzbaVDFQMr9dYWt97LybcVkIzJxFQ"/>
+<div class="p-6">
+<div class="flex gap-4 mb-4">
+<div class="w-10 h-10 rounded-lg bg-[#FF7900] flex items-center justify-center text-white font-bold">O</div>
+<div>
+<h3 class="font-headline font-bold text-slate-900">Orange</h3>
+<p class="text-slate-400 text-xs">Yesterday • Announcement</p>
+</div>
+</div>
+<h4 class="font-headline text-lg font-bold text-slate-900 mb-2">We're expanding our Paris Innovation Lab</h4>
+<p class="text-slate-600 text-sm leading-relaxed mb-4">Orange is opening 50 new internship positions in AI and Cybersecurity for the upcoming Autumn cycle. Vetted candidates get early access.</p>
+<button class="text-slate-900 font-bold text-sm flex items-center gap-1 group">
+                        Read more <span class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Deadline Reminder -->
+<article class="bg-red-50 rounded-DEFAULT p-6 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+<span class="material-symbols-outlined">alarm</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-slate-900">Deadline Approaching</h4>
+<p class="text-slate-600 text-xs">Meta: University Grad SWE Role closes in 24h.</p>
+</div>
+</div>
+<button class="bg-white text-slate-900 px-4 py-2 rounded-xl text-xs font-bold shadow-sm hover:shadow-md transition-all">
+                    Complete App
+                </button>
+</article>
+</section>
+<!-- Right Column: Suggestions -->
+<section class="col-span-3 space-y-6">
+<!-- Suggested Companies -->
+<div class="bg-surface-container-lowest rounded-DEFAULT custom-shadow p-6">
+<h3 class="font-headline font-extrabold text-slate-900 mb-6 tracking-tight">Companies to Follow</h3>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center p-2">
+<img alt="Figma" class="w-full" data-alt="Figma F logo with vibrant red orange purple and blue colors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxmjZtPh8TvvQhMTWZQwF03VfpBkf3ejRhV_J5nJu91dTvmU95Faxoopt7lXZA0xvaYHn2NMVXWOIfb_KKp5sjE-1yWbJNJeETnx178F1H3EEC6QRp9koHWQo_1uDnKP-_lbGk47RfJm1_SvpddaEwvRJfDexlpo4MfVzmdZPbmYe4WapcHXF98VU7l-g1az2I1uDI_-48dZoAlkt0svw9q7_xN0I9cgjaAIrwUZfkWLIPDCfaVcjJIDl-4JG_ZhEptxLWHeIYkyQ"/>
+</div>
+<div>
+<h4 class="text-xs font-bold text-slate-900">Figma</h4>
+<p class="text-[10px] text-slate-400">Design Systems</p>
+</div>
+</div>
+<button class="text-amber-600 font-bold text-[10px] uppercase tracking-widest hover:text-amber-700">Follow</button>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center p-2">
+<img alt="Notion" class="w-full" data-alt="Minimalist black and white Notion N logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDverBckRk6BS5aGvGuT22gkxTYBrxaVrew1N628kORbiU_NK57_9l5LJr35QUFx_JriUrnE53K-4lBghpxnhPcaTcTvMDzj3UEFAcr-olRXRkRwMDvTb5fpkMTQ2Vx7i1bLX8WUp2ZJfa65s0z3t-qqxvL1LPjvztWg2e2T1Y3XXwk3FEewDU4SDQztGSu-re4D0ziQtvRWQNbDmtQu4wD9rCGLaGT8Bf5CEntFdt32yJUPzc3ARAn-I9xnCZeurwarFiDirf3-Ys"/>
+</div>
+<div>
+<h4 class="text-xs font-bold text-slate-900">Notion</h4>
+<p class="text-[10px] text-slate-400">Productivity</p>
+</div>
+</div>
+<button class="text-amber-600 font-bold text-[10px] uppercase tracking-widest hover:text-amber-700">Follow</button>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center p-2">
+<img alt="Revolut" class="w-full" data-alt="Sleek modern Revolut R logo on white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu4dRTW8Y_5hSuIntsWVraQ4HpRF-36QL0PVhW7ni5NiI4y9eqoICnRjrmWVuvZgshzAC_4NrNQ8fg5WBMVPk_NNEyyxBH9CS538uCgkooCxuSJcMS7ZJdPeLZ-OOZZhF-U3GfRMTuJtuRQb0X2f_lG5lZ67AjZhlgkV5MELqBf1b841lOUKtPEC7zdmzBoqlq_oB_OULrxOUYMv6TG5ChZ0a-8GYlA5YHjZQHkXFOVdLk-1xYFdmCXLu3acxAF5GWMs-H7S1XcuY"/>
+</div>
+<div>
+<h4 class="text-xs font-bold text-slate-900">Revolut</h4>
+<p class="text-[10px] text-slate-400">Fintech</p>
+</div>
+</div>
+<button class="text-amber-600 font-bold text-[10px] uppercase tracking-widest hover:text-amber-700">Follow</button>
+</div>
+</div>
+</div>
+<!-- Recommended Offers -->
+<div class="bg-amber-50 rounded-DEFAULT p-6 relative overflow-hidden">
+<div class="relative z-10">
+<span class="inline-block bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded mb-4">OFFER</span>
+<h3 class="font-headline font-bold text-slate-900 leading-tight mb-2">Unlock Mock Interviews with Experts</h3>
+<p class="text-slate-600 text-xs mb-4">Get 20% off your first coaching session this month.</p>
+<button class="w-full bg-slate-900 text-white py-2.5 rounded-xl text-xs font-bold">Redeem Offer</button>
+</div>
+<div class="absolute -right-8 -top-8 w-24 h-24 bg-amber-200 rounded-full blur-2xl opacity-50"></div>
+</div>
+<!-- Footer Links -->
+<div class="px-6 flex flex-wrap gap-x-4 gap-y-2 opacity-50">
+<a class="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-slate-900" href="#">Privacy</a>
+<a class="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-slate-900" href="#">Terms</a>
+<a class="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-slate-900" href="#">Cookies</a>
+<a class="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-slate-900" href="#">Help</a>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">© 2024 Beacon</span>
+</div>
+</section>
+</main>
+<!-- FAB Suppression: Not rendered here as per focus journey guidelines for Feed -->
+</body></html>
