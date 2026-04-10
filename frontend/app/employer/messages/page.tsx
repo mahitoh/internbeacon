@@ -1,21 +1,17 @@
 "use client";
 
-import EmployerSidebar from "@/components/EmployerSidebar";
+import Logo from "@/components/Logo";
+import Link from "next/link";
 import React from "react";
-import Image from "next/image";
 
 export default function Messages() {
   return (
-    <div className="bg-surface text-on-surface h-screen overflow-hidden flex flex-col md:flex-row antialiased font-body selection:bg-secondary-fixed selection:text-on-secondary-fixed">
-      {/* SideNavBar */}
-      <EmployerSidebar />
-
-      {/* Main Content Canvas (Two Panel Chat Layout) */}
-      <main className="flex-1 flex flex-col h-screen relative bg-surface overflow-hidden">
-        {/* Mobile Header (Contextual) */}
-        <header className="md:hidden flex items-center justify-between px-6 h-20 bg-white/80 backdrop-blur-xl z-40">
-          <h1 className="text-2xl font-bold tracking-tighter text-slate-900 font-headline">InternBeacon</h1>
-          <span className="material-symbols-outlined text-primary">menu</span>
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-surface antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed md:min-h-[calc(100dvh-8rem)]">
+        <header className="z-40 flex h-14 items-center justify-between border-b border-slate-200/60 bg-white/90 px-4 backdrop-blur-md md:hidden">
+          <Logo className="h-7 w-auto max-w-[140px]" />
+          <span className="material-symbols-outlined text-primary" aria-hidden>
+            forum
+          </span>
         </header>
 
         <div className="flex flex-1 overflow-hidden">
@@ -204,25 +200,24 @@ export default function Messages() {
         </div>
 
         {/* Mobile Bottom Nav */}
-        <nav className="md:hidden h-20 bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)] flex items-center justify-around px-4 border-t border-surface-container-low relative z-10 shrink-0">
-          <a className="flex flex-col items-center gap-1 text-outline" href="#">
+        <nav className="relative z-10 flex h-20 shrink-0 items-center justify-around border-t border-surface-container-low bg-white px-4 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] md:hidden">
+          <Link href="/employer/dashboard" className="flex flex-col items-center gap-1 text-outline">
             <span className="material-symbols-outlined">home</span>
             <span className="text-[10px] font-bold uppercase tracking-tighter">Home</span>
-          </a>
-          <a className="flex flex-col items-center gap-1 text-primary" href="#">
+          </Link>
+          <Link href="/employer/messages" className="flex flex-col items-center gap-1 text-primary">
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat_bubble</span>
             <span className="text-[10px] font-bold uppercase tracking-tighter">Messages</span>
-          </a>
-          <a className="flex flex-col items-center gap-1 text-outline" href="#">
+          </Link>
+          <Link href="/browse" className="flex flex-col items-center gap-1 text-outline">
             <span className="material-symbols-outlined">search</span>
             <span className="text-[10px] font-bold uppercase tracking-tighter">Explore</span>
-          </a>
-          <a className="flex flex-col items-center gap-1 text-outline" href="#">
+          </Link>
+          <Link href="/employer/post" className="flex flex-col items-center gap-1 text-outline">
             <span className="material-symbols-outlined">person</span>
-            <span className="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
-          </a>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Post</span>
+          </Link>
         </nav>
-      </main>
     </div>
   );
 }

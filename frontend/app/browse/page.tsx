@@ -1,6 +1,7 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import React from "react";
 import Link from "next/link";
 
@@ -148,10 +149,10 @@ export default function BrowseInternships() {
                     <span className="material-symbols-outlined text-sm mr-1">schedule</span>
                     Deadline: Oct 15
                   </div>
-                  <button className="text-primary font-bold text-sm flex items-center group/btn">
+                  <Link href="/internships/1" className="text-primary font-bold text-sm flex items-center group/btn">
                     Details
                     <span className="material-symbols-outlined ml-1 transition-transform group-hover/btn:translate-x-1 text-[20px]">arrow_forward</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
 
@@ -174,10 +175,10 @@ export default function BrowseInternships() {
                     <span className="material-symbols-outlined text-sm mr-1">schedule</span>
                     Deadline: Sep 30
                   </div>
-                  <button className="text-primary font-bold text-sm flex items-center group/btn">
+                  <Link href="/internships/2" className="text-primary font-bold text-sm flex items-center group/btn">
                     Details
                     <span className="material-symbols-outlined ml-1 transition-transform group-hover/btn:translate-x-1 text-[20px]">arrow_forward</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
 
@@ -199,10 +200,10 @@ export default function BrowseInternships() {
                     <span className="material-symbols-outlined text-sm mr-1">schedule</span>
                     Deadline: Nov 05
                   </div>
-                  <button className="text-primary font-bold text-sm flex items-center group/btn">
+                  <Link href="/internships/3" className="text-primary font-bold text-sm flex items-center group/btn">
                     Details
                     <span className="material-symbols-outlined ml-1 transition-transform group-hover/btn:translate-x-1 text-[20px]">arrow_forward</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
 
@@ -225,10 +226,10 @@ export default function BrowseInternships() {
                     <span className="material-symbols-outlined text-sm mr-1">schedule</span>
                     Deadline: Dec 01
                   </div>
-                  <button className="text-secondary-container font-bold text-sm flex items-center group/btn">
+                  <Link href="/internships/4" className="text-secondary-container font-bold text-sm flex items-center group/btn">
                     Details
                     <span className="material-symbols-outlined ml-1 transition-transform group-hover/btn:translate-x-1 text-[20px]">arrow_forward</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -251,50 +252,7 @@ export default function BrowseInternships() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-primary text-white pt-20 pb-10 mt-auto">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-          <div className="col-span-1 md:col-span-1">
-            <h2 className="text-2xl font-bold tracking-tighter mb-6 font-headline">InternBeacon</h2>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Bridging the gap between ambitious students and the world's most innovative companies.
-            </p>
-          </div>
-          <div>
-            <h4 className="font-headline font-bold text-sm uppercase tracking-widest mb-6">Platform</h4>
-            <ul className="space-y-4 text-slate-400 text-sm">
-              <li><Link className="hover:text-amber-500 transition-colors" href="#">Browse Internships</Link></li>
-              <li><Link className="hover:text-amber-500 transition-colors" href="#">Talent Pool</Link></li>
-              <li><Link className="hover:text-amber-500 transition-colors" href="#">Pricing</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-headline font-bold text-sm uppercase tracking-widest mb-6">Company</h4>
-            <ul className="space-y-4 text-slate-400 text-sm">
-              <li><Link className="hover:text-amber-500 transition-colors" href="#">About Us</Link></li>
-              <li><Link className="hover:text-amber-500 transition-colors" href="#">Success Stories</Link></li>
-              <li><Link className="hover:text-amber-500 transition-colors" href="#">Contact</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-headline font-bold text-sm uppercase tracking-widest mb-6">Join Our Newsletter</h4>
-            <div className="flex bg-white/10 rounded-lg p-1">
-              <input className="bg-transparent border-none focus:ring-0 text-sm flex-1 px-4 outline-none placeholder:text-white/30" placeholder="Your email" type="email" />
-              <button className="bg-amber-500 text-primary p-2 rounded-md hover:bg-amber-400 transition-colors flex items-center justify-center">
-                <span className="material-symbols-outlined text-[20px]">send</span>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-slate-500 text-xs">© 2024 InternBeacon. All rights reserved.</p>
-          <div className="flex gap-6 text-slate-500 text-xs">
-            <Link className="hover:text-white transition-colors" href="#">Privacy Policy</Link>
-            <Link className="hover:text-white transition-colors" href="#">Terms of Service</Link>
-            <Link className="hover:text-white transition-colors" href="#">Cookie Settings</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

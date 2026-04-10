@@ -1,16 +1,11 @@
 "use client";
 
-import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import React from 'react';
 
 export default function PostNewOffer() {
   return (
-    <div className="bg-surface text-on-surface font-body antialiased min-h-screen flex flex-col">
-      <Navbar />
-      
-      <main className="pt-32 pb-24 px-6 flex-grow">
-        <div className="max-w-3xl mx-auto">
+    <div className="mx-auto w-full max-w-3xl pb-16">
           {/* Progress Rail */}
           <div className="mb-12">
             <div className="flex justify-between mb-4">
@@ -132,23 +127,6 @@ export default function PostNewOffer() {
               </p>
             </div>
           </div>
-        </div>
-      </main>
-
-      {/* Simple Footer (Focused Journey) */}
-      <footer className="py-12 bg-surface border-t border-outline-variant/10">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-8">
-            <span className="text-primary font-bold text-lg font-headline">InternBeacon</span>
-            <span className="text-outline-variant text-sm font-headline">© 2024 Recruiting Workspace</span>
-          </div>
-          <div className="flex gap-6">
-            <Link className="text-outline hover:text-primary text-xs uppercase font-bold tracking-widest font-headline" href="#">Support</Link>
-            <Link className="text-outline hover:text-primary text-xs uppercase font-bold tracking-widest font-headline" href="#">Privacy</Link>
-            <Link className="text-outline hover:text-primary text-xs uppercase font-bold tracking-widest font-headline" href="#">Terms</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

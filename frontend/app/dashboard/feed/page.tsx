@@ -1,52 +1,56 @@
 "use client";
 
-import Sidebar from "@/components/Sidebar";
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function StudentFeed() {
   return (
-    <div className="text-on-background selection:bg-secondary-container/30 bg-[#F1F5F9] min-h-screen font-body antialiased">
-      {/* SideNavBar */}
-      <Sidebar />
-
-      {/* TopNavBar Anchor */}
-      <header className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-xl flex justify-between items-center h-16 px-8 md:ml-64 font-headline text-sm font-semibold shadow-sm">
-        <div className="flex items-center gap-8">
-          <div className="relative hidden md:block">
+    <div className="relative min-h-[60vh] font-body antialiased text-on-background selection:bg-secondary-container/30">
+      <header className="sticky top-0 z-30 mb-6 flex h-16 items-center justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white/90 px-4 shadow-sm backdrop-blur-md font-headline text-sm font-semibold md:px-6">
+        <div className="flex min-w-0 flex-1 items-center gap-6">
+          <div className="relative hidden min-w-0 md:block">
             <span className="absolute inset-y-0 left-3 flex items-center text-slate-400">
               <span className="material-symbols-outlined text-lg">search</span>
             </span>
-            <input className="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full w-64 focus:ring-2 focus:ring-amber-500/20 text-xs font-medium outline-none" placeholder="Search internships..." type="text" />
+            <input
+              className="w-56 rounded-full border-none bg-surface-container-low py-2 pl-10 pr-4 text-xs font-medium outline-none focus:ring-2 focus:ring-amber-500/20 lg:w-64"
+              placeholder="Search internships..."
+              type="text"
+            />
           </div>
-          <nav className="hidden md:flex gap-6">
-            <Link href="/discover" className="text-slate-900 border-b-2 border-amber-500 pb-1">Discover</Link>
-            <Link href="/" className="text-slate-500 hover:text-amber-600 transition-all">Vetted Only</Link>
-            <Link href="/" className="text-slate-500 hover:text-amber-600 transition-all">Mentorship</Link>
+          <nav className="hidden gap-6 md:flex">
+            <Link href="/discover" className="border-b-2 border-amber-500 pb-1 text-slate-900">
+              Discover
+            </Link>
+            <Link href="/browse" className="text-slate-500 transition-all hover:text-amber-600">
+              Browse
+            </Link>
+            <Link href="/dashboard" className="text-slate-500 transition-all hover:text-amber-600">
+              Dashboard
+            </Link>
           </nav>
         </div>
-        <div className="flex items-center gap-6 md:pr-64">
-          <div className="flex gap-4">
-            <button className="text-slate-900 opacity-80 active:opacity-100 hover:text-amber-600 transition-all">
-              <span className="material-symbols-outlined">notifications</span>
-            </button>
-            <button className="text-slate-900 opacity-80 active:opacity-100 hover:text-amber-600 transition-all">
-              <span className="material-symbols-outlined">chat_bubble</span>
-            </button>
-          </div>
-          <Link href="/discover" className="bg-slate-900 text-white px-6 py-2 rounded-full hover:bg-slate-800 transition-all hidden md:block">
-            Apply Now
+        <div className="flex shrink-0 items-center gap-3">
+          <button type="button" className="text-slate-900 opacity-80 transition-all hover:text-amber-600 active:opacity-100" aria-label="Notifications">
+            <span className="material-symbols-outlined">notifications</span>
+          </button>
+          <Link href="/dashboard/applications" className="text-slate-900 opacity-80 transition-all hover:text-amber-600" aria-label="Applications">
+            <span className="material-symbols-outlined">chat_bubble</span>
+          </Link>
+          <Link
+            href="/browse"
+            className="hidden rounded-full bg-slate-900 px-5 py-2 text-white transition-all hover:bg-slate-800 md:inline-block"
+          >
+            Find roles
           </Link>
         </div>
       </header>
 
-      {/* Main Content Grid */}
-      <main className="md:ml-64 pt-24 px-8 pb-12 grid grid-cols-1 md:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 gap-8 pb-8 md:grid-cols-12">
         {/* Left Column: Profile Summary & Stats */}
         <section className="col-span-1 md:col-span-3 space-y-6">
           {/* Profile Card */}
-          <div className="bg-surface-container-lowest rounded-DEFAULT shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] p-6 flex flex-col items-center text-center outline outline-1 outline-outline-variant/10">
+          <div className="bg-surface-container-lowest rounded-xl shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] p-6 flex flex-col items-center text-center outline outline-1 outline-outline-variant/10">
             <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 to-amber-200 mb-4">
               <img className="w-full h-full object-cover rounded-full border-4 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOl0XR_rNwKIylUYq7dyYJqx8NSyBAjUyH8pwNSaSG3rOBcYl89oifCr7ueANh9t0kHh_n0T4GqDJU9Ypi4Eu4H8HxMus0krGAI5M734PZK3TJETJ2pA7Z8C6baBBACAUP9UtiWQY4oIMvCYb8n7C0-oW0loF3J8cKud7mdk8t-RcLm7meyVFBw2Fj4n0kbg-7wiizcb8oTYUepQOpneeezekKo09if4QCcbDxL-a8EoSq-0VPYO2dvjbrsSNSMGjc4UCKx_Xp1FU" alt="Alex Sterling" />
             </div>
@@ -66,7 +70,7 @@ export default function StudentFeed() {
           </div>
 
           {/* Fast Actions */}
-          <div className="bg-slate-900 text-white rounded-DEFAULT p-6 shadow-xl relative overflow-hidden">
+          <div className="bg-slate-900 text-white rounded-xl p-6 shadow-xl relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="font-headline font-bold text-lg mb-2">Resume Score</h3>
               <p className="text-slate-400 text-xs mb-4">Your profile is in the top 5% of applicants this week.</p>
@@ -83,7 +87,7 @@ export default function StudentFeed() {
         {/* Center Column: Scrollable Feed */}
         <section className="col-span-1 md:col-span-6 space-y-6">
           {/* Google Post */}
-          <article className="bg-surface-container-lowest rounded-DEFAULT shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] overflow-hidden group outline outline-1 outline-outline-variant/5">
+          <article className="bg-surface-container-lowest rounded-xl shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] overflow-hidden group outline outline-1 outline-outline-variant/5">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex gap-4">
@@ -111,7 +115,7 @@ export default function StudentFeed() {
           </article>
 
           {/* Stripe Status Update */}
-          <article className="bg-surface-container-lowest rounded-DEFAULT shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] p-6 border-l-4 border-amber-500 outline outline-1 outline-outline-variant/5">
+          <article className="bg-surface-container-lowest rounded-xl shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] p-6 border-l-4 border-amber-500 outline outline-1 outline-outline-variant/5">
             <div className="flex gap-4">
               <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center p-2 border border-indigo-100">
                 <img className="w-full object-contain mix-blend-multiply" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx0Z02q1l1wzBVJMU1G5OxPHoKFDbl50SjyXl5L_fr8MhnhQ2ny1sGXs8qSgwtMpqym53FmDrHrVsqAtsbRHPY7MeL_VZD2l4JXqvSSWhdTqClBXNhDYxaLDMXMcCK5ctU8mOGnDqOpR3ESjEskHM-tdG41GC7dIe4VTfoKEI6w4uFCQuyy6ZCGJ7N62VF5wpG1_InoGreVklkQBzNWgFMaotSHf2p0rekcTT0Gh-dmKCVAgjXxkxm0Qr8gDYZCtLnk-qOQrk6z30" alt="Stripe" />
@@ -131,7 +135,7 @@ export default function StudentFeed() {
           </article>
 
           {/* Orange Announcement */}
-          <article className="bg-surface-container-lowest rounded-DEFAULT shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] overflow-hidden outline outline-1 outline-outline-variant/5">
+          <article className="bg-surface-container-lowest rounded-xl shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] overflow-hidden outline outline-1 outline-outline-variant/5">
             <img className="w-full h-48 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-fqU4-mLTAqk-TgXfSZaVxcurTXogzR6kJSwqwHKYeit4R8wpxpMEkQ3ze6xNZwRRtdS836wRwa1PvEkOM8b8qpEDSNR3-XsA1HQnHpPnJ7Ani0umBtpYqRWk2saRjEnsFckaZkCO0RlEQl6R0i4Ws2e8wOuED9caVyferelYZ6nTMaxS_IWXKezx_p9oj3bQY2CC2CyNQevsGob_jpbqQEu2QqoKJtBu6XXzD0RdkfJ9WfPzbaVDFQMr9dYWt97LybcVkIzJxFQ" alt="Office" />
             <div className="p-6">
               <div className="flex gap-4 mb-4">
@@ -150,7 +154,7 @@ export default function StudentFeed() {
           </article>
 
           {/* Deadline Reminder */}
-          <article className="bg-[#fef2f2] rounded-DEFAULT p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 outline outline-1 outline-red-100">
+          <article className="bg-[#fef2f2] rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 outline outline-1 outline-red-100">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-[#fee2e2] flex items-center justify-center text-[#dc2626] shrink-0">
                 <span className="material-symbols-outlined">alarm</span>
@@ -169,7 +173,7 @@ export default function StudentFeed() {
         {/* Right Column: Suggestions */}
         <section className="col-span-1 md:col-span-3 space-y-6">
           {/* Suggested Companies */}
-          <div className="bg-surface-container-lowest rounded-DEFAULT shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] p-6 outline outline-1 outline-outline-variant/5">
+          <div className="bg-surface-container-lowest rounded-xl shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] p-6 outline outline-1 outline-outline-variant/5">
             <h3 className="font-headline font-extrabold text-slate-900 mb-6 tracking-tight">Companies to Follow</h3>
             <div className="space-y-6">
               <div className="flex items-center justify-between gap-2">
@@ -214,7 +218,7 @@ export default function StudentFeed() {
           </div>
 
           {/* Recommended Offers */}
-          <div className="bg-[#fffbeb] rounded-DEFAULT p-6 relative overflow-hidden outline outline-1 outline-amber-100">
+          <div className="bg-[#fffbeb] rounded-xl p-6 relative overflow-hidden outline outline-1 outline-amber-100">
             <div className="relative z-10">
               <span className="inline-block bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded mb-4">OFFER</span>
               <h3 className="font-headline font-bold text-slate-900 leading-tight mb-2">Unlock Mock Interviews with Experts</h3>
@@ -224,16 +228,8 @@ export default function StudentFeed() {
             <div className="absolute -right-8 -top-8 w-24 h-24 bg-amber-200 rounded-full blur-2xl opacity-50"></div>
           </div>
 
-          {/* Footer Links */}
-          <div className="px-6 flex flex-wrap gap-x-4 gap-y-2 opacity-60">
-            <Link href="/" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-slate-900 transition-colors">Privacy</Link>
-            <Link href="/" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-slate-900 transition-colors">Terms</Link>
-            <Link href="/" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-slate-900 transition-colors">Cookies</Link>
-            <Link href="/" className="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-slate-900 transition-colors">Help</Link>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">© 2024 Beacon</span>
-          </div>
         </section>
-      </main>
+      </div>
     </div>
   );
 }

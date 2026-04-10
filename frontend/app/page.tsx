@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
   return (
@@ -36,9 +38,12 @@ export default function Home() {
                   <span className="material-symbols-outlined text-outline">location_on</span>
                   <input className="w-full border-none focus:ring-0 text-slate-900 placeholder:text-slate-400 outline-none p-2 bg-transparent" placeholder="Location" type="text"/>
                 </div>
-                <button className="w-full md:w-auto px-8 py-4 bg-secondary-container text-on-secondary-fixed font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-amber-500/20">
-                  Search Roles
-                </button>
+                <Link
+                  href="/browse"
+                  className="w-full md:w-auto inline-flex items-center justify-center px-8 py-4 bg-secondary-container text-on-secondary-fixed font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-amber-500/20 text-center"
+                >
+                  Search roles
+                </Link>
               </div>
               {/* Stats Counter */}
               <div className="mt-16 flex flex-wrap gap-12 border-t border-white/5 pt-12">
@@ -92,36 +97,51 @@ export default function Home() {
                 <span className="text-secondary font-bold tracking-widest uppercase text-xs mb-4 block">The Process</span>
                 <h2 className="text-5xl font-extrabold text-on-primary-fixed leading-tight tracking-tighter">Three Steps to Elite Placement</h2>
               </div>
-              <a className="flex items-center gap-2 text-on-primary-fixed font-bold border-b-2 border-secondary pb-1 group" href="#">
-                Explore Full Directory
+              <Link
+                href="/browse"
+                className="inline-flex items-center gap-2 text-on-primary-fixed font-bold border-b-2 border-secondary pb-1 group w-fit"
+              >
+                Explore full directory
                 <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
-              </a>
+              </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              <div className="relative p-10 bg-surface-container-lowest rounded-3xl transition-all hover:-translate-y-2 hover:shadow-xl group">
-                <span className="text-8xl font-black text-slate-100 absolute top-4 right-8 group-hover:text-secondary/5 transition-colors">01</span>
-                <div className="w-16 h-16 bg-on-primary-fixed text-white flex items-center justify-center rounded-2xl mb-8">
-                  <span className="material-symbols-outlined text-3xl">person_search</span>
-                </div>
-                <h3 className="text-2xl font-bold mb-4 text-on-primary-fixed">Curated Selection</h3>
-                <p className="text-slate-500 leading-relaxed">No generic lists. Browse internships vetted for quality, mentorship value, and career impact.</p>
-              </div>
-              <div className="relative p-10 bg-surface-container-lowest rounded-3xl transition-all hover:-translate-y-2 hover:shadow-xl group">
-                <span className="text-8xl font-black text-slate-100 absolute top-4 right-8 group-hover:text-secondary/5 transition-colors">02</span>
-                <div className="w-16 h-16 bg-on-primary-fixed text-white flex items-center justify-center rounded-2xl mb-8">
-                  <span className="material-symbols-outlined text-3xl">description</span>
-                </div>
-                <h3 className="text-2xl font-bold mb-4 text-on-primary-fixed">Smart Application</h3>
-                <p className="text-slate-500 leading-relaxed">Apply directly with a professional profile designed to highlight your specific academic strengths.</p>
-              </div>
-              <div className="relative p-10 bg-surface-container-lowest rounded-3xl transition-all hover:-translate-y-2 hover:shadow-xl group">
-                <span className="text-8xl font-black text-slate-100 absolute top-4 right-8 group-hover:text-secondary/5 transition-colors">03</span>
-                <div className="w-16 h-16 bg-on-primary-fixed text-white flex items-center justify-center rounded-2xl mb-8">
-                  <span className="material-symbols-outlined text-3xl">verified</span>
-                </div>
-                <h3 className="text-2xl font-bold mb-4 text-on-primary-fixed">Direct Connection</h3>
-                <p className="text-slate-500 leading-relaxed">Cut the wait. Get verified responses and schedule interviews directly through our secure console.</p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+              <Card className="relative overflow-hidden border-outline-variant/15 bg-surface-container-lowest shadow-none transition-all hover:-translate-y-2 hover:shadow-xl group">
+                <span className="text-8xl font-black text-slate-100 absolute top-4 right-6 group-hover:text-secondary/5 transition-colors pointer-events-none">01</span>
+                <CardHeader className="relative z-10 pb-2">
+                  <div className="w-16 h-16 bg-on-primary-fixed text-white flex items-center justify-center rounded-2xl mb-2">
+                    <span className="material-symbols-outlined text-3xl">person_search</span>
+                  </div>
+                  <CardTitle className="text-2xl">Curated selection</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10 text-slate-500 leading-relaxed">
+                  No generic lists. Browse internships vetted for quality, mentorship value, and career impact.
+                </CardContent>
+              </Card>
+              <Card className="relative overflow-hidden border-outline-variant/15 bg-surface-container-lowest shadow-none transition-all hover:-translate-y-2 hover:shadow-xl group">
+                <span className="text-8xl font-black text-slate-100 absolute top-4 right-6 group-hover:text-secondary/5 transition-colors pointer-events-none">02</span>
+                <CardHeader className="relative z-10 pb-2">
+                  <div className="w-16 h-16 bg-on-primary-fixed text-white flex items-center justify-center rounded-2xl mb-2">
+                    <span className="material-symbols-outlined text-3xl">description</span>
+                  </div>
+                  <CardTitle className="text-2xl">Smart application</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10 text-slate-500 leading-relaxed">
+                  Apply directly with a professional profile designed to highlight your specific academic strengths.
+                </CardContent>
+              </Card>
+              <Card className="relative overflow-hidden border-outline-variant/15 bg-surface-container-lowest shadow-none transition-all hover:-translate-y-2 hover:shadow-xl group">
+                <span className="text-8xl font-black text-slate-100 absolute top-4 right-6 group-hover:text-secondary/5 transition-colors pointer-events-none">03</span>
+                <CardHeader className="relative z-10 pb-2">
+                  <div className="w-16 h-16 bg-on-primary-fixed text-white flex items-center justify-center rounded-2xl mb-2">
+                    <span className="material-symbols-outlined text-3xl">verified</span>
+                  </div>
+                  <CardTitle className="text-2xl">Direct connection</CardTitle>
+                </CardHeader>
+                <CardContent className="relative z-10 text-slate-500 leading-relaxed">
+                  Cut the wait. Get verified responses and schedule interviews directly through our secure console.
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
@@ -160,7 +180,12 @@ export default function Home() {
                     <span className="material-symbols-outlined text-secondary">check_circle</span> CV Optimization Tools
                   </li>
                 </ul>
-                <button className="px-8 py-4 bg-on-primary-fixed text-white font-bold rounded-xl hover:bg-slate-800 transition-colors">Start Browsing Roles</button>
+                <Link
+                  href="/browse"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-on-primary-fixed text-white font-bold rounded-xl hover:bg-slate-800 transition-colors"
+                >
+                  Start browsing roles
+                </Link>
               </div>
             </div>
             {/* Employers Feature */}
@@ -189,7 +214,12 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <button className="px-8 py-4 border-2 border-on-primary-fixed text-on-primary-fixed font-bold rounded-xl hover:bg-on-primary-fixed hover:text-white transition-all">List Your Opportunity</button>
+                <Link
+                  href="/employer/post"
+                  className="inline-flex items-center justify-center px-8 py-4 border-2 border-on-primary-fixed text-on-primary-fixed font-bold rounded-xl hover:bg-on-primary-fixed hover:text-white transition-all"
+                >
+                  List your opportunity
+                </Link>
               </div>
               <div className="relative">
                 <div className="bg-on-primary-fixed rounded-[2.5rem] aspect-square flex items-center justify-center p-12 overflow-hidden">
@@ -233,8 +263,18 @@ export default function Home() {
               <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-8 tracking-tighter">Ready for the elite experience?</h2>
               <p className="text-xl text-slate-400 mb-12">Join the waitlist or post your first listing today. Be where the talent is.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <button className="px-10 py-5 bg-secondary-container text-on-secondary-fixed font-bold rounded-2xl text-lg hover:scale-[1.03] transition-transform active:scale-95 shadow-xl shadow-amber-500/10">Get Started Now</button>
-                <button className="px-10 py-5 bg-white/5 text-white border border-white/10 font-bold rounded-2xl text-lg hover:bg-white/10 transition-colors">Talk to Sales</button>
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center px-10 py-5 bg-secondary-container text-on-secondary-fixed font-bold rounded-2xl text-lg hover:scale-[1.03] transition-transform active:scale-95 shadow-xl shadow-amber-500/10 text-center"
+                >
+                  Get started now
+                </Link>
+                <Link
+                  href="/employer/dashboard"
+                  className="inline-flex items-center justify-center px-10 py-5 bg-white/5 text-white border border-white/10 font-bold rounded-2xl text-lg hover:bg-white/10 transition-colors text-center"
+                >
+                  Employer console
+                </Link>
               </div>
             </div>
           </div>

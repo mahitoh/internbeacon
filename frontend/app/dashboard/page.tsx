@@ -1,14 +1,10 @@
-import React from 'react';
-import Sidebar from '@/components/Sidebar';
-import Image from 'next/image';
+import React from "react";
 
 export default function Dashboard() {
   return (
-    <div className="bg-surface text-on-surface font-body selection:bg-secondary-container selection:text-on-secondary-container antialiased flex">
-      <Sidebar />
-      <main className="ml-72 min-h-screen p-12 w-full">
+    <>
         {/* Header Section */}
-        <header className="flex justify-between items-end mb-12">
+        <header className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <span className="text-xs uppercase tracking-[0.2em] font-bold text-secondary mb-2 block font-headline">Student Console</span>
             <h1 className="text-4xl font-extrabold tracking-tight text-on-background font-headline">Good morning, Jean-Luc</h1>
@@ -25,7 +21,7 @@ export default function Dashboard() {
         </header>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-4 gap-6 mb-12">
+        <div className="mb-12 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
           <div className="bg-surface-container-lowest p-6 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] border border-outline-variant/10">
             <p className="text-[11px] font-bold uppercase tracking-widest text-outline mb-1">Applications</p>
             <h3 className="text-3xl font-black text-on-background font-headline">12</h3>
@@ -45,8 +41,8 @@ export default function Dashboard() {
         </div>
 
         {/* Featured Insight & Hero Section */}
-        <div className="grid grid-cols-12 gap-8 mb-12">
-          <div className="col-span-8 bg-primary-container rounded-lg overflow-hidden relative min-h-[300px] flex items-center p-12">
+        <div className="mb-12 grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <div className="bg-primary-container relative flex min-h-[280px] items-center overflow-hidden rounded-lg p-8 lg:col-span-8 lg:min-h-[300px] lg:p-12">
             <div className="absolute inset-0 opacity-40">
               <img className="w-full h-full object-cover" data-alt="modern tech office meeting room with blurred people and warm sunlight filtering through architectural windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJEUkizAH8r1bsso910CYma7qCpq9EfYbAMJt5gSoS2Ia7TVZ9uyrWIfaU4oAYV0IeYepjCnHN43fqfePvqK7sMEHnfOumLeky1w9aEX7MkKGc8H5-Jtbj7d94AY2isNbcH7QQtuXAdyTNPD-atXgcJX94IRcNjc9QDQPDahZRBhPsAyaSLILee6cpJS9Pia7VJgDG8jRFv8h03F33jQTm60ZinIRm-uX2ALsImSook4v2RqbSqxtZpceR_fA0O3N88_Q5AZqAHXM" alt="Office meeting room"/>
             </div>
@@ -61,7 +57,7 @@ export default function Dashboard() {
             </div>
           </div>
           {/* Profile Chip Column */}
-          <div className="col-span-4 bg-surface-container-low rounded-lg p-8 flex flex-col justify-between">
+          <div className="flex flex-col justify-between rounded-lg bg-surface-container-low p-8 lg:col-span-4">
             <div>
               <h3 className="text-lg font-bold text-on-background mb-2 font-headline">Architectural Portfolio</h3>
               <p className="text-xs text-outline leading-relaxed mb-6">Your visual narrative is outperforming 85% of other elite candidates.</p>
@@ -101,7 +97,7 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Card 1 */}
             <div className="group bg-surface-container-lowest rounded-lg overflow-hidden shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] hover:shadow-lg transition-all duration-300">
               <div className="h-40 overflow-hidden relative">
@@ -152,21 +148,6 @@ export default function Dashboard() {
             </div>
           </div>
         </section>
-
-        {/* Footer */}
-        <footer className="w-full py-12 mt-auto border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
-            <span className="text-lg font-bold text-slate-900 dark:text-slate-50 tracking-tight font-headline">InternBeacon</span>
-            <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-slate-400 mt-1 font-headline">© 2024 InternBeacon Cameroon. All rights reserved.</p>
-          </div>
-          <div className="flex gap-8">
-            <a className="text-xs uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors font-headline" href="#">Legal</a>
-            <a className="text-xs uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors font-headline" href="#">Privacy</a>
-            <a className="text-xs uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors font-headline" href="#">Contact</a>
-            <a className="text-xs uppercase tracking-widest text-amber-600 dark:text-amber-400 font-bold font-headline" href="#">FR/EN</a>
-          </div>
-        </footer>
-      </main>
-    </div>
+    </>
   );
 }

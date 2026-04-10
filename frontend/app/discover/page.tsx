@@ -152,7 +152,7 @@ export default function BrowseAndDiscover() {
                       <span className="material-symbols-outlined text-lg">payments</span>
                       <span className="text-xs font-bold">$4,500/mo</span>
                     </div>
-                    <div class="flex items-center gap-2 text-outline">
+                    <div className="flex items-center gap-2 text-outline">
                       <span className="material-symbols-outlined text-lg">schedule</span>
                       <span className="text-xs font-bold">2 days left</span>
                     </div>

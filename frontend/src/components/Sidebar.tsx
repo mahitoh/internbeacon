@@ -1,55 +1,109 @@
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Logo from "@/components/Logo";
+
+function navItemClass(active: boolean) {
+  return active
+    ? "flex items-center gap-3 px-4 py-3 rounded-xl bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-900 dark:text-slate-50 dark:ring-slate-700"
+    : "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-200/55 dark:text-slate-400 dark:hover:bg-slate-800/50 transition-colors";
+}
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
+  const isDashHome = pathname === "/dashboard";
+  const isApplications = pathname.startsWith("/dashboard/applications");
+  const isListings = pathname.startsWith("/listings");
+  const isFeed = pathname.startsWith("/dashboard/feed");
+  const isProfile = pathname.startsWith("/dashboard/profile");
+
   return (
-    <aside className="fixed left-0 top-0 h-full p-6 flex flex-col gap-4 bg-slate-50 dark:bg-slate-950 w-72 border-r-0 z-40">
+    <aside className="fixed left-0 top-0 z-40 hidden h-full w-72 flex-col gap-4 border-r border-slate-200/80 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-950 md:flex">
       <div className="mb-8 px-2">
-        <span className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter font-headline">InternBeacon</span>
+        <Logo className="h-8 w-auto max-w-[180px]" />
         <div className="mt-8 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden">
-            <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB76bvavzEkVAGqwRTQU1uvB44JkNxIzkxkq4hlyuR1IjtmjrAzRGL_7RdFQiscYjovQ8am2M8Dq3Le77YKBDq3p_UTIKeuJXessBjv-wieUMVj8KXl6yoLFmsdSO6hh3r6wfOo0w7jvCHNuMah7Lb1opxsyutsc2M2albB6uLjYxd5AaRGJNufq2AyCr03xfJfYoeQ_UJzjZMiDA2DDCuUdJBpBLjl6jp9oOzM__lr2vnUjE88ajLGQSNA6VVGa6RnobQ_cPy6QE" alt="User avatar"/>
+          <div className="h-10 w-10 overflow-hidden rounded-full bg-slate-200">
+            <img
+              className="h-full w-full object-cover"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB76bvavzEkVAGqwRTQU1uvB44JkNxIzkxkq4hlyuR1IjtmjrAzRGL_7RdFQiscYjovQ8am2M8Dq3Le77YKBDq3p_UTIKeuJXessBjv-wieUMVj8KXl6yoLFmsdSO6hh3r6wfOo0w7jvCHNuMah7Lb1opxsyutsc2M2albB6uLjYxd5AaRGJNufq2AyCr03xfJfYoeQ_UJzjZMiDA2DDCuUdJBpBLjl6jp9oOzM__lr2vnUjE88ajLGQSNA6VVGa6RnobQ_cPy6QE"
+              alt="User avatar"
+            />
           </div>
           <div>
-            <p className="text-[13px] font-semibold text-slate-900 dark:text-slate-50 leading-tight">Jean-Luc</p>
-            <p className="text-[11px] text-slate-500">Elite Talent View</p>
+            <p className="text-[13px] font-semibold leading-tight text-slate-900 dark:text-slate-50">
+              Jean-Luc
+            </p>
+            <p className="text-[11px] text-slate-500">Student</p>
           </div>
         </div>
       </div>
-      <nav className="flex-1 flex flex-col gap-1">
-        <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 rounded-xl shadow-sm hover:translate-x-1 transition-transform duration-200 group">
+      <nav className="flex flex-1 flex-col gap-1">
+        <Link
+          href="/dashboard"
+          className={`${navItemClass(isDashHome)} hover:translate-x-0.5 transition-transform duration-200`}
+        >
           <span className="material-symbols-outlined text-[20px]">dashboard</span>
           <span className="text-[13px] font-semibold">Dashboard</span>
         </Link>
-        <Link href="/dashboard/applications" className="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-xl hover:translate-x-1 transition-transform duration-200 group">
+        <Link
+          href="/dashboard/feed"
+          className={`${navItemClass(isFeed)} hover:translate-x-0.5 transition-transform duration-200`}
+        >
+          <span className="material-symbols-outlined text-[20px]">dynamic_feed</span>
+          <span className="text-[13px] font-semibold">Feed</span>
+        </Link>
+        <Link
+          href="/dashboard/applications"
+          className={`${navItemClass(isApplications)} hover:translate-x-0.5 transition-transform duration-200`}
+        >
           <span className="material-symbols-outlined text-[20px]">description</span>
           <span className="text-[13px] font-semibold">Applications</span>
         </Link>
-        <Link href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-xl hover:translate-x-1 transition-transform duration-200 group">
+        <Link
+          href="/listings"
+          className={`${navItemClass(isListings)} hover:translate-x-0.5 transition-transform duration-200`}
+        >
           <span className="material-symbols-outlined text-[20px]">bookmark</span>
-          <span className="text-[13px] font-semibold">Saved</span>
+          <span className="text-[13px] font-semibold">Saved listings</span>
         </Link>
-        <Link href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-xl hover:translate-x-1 transition-transform duration-200 group">
-          <span className="material-symbols-outlined text-[20px]">insights</span>
-          <span className="text-[13px] font-semibold">Analytics</span>
+        <Link
+          href="/dashboard/profile"
+          className={`${navItemClass(isProfile)} hover:translate-x-0.5 transition-transform duration-200`}
+        >
+          <span className="material-symbols-outlined text-[20px]">person</span>
+          <span className="text-[13px] font-semibold">Profile</span>
         </Link>
-        <Link href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-xl hover:translate-x-1 transition-transform duration-200 group">
-          <span className="material-symbols-outlined text-[20px]">settings</span>
-          <span className="text-[13px] font-semibold">Settings</span>
+        <Link
+          href="/browse"
+          className={`${navItemClass(pathname.startsWith("/browse"))} hover:translate-x-0.5 transition-transform duration-200`}
+        >
+          <span className="material-symbols-outlined text-[20px]">search</span>
+          <span className="text-[13px] font-semibold">Browse roles</span>
         </Link>
-        <Link href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 rounded-xl hover:translate-x-1 transition-transform duration-200 group">
+        <Link
+          href="/login"
+          className={`${navItemClass(false)} hover:translate-x-0.5 transition-transform duration-200`}
+        >
           <span className="material-symbols-outlined text-[20px]">help</span>
           <span className="text-[13px] font-semibold">Help</span>
         </Link>
       </nav>
       <div className="mt-auto flex flex-col gap-4">
-        <button className="bg-secondary-container text-on-secondary-container py-3 px-4 rounded-xl text-[13px] font-bold transition-all hover:opacity-90 active:scale-95">
-          Upgrade Plan
+        <button
+          type="button"
+          className="rounded-xl bg-secondary-container px-4 py-3 text-[13px] font-bold text-on-secondary-container transition-all hover:opacity-90 active:scale-95"
+        >
+          Upgrade plan
         </button>
-        <Link href="/" className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-900 transition-colors">
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-4 py-3 text-slate-400 transition-colors hover:text-slate-900 dark:hover:text-slate-200"
+        >
           <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span className="text-[13px] font-semibold">Log Out</span>
+          <span className="text-[13px] font-semibold">Log out</span>
         </Link>
       </div>
     </aside>

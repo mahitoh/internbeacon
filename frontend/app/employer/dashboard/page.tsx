@@ -1,12 +1,9 @@
 import React from 'react';
-import EmployerSidebar from '@/components/EmployerSidebar';
 import Link from 'next/link';
 
 export default function EmployerDashboard() {
   return (
-    <div className="bg-surface text-on-surface font-body selection:bg-secondary-container selection:text-on-secondary-container min-h-screen">
-      <EmployerSidebar />
-      <main className="md:ml-72 min-h-screen p-8 lg:p-12 max-w-[1600px] mx-auto bg-[#f7f9fb]">
+    <div className="w-full">
         {/* Header Section */}
         <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
@@ -279,20 +276,6 @@ export default function EmployerDashboard() {
           </section>
         </div>
 
-        {/* Footer */}
-        <footer className="w-full py-12 mt-12 border-t border-slate-100 bg-slate-50 px-8 flex flex-col md:flex-row justify-between items-center z-30 relative rounded-xl">
-          <div className="mb-6 md:mb-0">
-            <h4 className="text-lg font-bold text-slate-900 tracking-tighter">InternBeacon</h4>
-            <p className="text-xs uppercase tracking-widest text-slate-400 mt-1">© 2024 InternBeacon Cameroon. All rights reserved.</p>
-          </div>
-          <div className="flex gap-8">
-            <a className="text-xs uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors cursor-pointer" href="#">Legal</a>
-            <a className="text-xs uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors cursor-pointer" href="#">Privacy</a>
-            <a className="text-xs uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors cursor-pointer" href="#">Contact</a>
-            <a className="text-xs uppercase tracking-widest text-amber-600 font-bold transition-colors cursor-pointer" href="#">FR/EN</a>
-          </div>
-        </footer>
-      </main>
     </div>
   );
 }

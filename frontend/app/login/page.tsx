@@ -99,7 +99,12 @@ export default function Login() {
       {/* Side Content / Decorative Visual (Editorial Feel) */}
       <div className="hidden lg:block fixed bottom-12 right-12 w-72">
         <div className="bg-primary-container p-6 rounded-lg text-white shadow-2xl">
-          <span className="material-symbols-outlined text-secondary-container text-4xl mb-4 font-variation-settings: 'FILL' 1;">verified</span>
+          <span
+            className="material-symbols-outlined text-secondary-container text-4xl mb-4"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+          >
+            verified
+          </span>
           <h3 className="text-xl font-bold mb-2 font-headline">Curated for Quality</h3>
           <p className="text-sm text-on-tertiary-container leading-relaxed">
             Every company and student profile is hand-vetted to ensure the highest standard of professional synergy.

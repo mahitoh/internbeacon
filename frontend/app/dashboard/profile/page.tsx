@@ -1,17 +1,12 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 export default function StudentProfile() {
   return (
-    <div className="bg-surface text-on-surface antialiased min-h-screen flex flex-col font-body">
-      <Navbar />
-
-      <main className="pt-32 pb-20 px-6 max-w-7xl mx-auto flex-grow w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div className="mx-auto w-full max-w-7xl">
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
           <section className="lg:col-span-4 space-y-8">
             <div className="bg-surface-container-lowest p-8 rounded-lg shadow-sm">
               <div className="relative group mb-8">
@@ -142,19 +137,6 @@ export default function StudentProfile() {
             </div>
           </section>
         </div>
-      </main>
-
-      <footer className="bg-surface-container-high py-12 px-6 border-t border-outline-variant/10 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-lg font-bold tracking-tighter text-slate-900 font-headline">InternBeacon</div>
-          <div className="flex gap-8 text-sm font-medium text-on-surface-variant">
-            <Link className="hover:text-primary-container transition-colors font-headline" href="#">Privacy</Link>
-            <Link className="hover:text-primary-container transition-colors font-headline" href="#">Terms</Link>
-            <Link className="hover:text-primary-container transition-colors font-headline" href="#">Contact</Link>
-          </div>
-          <p className="text-xs text-outline font-headline">© 2024 InternBeacon. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }

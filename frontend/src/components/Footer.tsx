@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import Logo from "@/components/Logo";
 
 export default function Footer() {
   return (
@@ -9,7 +10,13 @@ export default function Footer() {
           {/* Brand and Newsletter */}
           <div className="lg:col-span-4 flex flex-col gap-8">
             <div>
-              <span className="text-3xl font-bold tracking-tighter font-headline block mb-4">InternBeacon</span>
+              <div className="mb-4 [&_img]:brightness-0 [&_img]:invert">
+                <Logo
+                  withLink
+                  className="h-9 w-auto max-w-[200px]"
+                  linkClassName="inline-flex items-center rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-container"
+                />
+              </div>
               <p className="text-slate-400 max-w-sm leading-relaxed">The elite bridge between Cameroon&apos;s top-tier academic talent and industry-leading companies.</p>
             </div>
             <div className="space-y-4">
@@ -36,37 +43,37 @@ export default function Footer() {
             <div className="space-y-6">
               <h4 className="text-sm font-bold uppercase tracking-widest font-headline text-white">Platform</h4>
               <ul className="flex flex-col gap-4">
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Explore Roles</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Skill Matching</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Success Stories</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Student Hub</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/browse">Browse internships</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/discover">Discover</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/listings">Opportunity index</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/dashboard">Student hub</Link></li>
               </ul>
             </div>
             <div className="space-y-6">
               <h4 className="text-sm font-bold uppercase tracking-widest font-headline text-white">Company</h4>
               <ul className="flex flex-col gap-4">
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Post a Role</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Talent Search</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Enterprise Solutions</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Pricing</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/employer/post">Post a role</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/employer/applicants">Applicants</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/employer/dashboard">Employer dashboard</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/employer/messages">Messages</Link></li>
               </ul>
             </div>
             <div className="space-y-6">
               <h4 className="text-sm font-bold uppercase tracking-widest font-headline text-white">Resources</h4>
               <ul className="flex flex-col gap-4">
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">CV Builder</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Interview Guide</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Career Blog</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Help Center</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/dashboard/profile">Your profile</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/dashboard/applications">Applications</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/signup">Sign up</Link></li>
+                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="/login">Log in</Link></li>
               </ul>
             </div>
             <div className="space-y-6">
               <h4 className="text-sm font-bold uppercase tracking-widest font-headline text-white">Legal</h4>
               <ul className="flex flex-col gap-4">
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Privacy Policy</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Terms of Use</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Cookie Policy</Link></li>
-                <li><Link className="text-slate-400 hover:text-white transition-colors text-sm font-medium" href="#">Safety Tips</Link></li>
+                <li><span className="text-slate-500 text-sm font-medium">Privacy policy — coming soon</span></li>
+                <li><span className="text-slate-500 text-sm font-medium">Terms of use — coming soon</span></li>
+                <li><span className="text-slate-500 text-sm font-medium">Cookie policy — coming soon</span></li>
+                <li><span className="text-slate-500 text-sm font-medium">Safety tips — coming soon</span></li>
               </ul>
             </div>
           </div>
@@ -81,6 +88,12 @@ export default function Footer() {
             <p className="text-slate-500 text-xs font-medium">© 2024 InternBeacon Cameroon. Built for the elite.</p>
           </div>
           <div className="flex items-center gap-8">
+            <Link
+              href="/dev/pages"
+              className="text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors"
+            >
+              All routes
+            </Link>
             <a className="text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest cursor-pointer transition-colors" href="#">FR/EN</a>
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>

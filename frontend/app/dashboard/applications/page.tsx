@@ -1,15 +1,11 @@
 "use client";
 
 import React from 'react';
-import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 
 export default function ApplicationTracking() {
   return (
-    <div className="bg-surface text-on-surface antialiased min-h-screen flex flex-col font-body">
-      <Navbar />
-
-      <main className="pt-32 pb-20 px-6 max-w-7xl mx-auto flex-grow w-full">
+    <div className="w-full max-w-7xl">
         <header className="mb-12">
           <h1 className="text-5xl font-extrabold tracking-tight text-primary-container mb-4 font-headline">Application Tracker</h1>
           <p className="text-on-surface-variant text-lg max-w-2xl">Manage your career journey. Monitor progress, prepare for interviews, and keep track of your future opportunities in one curated workspace.</p>
@@ -291,49 +287,6 @@ export default function ApplicationTracking() {
             </div>
           </div>
         </section>
-      </main>
-
-      <footer className="bg-primary-container text-white py-16 px-6 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tighter mb-4 font-headline">InternBeacon</h2>
-            <p className="text-white/50 max-w-xs">Building the bridge between ambitious students and the world's most innovative companies.</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-12">
-            <div>
-              <h4 className="font-bold mb-4 font-headline">Platform</h4>
-              <ul className="space-y-2 text-white/50">
-                <li><Link href="/" className="hover:text-amber-500">Find Work</Link></li>
-                <li><Link href="/" className="hover:text-amber-500">Mentorship</Link></li>
-                <li><Link href="/" className="hover:text-amber-500">Resources</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4 font-headline">Company</h4>
-              <ul className="space-y-2 text-white/50">
-                <li><Link href="/" className="hover:text-amber-500">About Us</Link></li>
-                <li><Link href="/" className="hover:text-amber-500">Careers</Link></li>
-                <li><Link href="/" className="hover:text-amber-500">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4 font-headline">Social</h4>
-              <ul className="space-y-2 text-white/50">
-                <li><a href="#" className="hover:text-amber-500">LinkedIn</a></li>
-                <li><a href="#" className="hover:text-amber-500">Twitter</a></li>
-                <li><a href="#" className="hover:text-amber-500">Instagram</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between text-white/30 text-sm">
-          <span className="font-headline">© 2024 InternBeacon. All rights reserved.</span>
-          <div className="flex gap-6 mt-4 md:mt-0 font-headline">
-            <Link href="/" className="hover:text-white">Privacy Policy</Link>
-            <Link href="/" className="hover:text-white">Terms of Service</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

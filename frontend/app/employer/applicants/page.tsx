@@ -4,49 +4,7 @@ import Image from 'next/image';
 
 export default function ManageApplicants() {
   return (
-    <div className="bg-surface text-on-surface antialiased min-h-screen flex overflow-hidden font-body">
-      {/* SideNavBar Shell */}
-      <aside className="h-screen w-64 bg-slate-900 flex flex-col py-8 px-4 flex-shrink-0 z-40 hidden md:flex">
-        <div className="mb-10 px-4">
-          <h1 className="text-xl font-bold text-white tracking-tighter font-headline">InternBeacon</h1>
-          <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mt-1 font-headline">Recruiter Workspace</p>
-        </div>
-
-        <nav className="flex-1 space-y-1">
-          <Link href="/employer/dashboard" className="text-slate-400 hover:text-white px-4 py-3 flex items-center gap-3 transition-colors hover:bg-white/5 rounded-xl group">
-            <span className="material-symbols-outlined">dashboard</span>
-            <span className="text-sm font-medium uppercase tracking-wider font-label">Dashboard</span>
-          </Link>
-          <Link href="/employer/applicants" className="bg-white/10 text-white rounded-xl px-4 py-3 flex items-center gap-3 active:scale-[0.98] transition-all group">
-            <span className="material-symbols-outlined">description</span>
-            <span className="text-sm font-medium uppercase tracking-wider font-label">Applications</span>
-          </Link>
-          <Link href="#" className="text-slate-400 hover:text-white px-4 py-3 flex items-center gap-3 transition-colors hover:bg-white/5 rounded-xl group">
-            <span className="material-symbols-outlined">group</span>
-            <span className="text-sm font-medium uppercase tracking-wider font-label">Talent Pool</span>
-          </Link>
-          <Link href="#" className="text-slate-400 hover:text-white px-4 py-3 flex items-center gap-3 transition-colors hover:bg-white/5 rounded-xl group">
-            <span className="material-symbols-outlined">settings</span>
-            <span className="text-sm font-medium uppercase tracking-wider font-label">Settings</span>
-          </Link>
-        </nav>
-
-        <div className="mt-auto px-4 py-6 bg-white/5 rounded-2xl">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold">JD</div>
-            <div>
-              <p className="text-xs font-bold text-white">Jane Doe</p>
-              <p className="text-[10px] text-slate-500">Premium Recruiter</p>
-            </div>
-          </div>
-          <button className="w-full py-2 bg-secondary-container text-on-secondary-container text-[11px] font-bold uppercase tracking-widest rounded-lg hover:opacity-90 transition-opacity">
-            Upgrade Plan
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Canvas */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden font-body antialiased md:min-h-[calc(100dvh-8rem)]">
         {/* TopNavBar Shell (Embedded into Header) */}
         <header className="h-20 bg-white/80 backdrop-blur-xl flex justify-between items-center px-8 flex-shrink-0 z-30">
           <div className="flex items-center gap-4">
@@ -62,10 +20,10 @@ export default function ManageApplicants() {
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
               <input type="text" placeholder="Search applicants..." className="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm focus:ring-2 focus:ring-primary-container w-64" />
             </div>
-            <button className="bg-primary-container text-white px-6 py-2.5 rounded-full font-semibold text-sm hover:opacity-90 transition-all flex items-center gap-2">
+            <Link href="/employer/post" className="bg-primary-container text-white px-6 py-2.5 rounded-full font-semibold text-sm hover:opacity-90 transition-all flex items-center gap-2">
               <span className="material-symbols-outlined text-[20px]">add</span>
-              <span className="hidden sm:inline">Post Internship</span>
-            </button>
+              <span className="hidden sm:inline">Post internship</span>
+            </Link>
           </div>
         </header>
 
@@ -339,7 +297,6 @@ export default function ManageApplicants() {
             <button className="text-xs font-bold text-secondary-container hover:underline uppercase tracking-widest shrink-0">View Analysis</button>
           </div>
         </section>
-      </main>
     </div>
   );
 }
