@@ -7,8 +7,8 @@ import Logo from "@/components/Logo";
 
 function navItemClass(active: boolean) {
   return active
-    ? "flex items-center gap-3 px-4 py-3 rounded-xl bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-900 dark:text-slate-50 dark:ring-slate-700"
-    : "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-200/55 dark:text-slate-400 dark:hover:bg-slate-800/50 transition-colors";
+    ? "flex items-center gap-3.5 rounded-2xl bg-white px-4 py-3.5 text-slate-900 shadow-md shadow-slate-200/50 ring-1 ring-slate-200/90 dark:bg-slate-900 dark:text-slate-50 dark:ring-slate-700"
+    : "flex items-center gap-3.5 rounded-2xl px-4 py-3.5 text-slate-500 transition-colors hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-800/55";
 }
 
 export default function Sidebar() {
@@ -46,55 +46,55 @@ export default function Sidebar() {
           className={`${navItemClass(isDashHome)} hover:translate-x-0.5 transition-transform duration-200`}
         >
           <span className="material-symbols-outlined text-[20px]">dashboard</span>
-          <span className="text-[13px] font-semibold">Dashboard</span>
+          <span className="text-[14px] font-semibold">Dashboard</span>
         </Link>
         <Link
           href="/dashboard/feed"
           className={`${navItemClass(isFeed)} hover:translate-x-0.5 transition-transform duration-200`}
         >
           <span className="material-symbols-outlined text-[20px]">dynamic_feed</span>
-          <span className="text-[13px] font-semibold">Feed</span>
+          <span className="text-[14px] font-semibold">Feed</span>
         </Link>
         <Link
           href="/dashboard/applications"
           className={`${navItemClass(isApplications)} hover:translate-x-0.5 transition-transform duration-200`}
         >
           <span className="material-symbols-outlined text-[20px]">description</span>
-          <span className="text-[13px] font-semibold">Applications</span>
+          <span className="text-[14px] font-semibold">Applications</span>
         </Link>
         <Link
           href="/listings"
           className={`${navItemClass(isListings)} hover:translate-x-0.5 transition-transform duration-200`}
         >
           <span className="material-symbols-outlined text-[20px]">bookmark</span>
-          <span className="text-[13px] font-semibold">Saved listings</span>
+          <span className="text-[14px] font-semibold">Saved listings</span>
         </Link>
         <Link
           href="/dashboard/profile"
           className={`${navItemClass(isProfile)} hover:translate-x-0.5 transition-transform duration-200`}
         >
           <span className="material-symbols-outlined text-[20px]">person</span>
-          <span className="text-[13px] font-semibold">Profile</span>
+          <span className="text-[14px] font-semibold">Profile</span>
         </Link>
         <Link
           href="/browse"
           className={`${navItemClass(pathname.startsWith("/browse"))} hover:translate-x-0.5 transition-transform duration-200`}
         >
           <span className="material-symbols-outlined text-[20px]">search</span>
-          <span className="text-[13px] font-semibold">Browse roles</span>
+          <span className="text-[14px] font-semibold">Browse roles</span>
         </Link>
         <Link
           href="/login"
           className={`${navItemClass(false)} hover:translate-x-0.5 transition-transform duration-200`}
         >
           <span className="material-symbols-outlined text-[20px]">help</span>
-          <span className="text-[13px] font-semibold">Help</span>
+          <span className="text-[14px] font-semibold">Help</span>
         </Link>
       </nav>
       <div className="mt-auto flex flex-col gap-4">
         <button
           type="button"
-          className="rounded-xl bg-secondary-container px-4 py-3 text-[13px] font-bold text-on-secondary-container transition-all hover:opacity-90 active:scale-95"
+          className="rounded-2xl bg-secondary-container px-4 py-3.5 text-sm font-bold text-on-secondary-container shadow-md shadow-amber-500/20 transition-all hover:opacity-90 active:scale-95"
         >
           Upgrade plan
         </button>
@@ -103,7 +103,7 @@ export default function Sidebar() {
           className="flex items-center gap-3 px-4 py-3 text-slate-400 transition-colors hover:text-slate-900 dark:hover:text-slate-200"
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span className="text-[13px] font-semibold">Log out</span>
+          <span className="text-[14px] font-semibold">Log out</span>
         </Link>
       </div>
     </aside>

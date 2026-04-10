@@ -1,171 +1,189 @@
 # InternBeacon
 
-InternBeacon is an internship matching + search platform built with a **simple production structure**:
-- `apps/web` → Next.js frontend
-- `apps/api` → Node.js backend API
-
-> Goal: keep it clean, scalable, and easy for solo dev / small team workflows without heavy monorepo tooling.
+**Curated internships for students. A serious hiring console for employers.**  
+InternBeacon is a Next.js application for browsing roles, tracking applications, and managing employer workflows—styled as a premium marketplace with a consistent app shell across student and company experiences.
 
 ---
 
-## Why this structure (without Turborepo)
+## Why InternBeacon exists
 
-You asked for production quality, but not unnecessary complexity.
-
-This repo uses **npm workspaces only** (lightweight) so you still get:
-- shared root scripts (`dev`, `build`, `lint`, `typecheck`, `test`)
-- separate deployment targets for frontend and backend
-- clear boundaries between web and API
-
-And you avoid:
-- extra task-runner config overhead
-- additional DX complexity early in the project
+Students waste time in scattered WhatsApp groups and unvetted listings. Employers need a single place to post roles and review applicants without losing context. This codebase is the **UI foundation**: routes, layouts, and design system tokens are wired so you can plug in auth, a real API, and data later without redrawing every screen.
 
 ---
 
-## Project structure
+## What you get today
+
+| Area | Routes | Purpose |
+|------|--------|---------|
+| **Marketing** | `/`, `/browse`, `/discover`, `/listings` | Landing, search/browse, discovery, editorial listings index |
+| **Auth** | `/login`, `/signup` | Sign-in flows (UI) |
+| **Student console** | `/dashboard`, `/dashboard/feed`, `/dashboard/applications`, `/dashboard/profile` | Home stats, social-style feed, tracker, profile |
+| **Employer console** | `/employer/dashboard`, `/employer/applicants`, `/employer/messages`, `/employer/post` | Command center, pipeline, chat, posting wizard |
+| **Detail** | `/internships/[id]`, `/offers/[id]`, `/company/[id]` | Dynamic detail placeholders |
+| **Dev** | `/dev/pages` | Clickable index of all static routes while building |
+
+Layouts enforce **one sidebar width (`w-72`)**, **shared padding**, and **mobile top navigation** so the product does not feel like a pile of unrelated HTML exports.
+
+---
+
+## Tech stack
+
+- **[Next.js 16](https://nextjs.org)** (App Router, React 19)
+- **TypeScript**
+- **Tailwind CSS v4** (`@import "tailwindcss"` + `@theme` tokens in `app/globals.css`)
+- **Material Symbols** (icons, loaded in root layout)
+- **shadcn-style primitives** (`cn`, `Card`, Base UI `Button` where applicable)
+- **Design source**: HTML references live in `stitch_assets/` (and mirrored under `frontend/public/assets/` for static peek)
+
+---
+
+## Repository layout
 
 ```text
 internbeacon/
-├── .github/
-│   └── workflows/
-│       ├── ci.yml              # PR/push checks
-│       └── deploy.yml          # Deploy placeholders
-├── apps/
-│   ├── web/                    # Next.js app (frontend)
-│   └── api/                    # Node.js + Express API
-├── .env.example                # root shared env template
-├── package.json                # root workspace scripts
-└── README.md
+├── README.md                 # You are here
+├── stitch_assets/            # Original Stitch / export HTML (reference)
+└── frontend/                 # Next.js application — this is what you run
+    ├── app/                  # Routes + route-group layouts
+    │   ├── layout.tsx        # Fonts, Material Symbols, global body classes
+    │   ├── globals.css       # Tailwind theme + design tokens
+    │   ├── dashboard/
+    │   │   └── layout.tsx    # Student shell (sidebar + footer)
+    │   └── employer/
+    │       └── layout.tsx    # Employer shell (sidebar, no heavy footer)
+    ├── public/
+    │   └── assets/
+    │       └── logo.svg
+    └── src/
+        ├── components/       # Navbar, Footer, Logo, Sidebar, shells, ui/
+        └── lib/                # utils, data helpers
 ```
 
-### API structure (`apps/api`)
-
-```text
-apps/api/
-├── src/
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── routes/
-│   ├── services/
-│   ├── utils/
-│   ├── app.ts                  # express app + middleware
-│   └── server.ts               # server bootstrap
-├── .env.example
-├── package.json
-└── tsconfig.json
-```
-
----
-
-## Docs strategy (important)
-
-You are absolutely right: many big repos do **not** keep huge docs trees inside the codebase.
-
-For this project, use this practical rule:
-
-- Keep **critical onboarding docs in `README.md`** (always in-repo).
-- Keep long product/design docs in **Notion / Wiki / Google Docs** if your team prefers.
-- Add only a small in-repo `/docs` folder **later** if contributor count and complexity grow.
-
-So: **README-first now, docs folder optional later**.
+> **Note:** An older README may have described `apps/web` and `apps/api`. The current source of truth for the UI is **`frontend/`**. Add a separate API service when you are ready and link it from here.
 
 ---
 
 ## Quick start
 
-## 1) Create frontend app
+### Requirements
 
-If `apps/web` is not yet initialized:
+- **Node.js 20+** (LTS recommended)
+- **npm** (ships with Node)
 
-```bash
-npx create-next-app@latest apps/web --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
-```
-
-## 2) Install dependencies
+### Install and run
 
 ```bash
+cd frontend
 npm install
-```
-
-## 3) Run apps
-
-```bash
 npm run dev
 ```
 
-- web app command runs via: `npm run dev:web`
-- API command runs via: `npm run dev:api`
+Open [http://localhost:3000](http://localhost:3000).
 
----
-
-## Environment setup
+### Production build
 
 ```bash
-cp .env.example .env
-cp apps/api/.env.example apps/api/.env
+cd frontend
+npm run build
+npm start
 ```
 
-Set your values before production deploy.
-
----
-
-## Workspace scripts
-
-From repo root:
+### Lint
 
 ```bash
-npm run dev         # run web + api together
-npm run dev:web     # run frontend only
-npm run dev:api     # run backend only
-npm run build       # build all workspaces
-npm run lint        # lint all workspaces
-npm run typecheck   # typecheck all workspaces
-npm run test        # test all workspaces
+cd frontend
+npm run lint
 ```
 
 ---
 
-## CI/CD overview
+## Environment variables
 
-### CI (`.github/workflows/ci.yml`)
-Runs on:
-- pull requests to `main`
-- pushes to `main`
+There is no hard dependency on `.env` for the static UI. When you add API calls, auth, or analytics, create `frontend/.env.local` (never commit secrets) and document each variable in this section.
 
-Checks:
-- install dependencies (`npm ci`)
-- lint
-- typecheck
-- test
+Suggested placeholders for a real launch:
 
-### Deploy (`.github/workflows/deploy.yml`)
-Runs on:
-- push to `main`
-
-Contains placeholder jobs for:
-- web deployment (Vercel or your provider)
-- api deployment (Render / Railway / Fly.io / etc.)
-
-Wire provider secrets before enabling real deployment steps.
+- `NEXT_PUBLIC_APP_URL` — canonical site URL
+- `DATABASE_URL` — if you add Prisma / Drizzle later
+- `AUTH_SECRET` — session/JWT signing
+- Provider keys (OAuth, email, uploads) as needed
 
 ---
 
-## Production notes
+## Design system (short)
 
-- Keep backend logic in `services/`, not controllers.
-- Keep route handlers thin and validation strict.
-- Add rate limiting + auth middleware before public launch.
-- Add observability (Sentry/log drains/uptime checks) before scale.
-- Add integration tests for matching + search flows early.
+Semantic colors and fonts are defined in `app/globals.css` under `@theme` (e.g. `on-primary-fixed`, `secondary-container`, `surface-container-low`). Components use Tailwind utilities mapped to those tokens so the Stitch palette stays consistent.
+
+- **Display / headlines**: Plus Jakarta Sans (`--font-display`)
+- **Body**: Inter (`--font-sans`)
+- **Utilities**: `font-headline`, `font-body` (aliases in theme)
 
 ---
 
-## Next steps recommended
+## Navigation architecture
 
-1. Initialize `apps/web` fully with Next.js (if still placeholder).
-2. Add request validation (`zod`) in API.
-3. Add database layer (Prisma + Postgres).
-4. Add auth (Clerk / Better Auth / custom JWT).
-5. Replace deploy placeholders with real provider actions.
+- **Marketing pages** use `Navbar` + `Footer` (logo, explore links, login, post CTA).
+- **`/dashboard/*`** uses `StudentAppShell`: fixed **desktop sidebar** + **mobile pill nav** + slim **app footer**.
+- **`/employer/*`** uses `EmployerAppShell`: same sidebar contract + **mobile pill nav** (no bulky footer so messages/applicants can use vertical space).
+
+Changing spacing or chrome once in the shell updates every page in that section.
+
+---
+
+## Finding every route
+
+During development, open **`/dev/pages`** for a linked checklist of routes. The marketing footer also includes an **“All routes”** link for quick access.
+
+---
+
+## Adding a new page
+
+1. Create `app/your-route/page.tsx`.
+2. If it belongs to the student console, nest it under `app/dashboard/` so it picks up `dashboard/layout.tsx`. Same idea for `app/employer/`.
+3. Add the path to `app/dev/pages/page.tsx` so the index stays complete.
+4. If it is a primary destination, add a link in `Navbar`, `Sidebar`, or `Footer` as appropriate.
+
+---
+
+## Deploying
+
+The app is a standard Next.js deployment:
+
+- **Vercel**: connect the repo, set root directory to `frontend`, use default Next.js settings.
+- **Docker / Node host**: run `npm run build` and `npm start` from `frontend`, or use an official Next.js Docker pattern.
+
+Enable **image domains** in `next.config` if you move remote images to your own CDN.
+
+---
+
+## Roadmap (suggested)
+
+1. **Auth** — sessions, protected `/dashboard` and `/employer` layouts, role-based redirects.
+2. **API** — REST or tRPC; replace mock data in listing/detail pages.
+3. **Database** — Postgres + Prisma/Drizzle; migrations in CI.
+4. **Search** — server-side filters; URL-driven state on `/browse` and `/listings`.
+5. **Real-time** — employer messages with WebSockets or a managed chat provider.
+6. **i18n** — FR/EN toggle already hinted in footer copy.
+
+---
+
+## Contributing
+
+1. Keep changes **scoped** to the feature (avoid drive-by refactors).
+2. Run **`npm run build`** before opening a PR.
+3. Match existing **Tailwind + naming** conventions in touched files.
+4. Update **`/dev/pages`** if you add user-facing routes.
+
+---
+
+## License
+
+Specify your license here when you publish the repo (e.g. MIT, Apache-2.0, or proprietary).
+
+---
+
+## Acknowledgments
+
+UI patterns and copy draw from curated “Stitch” style exports in `stitch_assets/`. The running app is implemented in React/Next.js with a unified shell so those designs ship as one product—not a folder of disconnected HTML files.
+
+**Built for Cameroon-first talent and employers—designed to scale beyond.**

@@ -7,8 +7,8 @@ import Logo from "@/components/Logo";
 
 function itemClass(active: boolean) {
   return active
-    ? "flex items-center gap-3 rounded-xl bg-white p-3 text-slate-900 shadow-sm ring-1 ring-slate-200/80"
-    : "flex items-center gap-3 rounded-xl p-3 text-slate-500 transition-colors hover:bg-slate-200/50";
+    ? "flex items-center gap-3.5 rounded-2xl bg-white p-3.5 text-slate-900 shadow-md shadow-slate-200/40 ring-1 ring-slate-200/90"
+    : "flex items-center gap-3.5 rounded-2xl p-3.5 text-slate-500 transition-colors hover:bg-slate-200/55";
 }
 
 export default function EmployerSidebar() {
@@ -31,33 +31,33 @@ export default function EmployerSidebar() {
       <nav className="flex flex-grow flex-col gap-2">
         <Link href="/employer/dashboard" className={`${itemClass(dash)} transition-transform duration-200 hover:translate-x-0.5`}>
           <span className="material-symbols-outlined text-xl">dashboard</span>
-          <span className="font-headline text-[13px] font-semibold">Dashboard</span>
+          <span className="font-headline text-[14px] font-semibold">Dashboard</span>
         </Link>
         <Link href="/employer/applicants" className={`${itemClass(applicants)} transition-transform duration-200 hover:translate-x-0.5`}>
           <span className="material-symbols-outlined text-xl">description</span>
-          <span className="font-headline text-[13px] font-semibold">Applicants</span>
+          <span className="font-headline text-[14px] font-semibold">Applicants</span>
         </Link>
         <Link href="/employer/messages" className={`${itemClass(messages)} transition-transform duration-200 hover:translate-x-0.5`}>
           <span className="material-symbols-outlined text-xl">chat</span>
-          <span className="font-headline text-[13px] font-semibold">Messages</span>
+          <span className="font-headline text-[14px] font-semibold">Messages</span>
         </Link>
         <Link href="/employer/post" className={`${itemClass(post)} transition-transform duration-200 hover:translate-x-0.5`}>
           <span className="material-symbols-outlined text-xl">add_circle</span>
-          <span className="font-headline text-[13px] font-semibold">Post internship</span>
+          <span className="font-headline text-[14px] font-semibold">Post internship</span>
         </Link>
         <Link href="/browse" className={`${itemClass(browse)} transition-transform duration-200 hover:translate-x-0.5`}>
           <span className="material-symbols-outlined text-xl">travel_explore</span>
-          <span className="font-headline text-[13px] font-semibold">Browse roles</span>
+          <span className="font-headline text-[14px] font-semibold">Browse roles</span>
         </Link>
         <Link href="/login" className={`${itemClass(false)} transition-transform duration-200 hover:translate-x-0.5`}>
           <span className="material-symbols-outlined text-xl">help</span>
-          <span className="font-headline text-[13px] font-semibold">Help</span>
+          <span className="font-headline text-[14px] font-semibold">Help</span>
         </Link>
       </nav>
       <div className="mt-auto flex flex-col gap-4 pt-6">
         <button
           type="button"
-          className="rounded-xl bg-secondary-container py-3 text-sm font-bold text-on-secondary-container shadow-sm transition-all hover:opacity-90"
+          className="rounded-2xl bg-secondary-container py-3.5 text-sm font-bold text-on-secondary-container shadow-md shadow-amber-500/20 transition-all hover:opacity-90"
         >
           Upgrade plan
         </button>
