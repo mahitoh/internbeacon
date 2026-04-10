@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  # Run quality checks on pull requests targeting main.
+  pull_request:
+    branches: [main]
+
+  # Also run checks on direct pushes to main.
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    name: Lint, Typecheck, Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Fetch repository code.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2) Install Node runtime and enable npm cache.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # 3) Install lockfile-based dependencies for reproducible CI.
+      - name: Install dependencies
+        run: npm ci
+
+      # 4) Run linting across all workspaces.
+      - name: Lint
+        run: npm run lint
+
+      # 5) Run static type checks across all workspaces.
+      - name: Typecheck
+        run: npm run typecheck
+
+      # 6) Run test suites across all workspaces.
+      - name: Test
+        run: npm run test
+.github/workflows/deploy.yml
+.github/workflows/deploy.yml
++37
+-0
+
+name: Deploy
+
+on:
+  # Deploy only after code lands on main.
+  push:
+    branches: [main]
+
+jobs:
+  deploy-web:
+    name: Deploy Web App
+    runs-on: ubuntu-latest
+
+    # Only run if apps/web exists in the repo.
+    if: ${{ hashFiles('apps/web/package.json') != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Replace with your actual Vercel/Netlify/etc. deployment action.
+      - name: Deployment placeholder (web)
+        run: echo "TODO: connect web deployment provider for apps/web"
+
+  deploy-api:
+    name: Deploy API
+    runs-on: ubuntu-latest
+
+    # Only run if apps/api exists in the repo.
+    if: ${{ hashFiles('apps/api/package.json') != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Replace with your actual Render/Railway/Fly.io/etc. deployment action.
+      - name: Deployment placeholder (api)
+        run: echo "TODO: connect api deployment provider for apps/api"
