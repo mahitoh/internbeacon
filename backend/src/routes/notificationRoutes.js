@@ -1,45 +1,49 @@
 const express = require('express');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
-const {
-  getNotifications,
-  createUserNotification,
-  sendUserNotification,
-  markNotificationRead,
-  markAllNotificationsRead,
-  removeNotification
-} = require('../controllers/notificationController');
-const { body } = require('express-validator');
+const { getAll, markRead } = require('../controllers/notificationController');
 
 const router = express.Router();
 
-// All routes require authentication
+// All routes require auth
 router.use(authenticateToken);
 
-// Get user's notifications
-router.get('/', getNotifications);
+/**
+ * @swagger
+ * /api/v1/notifications:
+ *   get:
+ *     summary: Get user notifications
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         default: 10
+ *     responses:
+ *       200:
+ *         description: Success
+ */
+router.get('/', getAll);
 
-// Create notification (admin only)
-router.post('/', authorizeRole(['ADMIN']), [
-  body('userId').isString().withMessage('User ID is required'),
-  body('message').isString().isLength({ min: 1 }).withMessage('Message is required')
-], createUserNotification);
-
-// Send notification (admin only)
-router.post('/send', authorizeRole(['ADMIN']), [
-  body('userId').isString().withMessage('User ID is required'),
-  body('message').isString().isLength({ min: 1 }).withMessage('Message is required'),
-  body('type').isIn(['IN_APP', 'EMAIL', 'SMS']).withMessage('Type must be IN_APP, EMAIL, or SMS'),
-  body('email').optional().isEmail().withMessage('Invalid email'),
-  body('phone').optional().isString().withMessage('Phone must be string')
-], sendUserNotification);
-
-// Mark notification as read
-router.patch('/:notificationId/read', markNotificationRead);
-
-// Mark all notifications as read
-router.patch('/read-all', markAllNotificationsRead);
-
-// Delete notification
-router.delete('/:notificationId', removeNotification);
+/**
+ * @swagger
+ * /api/v1/notifications/{id}/read:
+ *   put:
+ *     summary: Mark notification as read
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Success
+ */
+router.put('/:id/read', markRead);
 
 module.exports = router;

@@ -32,9 +32,15 @@ const register = async (data) => {
     });
   }
 
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+  const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
-  return { user: { id: user.id, email: user.email, name: user.name, role: user.role }, token };
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { refreshToken },
+  });
+
+  return { user: { id: user.id, email: user.email, name: user.name, role: user.role }, token, refreshToken };
 };
 
 const login = async (data) => {
@@ -50,9 +56,32 @@ const login = async (data) => {
     throw new Error('Invalid credentials');
   }
 
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+  const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
 
-  return { user: { id: user.id, email: user.email, name: user.name, role: user.role }, token };
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { refreshToken },
+  });
+
+  return { user: { id: user.id, email: user.email, name: user.name, role: user.role }, token, refreshToken };
 };
 
-module.exports = { register, login };
+const refresh = async (refreshToken) => {
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+
+    if (!user || user.refreshToken !== refreshToken) {
+      throw new Error('Invalid refresh token');
+    }
+
+    const newToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+    return { token: newToken };
+  } catch (error) {
+    throw new Error('Invalid refresh token');
+  }
+};
+
+module.exports = { register, login, refresh };

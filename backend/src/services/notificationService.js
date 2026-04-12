@@ -1,103 +1,67 @@
 const { prisma } = require('../config/database');
-const emailService = require('./emailService');
-const smsService = require('./smsService');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransporter({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 const createNotification = async (userId, message, type = 'IN_APP') => {
   const notification = await prisma.notification.create({
-    data: {
-      userId,
-      message,
-      type,
-    }
+    data: { userId, message, type },
   });
+
+  if (type === 'EMAIL') {
+    await sendEmail(userId, message);
+  }
+
+  // Emit real-time for in-app
+  if (global.io && type === 'IN_APP') {
+    global.io.to(userId).emit('notification', notification);
+  }
 
   return notification;
 };
 
-const sendNotification = async (userId, message, type = 'IN_APP', email = null, phone = null) => {
-  const notification = await createNotification(userId, message, type);
+const sendEmail = async (userId, message) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return;
 
-  let sent = false;
-
-  if (type === 'EMAIL' && email) {
-    const emailResult = await emailService.sendEmail(email, 'InternBeacon Notification', `<p>${message}</p>`);
-    sent = emailResult.success;
-  } else if (type === 'SMS' && phone) {
-    const smsResult = await smsService.sendSMS(phone, message);
-    sent = smsResult.success;
-  } else {
-    // For IN_APP, it's always "sent" since it's stored
-    sent = true;
-  }
-
-  if (sent) {
-    await prisma.notification.update({
-      where: { id: notification.id },
-      data: { sent: true }
-    });
-  }
-
-  return { ...notification, sent };
-};
-
-const getUserNotifications = async (userId) => {
-  const notifications = await prisma.notification.findMany({
-    where: { userId },
-    orderBy: {
-      createdAt: 'desc'
-    }
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: user.email,
+    subject: 'InternBeacon Notification',
+    text: message,
   });
 
-  return notifications;
-};
-
-const markAsRead = async (notificationId, userId) => {
-  const notification = await prisma.notification.findUnique({
-    where: { id: notificationId }
-  });
-
-  if (!notification || notification.userId !== userId) {
-    throw new Error('Notification not found');
-  }
-
-  const updatedNotification = await prisma.notification.update({
-    where: { id: notificationId },
-    data: { read: true }
-  });
-
-  return updatedNotification;
-};
-
-const markAllAsRead = async (userId) => {
   await prisma.notification.updateMany({
-    where: { userId, read: false },
-    data: { read: true }
+    where: { userId, message, type: 'EMAIL' },
+    data: { sent: true },
   });
-
-  return { success: true };
 };
 
-const deleteNotification = async (notificationId, userId) => {
-  const notification = await prisma.notification.findUnique({
-    where: { id: notificationId }
+const getNotifications = async (userId, page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+  return await prisma.notification.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take: limit,
   });
+};
 
-  if (!notification || notification.userId !== userId) {
-    throw new Error('Notification not found');
-  }
-
-  await prisma.notification.delete({
-    where: { id: notificationId }
+const markAsRead = async (userId, notificationId) => {
+  return await prisma.notification.updateMany({
+    where: { id: notificationId, userId },
+    data: { read: true },
   });
-
-  return { success: true };
 };
 
 module.exports = {
   createNotification,
-  sendNotification,
-  getUserNotifications,
+  getNotifications,
   markAsRead,
-  markAllAsRead,
-  deleteNotification
 };

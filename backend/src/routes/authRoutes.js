@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerUser, loginUser } = require('../controllers/authController');
+const { registerUser, loginUser, refreshToken } = require('../controllers/authController');
 const { body } = require('express-validator');
 
 const router = express.Router();
@@ -17,5 +17,8 @@ router.post('/login', [
   body('email').isEmail().normalizeEmail(),
   body('password').exists(),
 ], loginUser);
+
+// Refresh token
+router.post('/refresh', refreshToken);
 
 module.exports = router;

@@ -1,4 +1,10 @@
 const express = require('express');
+const winston = require('winston');
+const NodeCache = require('node-cache');
+const { Server } = require('socket.io');
+const http = require('http');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -20,7 +26,26 @@ const aiRoutes          = require("./routes/aiRoutes");
 
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
+// Logger setup
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+  transports: [new winston.transports.File({ filename: 'logs/error.log', level: 'error' }), new winston.transports.File({ filename: 'logs/combined.log' })],
+});
+
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({ format: winston.format.simple() }));
+}
+
+// Cache setup
+const cache = new NodeCache({ stdTTL: 300 }); // 5 min TTL
+
+global.logger = logger;
+global.cache = cache;
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: '*' } });
 
 // ─── Security Middleware ─────────────────────────────────────
 app.use(helmet());
@@ -73,17 +98,28 @@ app.get('/health', (req, res) => {
   });
 });
 
-// ─── API Routes ──────────────────────────────────────────────
-app.use('/api/auth',          authLimiter, authRoutes);
-app.use('/api/students',      studentRoutes);
-app.use('/api/companies',     companyRoutes);
-app.use('/api/offers',        offerRoutes);
-app.use('/api/applications',  applicationRoutes);
-app.use('/api/matches',       matchRoutes);
-app.use('/api/chat',          chatRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/admin',         adminRoutes);
-app.use("/api/ai",          aiRoutes);
+// Swagger setup
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: { title: 'InternBeacon API', version: '1.0.0' },
+  },
+  apis: ['./src/routes/*.js'],
+};
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// ─── API Routes (v1) ──────────────────────────────────────────────
+app.use('/api/v1/auth',          authLimiter, authRoutes);
+app.use('/api/v1/students',      studentRoutes);
+app.use('/api/v1/companies',     companyRoutes);
+app.use('/api/v1/offers',        offerRoutes);
+app.use('/api/v1/applications',  applicationRoutes);
+app.use('/api/v1/matches',       matchRoutes);
+app.use('/api/v1/chat',          chatRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/admin',         adminRoutes);
+app.use("/api/v1/ai",          aiRoutes);
 
 // ─── Error Handling ──────────────────────────────────────────
 app.use(notFound);
@@ -92,13 +128,21 @@ app.use(errorHandler);
 // ─── Start Server ────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
+// WebSocket setup
+io.on('connection', (socket) => {
+  logger.info('User connected: ' + socket.id);
+  socket.on('disconnect', () => logger.info('User disconnected: ' + socket.id));
+});
+global.io = io;
+
 const startServer = async () => {
   await connectDatabase();
-  app.listen(PORT, () => {
-    console.log(`🚀 InternBeacon API Server`);
-    console.log(`📍 Port: ${PORT}`);
-    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🌐 Health: http://localhost:${PORT}/health`);
+  server.listen(PORT, () => {
+    logger.info(`🚀 InternBeacon API Server started`);
+    logger.info(`📍 Port: ${PORT}`);
+    logger.info(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    logger.info(`🌐 Health: http://localhost:${PORT}/health`);
+    logger.info(`📖 API Docs: http://localhost:${PORT}/api-docs`);
   });
 };
 
