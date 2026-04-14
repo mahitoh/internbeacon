@@ -10,21 +10,22 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-const { connectDatabase } = require('./config/database');
+const { connectDatabase } = require('./src/config/database');
 
 // Routes
-const authRoutes          = require('./routes/authRoutes');
-const studentRoutes       = require('./routes/studentRoutes');
-const companyRoutes       = require('./routes/companyRoutes');
-const offerRoutes         = require('./routes/offerRoutes');
-const applicationRoutes   = require('./routes/applicationRoutes');
-const matchRoutes         = require('./routes/matchRoutes');
-const chatRoutes          = require('./routes/chatRoutes');
-const notificationRoutes  = require('./routes/notificationRoutes');
-const adminRoutes         = require('./routes/adminRoutes');
-const aiRoutes          = require("./routes/aiRoutes");
+const authRoutes          = require('./src/routes/authRoutes');
+const studentRoutes       = require('./src/routes/studentRoutes');
+const companyRoutes       = require('./src/routes/companyRoutes');
+const offerRoutes         = require('./src/routes/offerRoutes');
+const applicationRoutes   = require('./src/routes/applicationRoutes');
+const matchRoutes         = require('./src/routes/matchRoutes');
+const chatRoutes          = require('./src/routes/chatRoutes');
+const notificationRoutes  = require('./src/routes/notificationRoutes');
+const adminRoutes         = require('./src/routes/adminRoutes');
+const aiRoutes            = require('./src/routes/aiRoutes');
+const progressRoutes      = require('./src/routes/progressRoutes');
 
-const { errorHandler, notFound } = require('./middleware/errorHandler');
+const { errorHandler, notFound } = require('./src/middleware/errorHandler');
 
 // Logger setup
 const logger = winston.createLogger({
@@ -102,9 +103,14 @@ app.get('/health', (req, res) => {
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
-    info: { title: 'InternBeacon API', version: '1.0.0' },
+    info: {
+      title: 'InternBeacon API',
+      version: '1.0.0',
+      description: 'Comprehensive API documentation for endpoint testing',
+    },
+    servers: [{ url: `http://localhost:${process.env.PORT || 5000}` }],
   },
-  apis: ['./src/routes/*.js'],
+  apis: ['./src/docs/swagger.js'],
 };
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -120,6 +126,7 @@ app.use('/api/v1/chat',          chatRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/admin',         adminRoutes);
 app.use("/api/v1/ai",          aiRoutes);
+app.use('/api/v1/progress',      progressRoutes);
 
 // ─── Error Handling ──────────────────────────────────────────
 app.use(notFound);

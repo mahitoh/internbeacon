@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -12,7 +13,7 @@
   "type": "commonjs",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.88.0",
-    "@prisma/client": "^7.7.0",
+    "@prisma/client": "^5.22.0",
     "@types/jest": "^30.0.0",
     "africastalking": "^0.7.4",
     "axios": "^1.15.0",
@@ -39,6 +40,6 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.14",
-    "prisma": "^7.7.0"
+    "prisma": "^5.22.0"
   }
 }

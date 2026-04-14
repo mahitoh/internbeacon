@@ -1,8 +1,8 @@
 const express = require('express');
-const { getPublicProfile,  authenticateToken, authorizeRole } = require('../middleware/auth');
-nst { getPublicCompanyProfile } = require("../services/companyService");
-const { getPublicProfile, 
-nst { getPublicCompanyProfile } = require("../services/companyService");
+const { authenticateToken, authorizeRole } = require('../middleware/auth');
+const { getPublicCompanyProfile } = require("../services/companyService");
+const {
+  getPublicProfile,
   getProfile,
   updateProfile,
   postOffer,
@@ -14,7 +14,8 @@ const router = express.Router();
 
 router.use(authenticateToken);
 router.use(authorizeRole(['COMPANY']));
-outer.get("/public/:id", getPublicProfile);
+
+router.get("/public/:id", getPublicProfile);
 
 router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
