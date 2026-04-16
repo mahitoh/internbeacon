@@ -16,9 +16,9 @@ export default function Sidebar() {
 
   const isDashHome = pathname === "/dashboard";
   const isApplications = pathname.startsWith("/dashboard/applications");
-  const isListings = pathname.startsWith("/listings");
   const isFeed = pathname.startsWith("/dashboard/feed");
   const isProfile = pathname.startsWith("/dashboard/profile");
+  const isBrowse = pathname.startsWith("/browse") || pathname.startsWith("/listings") || pathname.startsWith("/discover");
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-full w-72 flex-col gap-4 border-r border-slate-200/80 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-950 md:flex">
@@ -40,71 +40,48 @@ export default function Sidebar() {
           </div>
         </div>
       </div>
+
       <nav className="flex flex-1 flex-col gap-1">
-        <Link
-          href="/dashboard"
-          className={`${navItemClass(isDashHome)} hover:translate-x-0.5 transition-transform duration-200`}
-        >
+        <Link href="/dashboard" className={`${navItemClass(isDashHome)} hover:translate-x-0.5 transition-transform duration-200`}>
           <span className="material-symbols-outlined text-[20px]">dashboard</span>
           <span className="text-[14px] font-semibold">Dashboard</span>
         </Link>
-        <Link
-          href="/dashboard/feed"
-          className={`${navItemClass(isFeed)} hover:translate-x-0.5 transition-transform duration-200`}
-        >
+        <Link href="/dashboard/feed" className={`${navItemClass(isFeed)} hover:translate-x-0.5 transition-transform duration-200`}>
           <span className="material-symbols-outlined text-[20px]">dynamic_feed</span>
           <span className="text-[14px] font-semibold">Feed</span>
         </Link>
-        <Link
-          href="/dashboard/applications"
-          className={`${navItemClass(isApplications)} hover:translate-x-0.5 transition-transform duration-200`}
-        >
+        <Link href="/dashboard/applications" className={`${navItemClass(isApplications)} hover:translate-x-0.5 transition-transform duration-200`}>
           <span className="material-symbols-outlined text-[20px]">description</span>
           <span className="text-[14px] font-semibold">Applications</span>
         </Link>
-        <Link
-          href="/listings"
-          className={`${navItemClass(isListings)} hover:translate-x-0.5 transition-transform duration-200`}
-        >
-          <span className="material-symbols-outlined text-[20px]">bookmark</span>
-          <span className="text-[14px] font-semibold">Saved listings</span>
-        </Link>
-        <Link
-          href="/dashboard/profile"
-          className={`${navItemClass(isProfile)} hover:translate-x-0.5 transition-transform duration-200`}
-        >
-          <span className="material-symbols-outlined text-[20px]">person</span>
-          <span className="text-[14px] font-semibold">Profile</span>
-        </Link>
-        <Link
-          href="/browse"
-          className={`${navItemClass(pathname.startsWith("/browse"))} hover:translate-x-0.5 transition-transform duration-200`}
-        >
+        <Link href="/browse" className={`${navItemClass(isBrowse)} hover:translate-x-0.5 transition-transform duration-200`}>
           <span className="material-symbols-outlined text-[20px]">search</span>
           <span className="text-[14px] font-semibold">Browse roles</span>
         </Link>
-        <Link
-          href="/login"
+        <Link href="/dashboard/profile" className={`${navItemClass(isProfile)} hover:translate-x-0.5 transition-transform duration-200`}>
+          <span className="material-symbols-outlined text-[20px]">person</span>
+          <span className="text-[14px] font-semibold">Profile</span>
+        </Link>
+
+        <div className="my-2 border-t border-slate-200/70" />
+
+        <a
+          href="mailto:support@internbeacon.cm"
           className={`${navItemClass(false)} hover:translate-x-0.5 transition-transform duration-200`}
         >
           <span className="material-symbols-outlined text-[20px]">help</span>
-          <span className="text-[14px] font-semibold">Help</span>
-        </Link>
+          <span className="text-[14px] font-semibold">Help & support</span>
+        </a>
       </nav>
-      <div className="mt-auto flex flex-col gap-4">
+
+      <div className="mt-auto flex flex-col gap-2 pt-4 border-t border-slate-200/70">
         <button
-          type="button"
-          className="rounded-2xl bg-secondary-container px-4 py-3.5 text-sm font-bold text-on-secondary-container shadow-md shadow-amber-500/20 transition-all hover:opacity-90 active:scale-95"
-        >
-          Upgrade plan
-        </button>
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-4 py-3 text-slate-400 transition-colors hover:text-slate-900 dark:hover:text-slate-200"
+          onClick={() => { window.location.href = "/"; }}
+          className="flex items-center gap-3 px-4 py-3 text-slate-400 transition-colors hover:text-red-500 rounded-2xl hover:bg-red-50"
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>
           <span className="text-[14px] font-semibold">Log out</span>
-        </Link>
+        </button>
       </div>
     </aside>
   );

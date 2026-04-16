@@ -2,7 +2,6 @@
 
 import { Internship } from "@/types";
 import Link from "next/link";
-import { FiMapPin, FiClock, FiDollarSign } from "react-icons/fi";
 
 interface InternshipCardProps {
   internship: Internship;
@@ -34,15 +33,15 @@ export default function InternshipCard({ internship }: InternshipCardProps) {
 
       <div className="grid grid-cols-2 gap-y-3 mb-6">
         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-          <FiMapPin className="text-primary" />
+          <span className="material-symbols-outlined text-base leading-none text-primary" aria-hidden="true">location_on</span>
           {internship.location}
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-          <FiClock className="text-primary" />
+          <span className="material-symbols-outlined text-base leading-none text-primary" aria-hidden="true">schedule</span>
           {internship.duration}
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium text-emerald-600 dark:text-emerald-400">
-          <FiDollarSign />
+          <span className="material-symbols-outlined text-base leading-none" aria-hidden="true">payments</span>
           {internship.stipend}
         </div>
       </div>

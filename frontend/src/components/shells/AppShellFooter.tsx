@@ -16,9 +16,6 @@ export function AppShellFooter({ area }: { area: Area }) {
           <Link href="/browse" className="hover:text-on-primary-fixed transition-colors">
             Browse
           </Link>
-          <Link href="/dev/pages" className="hover:text-on-primary-fixed transition-colors">
-            All pages
-          </Link>
           {area === "student" ? (
             <>
               <Link href="/dashboard/profile" className="hover:text-on-primary-fixed transition-colors">

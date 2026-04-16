@@ -18,7 +18,6 @@ export default function EmployerSidebar() {
   const applicants = pathname.startsWith("/employer/applicants");
   const messages = pathname.startsWith("/employer/messages");
   const post = pathname.startsWith("/employer/post");
-  const browse = pathname.startsWith("/browse");
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-full w-72 flex-col gap-4 border-r border-slate-200/80 bg-slate-50 p-6 md:flex">
@@ -45,15 +44,18 @@ export default function EmployerSidebar() {
           <span className="material-symbols-outlined text-xl">add_circle</span>
           <span className="font-headline text-[14px] font-semibold">Post internship</span>
         </Link>
-        <Link href="/browse" className={`${itemClass(browse)} transition-transform duration-200 hover:translate-x-0.5`}>
-          <span className="material-symbols-outlined text-xl">travel_explore</span>
-          <span className="font-headline text-[14px] font-semibold">Browse roles</span>
-        </Link>
-        <Link href="/login" className={`${itemClass(false)} transition-transform duration-200 hover:translate-x-0.5`}>
+
+        <div className="my-2 border-t border-slate-200/70" />
+
+        <a
+          href="mailto:support@internbeacon.cm"
+          className={`${itemClass(false)} transition-transform duration-200 hover:translate-x-0.5`}
+        >
           <span className="material-symbols-outlined text-xl">help</span>
-          <span className="font-headline text-[14px] font-semibold">Help</span>
-        </Link>
+          <span className="font-headline text-[14px] font-semibold">Help & support</span>
+        </a>
       </nav>
+
       <div className="mt-auto flex flex-col gap-4 pt-6">
         <button
           type="button"
@@ -71,9 +73,13 @@ export default function EmployerSidebar() {
             <span className="text-xs font-bold text-slate-900">Marcus Sterling</span>
             <span className="text-[10px] font-medium text-slate-500">Sr. Talent Lead</span>
           </div>
-          <Link href="/" className="ml-auto text-slate-400 transition-colors hover:text-error" aria-label="Log out">
+          <button
+            onClick={() => { window.location.href = "/"; }}
+            className="ml-auto text-slate-400 transition-colors hover:text-red-500"
+            aria-label="Log out"
+          >
             <span className="material-symbols-outlined text-lg">logout</span>
-          </Link>
+          </button>
         </div>
       </div>
     </aside>

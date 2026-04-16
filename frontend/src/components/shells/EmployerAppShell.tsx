@@ -10,7 +10,6 @@ const MOBILE_LINKS = [
   { href: "/employer/applicants", label: "Applicants" },
   { href: "/employer/messages", label: "Messages" },
   { href: "/employer/post", label: "Post role" },
-  { href: "/browse", label: "Browse" },
 ] as const;
 
 function mobilePill(active: boolean) {
@@ -21,9 +20,6 @@ function mobilePill(active: boolean) {
     : `${base} bg-white text-slate-600 shadow-sm ring-1 ring-slate-200/90 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]`;
 }
 
-/**
- * Shared chrome for all /employer/* routes. No global footer so full-height tools (messages, applicants) stay usable.
- */
 export function EmployerAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
