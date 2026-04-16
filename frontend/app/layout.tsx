@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter, Geist } from "next/font/google";
+import { Plus_Jakarta_Sans, Inter, Geist, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-display",
   subsets: ["latin"],
+});
+
+const cormorantGaramond = Cormorant_Garamond({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
@@ -24,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", plusJakartaSans.variable, "font-sans", geist.variable)}
+      className={cn("h-full", "antialiased", plusJakartaSans.variable, cormorantGaramond.variable, "font-sans", geist.variable)}
     >
       <head>
         <link
