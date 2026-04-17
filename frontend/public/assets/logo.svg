@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40" role="img" aria-label="InternBeacon logo">
-  <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#FFB95F"/>
-      <stop offset="100%" stop-color="#00236F"/>
-    </linearGradient>
-  </defs>
-  <rect x="2" y="2" width="36" height="36" rx="10" fill="url(#g)"/>
-  <path d="M14 28h4V12h-4v16Zm10 0h4V12h-4v16Z" fill="#fff"/>
-  <text x="50" y="26" fill="#0F172A" font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-size="18" font-weight="700">InternBeacon</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" aria-label="InternBeacon logo" role="img" viewBox="0 0 180 40"><defs><linearGradient id="g" x1="0%" x2="100%" y1="0%" y2="0%"><stop offset="0%" stop-color="#FFB95F"/><stop offset="100%" stop-color="#00236F"/></linearGradient></defs><rect width="36" height="36" x="2" y="2" fill="url(#g)" rx="10"/><path fill="#fff" d="M14 28h4V12h-4v16Zm10 0h4V12h-4v16Z"/><text x="50" y="26" fill="#0F172A" font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-size="18" font-weight="700">InternBeacon</text></svg>
