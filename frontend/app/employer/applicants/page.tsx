@@ -6,21 +6,21 @@ export default function ManageApplicants() {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden font-body antialiased md:min-h-[calc(100dvh-8rem)]">
         {/* TopNavBar Shell (Embedded into Header) */}
-        <header className="h-20 bg-white/80 backdrop-blur-xl flex justify-between items-center px-8 flex-shrink-0 z-30">
-          <div className="flex items-center gap-4">
+        <header className="min-h-20 bg-white/80 backdrop-blur-xl flex flex-col lg:flex-row justify-between lg:items-center gap-4 px-4 sm:px-6 lg:px-8 py-3 flex-shrink-0 z-30">
+          <div className="flex items-center gap-3 min-w-0">
             <Link href="/employer/dashboard" className="transition-transform hover:-translate-x-1">
               <span className="material-symbols-outlined text-on-tertiary-container">arrow_back</span>
             </Link>
-            <h2 className="text-2xl font-bold tracking-tight text-on-primary-fixed font-headline">Product Design Intern 2024</h2>
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight text-on-primary-fixed font-headline truncate">Product Design Intern 2024</h2>
             <span className="px-3 py-1 bg-surface-container text-on-tertiary-container text-xs font-semibold rounded-full uppercase tracking-tighter hidden sm:inline-block">Active Listing</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 w-full lg:w-auto">
             <div className="relative hidden lg:block">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
               <input type="text" placeholder="Search applicants..." className="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm focus:ring-2 focus:ring-primary-container w-64" />
             </div>
-            <Link href="/employer/post" className="bg-primary-container text-white px-6 py-2.5 rounded-full font-semibold text-sm hover:opacity-90 transition-all flex items-center gap-2">
+            <Link href="/employer/post" className="bg-primary-container text-white px-5 sm:px-6 py-2.5 rounded-full font-semibold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 ml-auto">
               <span className="material-symbols-outlined text-[20px]">add</span>
               <span className="hidden sm:inline">Post internship</span>
             </Link>
@@ -32,10 +32,10 @@ export default function ManageApplicants() {
           {/* Filters & Stats (Asymmetric Layout) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Statistics Card */}
-            <div className="lg:col-span-4 bg-surface-container-lowest p-6 rounded-lg shadow-sm flex flex-col justify-between">
+            <div className="lg:col-span-4 bg-surface-container-lowest p-5 sm:p-6 rounded-lg shadow-sm flex flex-col justify-between min-w-0">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-on-tertiary-container mb-2">Total Applicants</p>
-                <h3 className="text-4xl font-extrabold text-on-primary-fixed tracking-tighter font-headline">142</h3>
+                <h3 className="text-3xl sm:text-4xl font-extrabold text-on-primary-fixed tracking-tighter font-headline">142</h3>
               </div>
               <div className="flex items-center gap-4 mt-6">
                 <div className="flex -space-x-2">
@@ -48,36 +48,36 @@ export default function ManageApplicants() {
             </div>
 
             {/* Status Filters (Bento Style) */}
-            <div className="lg:col-span-8 flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x">
-              <button className="flex-1 min-w-[160px] snap-center bg-primary-container text-white p-6 rounded-lg flex flex-col justify-between group">
+            <div className="lg:col-span-8 grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 auto-rows-fr items-stretch">
+              <button className="min-w-0 h-full min-h-[150px] bg-primary-container text-white p-4 sm:p-5 rounded-lg flex flex-col justify-between group text-left">
                 <span className="material-symbols-outlined text-secondary-container text-3xl">all_inbox</span>
                 <div className="mt-4 text-left">
                   <p className="text-xs uppercase font-bold tracking-widest text-slate-400 group-hover:text-white transition-colors">All Applications</p>
-                  <p className="text-xl font-bold font-headline mt-1">142</p>
+                  <p className="text-lg sm:text-xl font-bold font-headline mt-1">142</p>
                 </div>
               </button>
               
-              <button className="flex-1 min-w-[160px] snap-center bg-surface-container-lowest p-6 rounded-lg flex flex-col justify-between border border-transparent hover:border-outline-variant transition-all">
+              <button className="min-w-0 h-full min-h-[150px] bg-surface-container-lowest p-4 sm:p-5 rounded-lg flex flex-col justify-between border border-transparent hover:border-outline-variant transition-all text-left">
                 <span className="material-symbols-outlined text-on-primary-fixed text-3xl">hourglass_empty</span>
                 <div className="mt-4 text-left">
                   <p className="text-xs uppercase font-bold tracking-widest text-on-tertiary-container">Pending Review</p>
-                  <p className="text-xl font-bold text-on-primary-fixed font-headline mt-1">24</p>
+                  <p className="text-lg sm:text-xl font-bold text-on-primary-fixed font-headline mt-1">24</p>
                 </div>
               </button>
 
-              <button className="flex-1 min-w-[160px] snap-center bg-surface-container-lowest p-6 rounded-lg flex flex-col justify-between border border-transparent hover:border-outline-variant transition-all">
+              <button className="min-w-0 h-full min-h-[150px] bg-surface-container-lowest p-4 sm:p-5 rounded-lg flex flex-col justify-between border border-transparent hover:border-outline-variant transition-all text-left">
                 <span className="material-symbols-outlined text-green-600 text-3xl">check_circle</span>
                 <div className="mt-4 text-left">
                   <p className="text-xs uppercase font-bold tracking-widest text-on-tertiary-container">Shortlisted</p>
-                  <p className="text-xl font-bold text-on-primary-fixed font-headline mt-1">12</p>
+                  <p className="text-lg sm:text-xl font-bold text-on-primary-fixed font-headline mt-1">12</p>
                 </div>
               </button>
 
-              <button className="flex-1 min-w-[160px] snap-center bg-surface-container-lowest p-6 rounded-lg flex flex-col justify-between border border-transparent hover:border-outline-variant transition-all">
+              <button className="min-w-0 h-full min-h-[150px] bg-surface-container-lowest p-4 sm:p-5 rounded-lg flex flex-col justify-between border border-transparent hover:border-outline-variant transition-all text-left">
                 <span className="material-symbols-outlined text-on-tertiary-container text-3xl">cancel</span>
                 <div className="mt-4 text-left">
                   <p className="text-xs uppercase font-bold tracking-widest text-on-tertiary-container">Rejected</p>
-                  <p className="text-xl font-bold text-on-primary-fixed font-headline mt-1">86</p>
+                  <p className="text-lg sm:text-xl font-bold text-on-primary-fixed font-headline mt-1">86</p>
                 </div>
               </button>
             </div>
