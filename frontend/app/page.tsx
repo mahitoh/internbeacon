@@ -11,20 +11,20 @@ export default function Home() {
       <Navbar />
       <main>
         {/* Hero Section */}
-        <section className="relative min-h-[740px] lg:min-h-[860px] bg-on-primary-fixed flex items-center pt-20 overflow-hidden">
+        <section className="relative min-h-[921px] bg-on-primary-fixed flex items-center pt-20 overflow-hidden">
           <div className="absolute inset-0 architectural-grid pointer-events-none opacity-40"></div>
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-secondary-container/10 rounded-full blur-[120px]"></div>
-          <div className="relative w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12">
+          <div className="relative w-full max-w-screen-2xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div className="lg:col-span-8 flex flex-col justify-center">
               <span className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-secondary-fixed-dim text-xs font-bold tracking-[0.2em] uppercase mb-8 w-fit">
                 <span className="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
                 Premium Talent Marketplace
               </span>
-              <h1 className="text-4xl sm:text-5xl lg:text-[56px] leading-[1.05] font-extrabold tracking-tighter text-white mb-6 sm:mb-8 max-w-3xl">
+              <h1 className="text-[60px] leading-[1.05] font-extrabold tracking-tighter text-white mb-8 max-w-3xl">
                 Find Your Internship.<br/>
                 <span className="text-secondary-fixed-dim">Not on WhatsApp.</span>
               </h1>
-              <p className="text-base sm:text-lg lg:text-xl text-slate-400 mb-10 sm:mb-12 max-w-2xl leading-relaxed">
+              <p className="text-xl text-slate-400 mb-12 max-w-2xl leading-relaxed">
                 Access a curated gallery of elite internships from Cameroon&apos;s top-tier companies. No noise, just professional growth.
               </p>
               {/* Search Bar */}
@@ -46,17 +46,17 @@ export default function Home() {
                 </Link>
               </div>
               {/* Stats Counter */}
-              <div className="mt-12 sm:mt-16 flex flex-wrap gap-6 sm:gap-10 lg:gap-12 border-t border-white/5 pt-8 sm:pt-12">
+              <div className="mt-16 flex flex-wrap gap-12 border-t border-white/5 pt-12">
                 <div className="flex flex-col">
-                  <span className="text-3xl sm:text-4xl font-bold text-white mb-1">500+</span>
+                  <span className="text-4xl font-bold text-white mb-1">500+</span>
                   <span className="text-sm font-medium text-slate-500 uppercase tracking-widest">Active Students</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-3xl sm:text-4xl font-bold text-white mb-1">120+</span>
+                  <span className="text-4xl font-bold text-white mb-1">120+</span>
                   <span className="text-sm font-medium text-slate-500 uppercase tracking-widest">Elite Partners</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-3xl sm:text-4xl font-bold text-secondary-fixed-dim mb-1">92%</span>
+                  <span className="text-4xl font-bold text-secondary-fixed-dim mb-1">92%</span>
                   <span className="text-sm font-medium text-slate-500 uppercase tracking-widest">Success Rate</span>
                 </div>
               </div>
@@ -78,7 +78,7 @@ export default function Home() {
         </section>
         {/* Trusted By Section */}
         <section className="py-16 bg-surface-container-low">
-          <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-screen-2xl mx-auto px-8">
             <p className="text-center text-[10px] uppercase tracking-[0.3em] font-bold text-outline mb-10">Trusted by Cameroon&apos;s Industry Leaders</p>
             <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
               <div className="text-2xl font-black text-on-surface-variant tracking-tighter">ORANGE</div>
@@ -91,11 +91,11 @@ export default function Home() {
         </section>
         {/* How It Works */}
         <section className="py-32 bg-surface">
-          <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-screen-2xl mx-auto px-8">
             <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
               <div className="max-w-2xl">
                 <span className="text-secondary font-bold tracking-widest uppercase text-xs mb-4 block">The Process</span>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-on-primary-fixed leading-tight tracking-tighter">Three Steps to Elite Placement</h2>
+                <h2 className="text-5xl font-extrabold text-on-primary-fixed leading-tight tracking-tighter">Three Steps to Elite Placement</h2>
               </div>
               <Link
                 href="/browse"
@@ -107,7 +107,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
               <Card className="relative overflow-hidden border-outline-variant/15 bg-surface-container-lowest shadow-none transition-all hover:-translate-y-2 hover:shadow-xl group">
-                <span className="text-6xl lg:text-7xl font-black text-slate-100 absolute top-4 right-6 group-hover:text-secondary/5 transition-colors pointer-events-none">01</span>
+                <span className="text-8xl font-black text-slate-100 absolute top-4 right-6 group-hover:text-secondary/5 transition-colors pointer-events-none">01</span>
                 <CardHeader className="relative z-10 pb-2">
                   <div className="w-16 h-16 bg-on-primary-fixed text-white flex items-center justify-center rounded-2xl mb-2">
                     <span className="material-symbols-outlined text-3xl">person_search</span>
@@ -119,7 +119,7 @@ export default function Home() {
                 </CardContent>
               </Card>
               <Card className="relative overflow-hidden border-outline-variant/15 bg-surface-container-lowest shadow-none transition-all hover:-translate-y-2 hover:shadow-xl group">
-                <span className="text-6xl lg:text-7xl font-black text-slate-100 absolute top-4 right-6 group-hover:text-secondary/5 transition-colors pointer-events-none">02</span>
+                <span className="text-8xl font-black text-slate-100 absolute top-4 right-6 group-hover:text-secondary/5 transition-colors pointer-events-none">02</span>
                 <CardHeader className="relative z-10 pb-2">
                   <div className="w-16 h-16 bg-on-primary-fixed text-white flex items-center justify-center rounded-2xl mb-2">
                     <span className="material-symbols-outlined text-3xl">description</span>
@@ -131,7 +131,7 @@ export default function Home() {
                 </CardContent>
               </Card>
               <Card className="relative overflow-hidden border-outline-variant/15 bg-surface-container-lowest shadow-none transition-all hover:-translate-y-2 hover:shadow-xl group">
-                <span className="text-6xl lg:text-7xl font-black text-slate-100 absolute top-4 right-6 group-hover:text-secondary/5 transition-colors pointer-events-none">03</span>
+                <span className="text-8xl font-black text-slate-100 absolute top-4 right-6 group-hover:text-secondary/5 transition-colors pointer-events-none">03</span>
                 <CardHeader className="relative z-10 pb-2">
                   <div className="w-16 h-16 bg-on-primary-fixed text-white flex items-center justify-center rounded-2xl mb-2">
                     <span className="material-symbols-outlined text-3xl">verified</span>
@@ -147,9 +147,9 @@ export default function Home() {
         </section>
         {/* Feature Split Sections */}
         <section className="py-24 bg-surface-container-low overflow-hidden">
-          <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24 lg:space-y-32">
+          <div className="max-w-screen-2xl mx-auto px-8 space-y-32">
             {/* Students Feature */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
               <div className="order-2 lg:order-1">
                 <div className="inline-block p-4 bg-white rounded-2xl shadow-sm mb-10">
                   <img alt="Students collaborating" className="rounded-xl w-full aspect-video object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6aktXmtLmkXextvimC3bGQssVT0Vgo12v7ccHzPqVVJp5YjEB6IlAyhC5e0a3C03hYOKlOOZEArmovlRd5gMlNrob-mLOOlhd5Kgt7YPB_W-8ydoAb9dDI1nsL0Ijfajrmqp4AaRTKshaUuFAsCOAbWTnLppiHmgHxzUAw2q7saI1KTC3Rae-b3FgehLuZOrD5othfNym8WA3IoHUPGGvnbzn4o3pnZ3sXo7rbZvVgbr6d6ZpIvsj2TjWmvaBmcRynDTCo3ycQtw"/>
@@ -167,8 +167,8 @@ export default function Home() {
               </div>
               <div className="order-1 lg:order-2">
                 <span className="text-secondary font-bold tracking-widest uppercase text-xs mb-4 block">For Future Experts</span>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-on-primary-fixed mb-6 leading-tight tracking-tighter">Your career isn&apos;t a group chat message.</h2>
-                <p className="text-base sm:text-lg text-slate-600 mb-8 leading-relaxed">Stop searching through unorganized WhatsApp groups. InternBeacon provides a structured, professional platform to showcase your talent to elite recruiters.</p>
+                <h2 className="text-4xl font-extrabold text-on-primary-fixed mb-6 leading-tight tracking-tighter">Your career isn&apos;t a group chat message.</h2>
+                <p className="text-lg text-slate-600 mb-8 leading-relaxed">Stop searching through unorganized WhatsApp groups. InternBeacon provides a structured, professional platform to showcase your talent to elite recruiters.</p>
                 <ul className="space-y-4 mb-10">
                   <li className="flex items-center gap-3 text-on-primary-fixed font-semibold">
                     <span className="material-symbols-outlined text-secondary">check_circle</span> Verified Job Listings
@@ -189,11 +189,11 @@ export default function Home() {
               </div>
             </div>
             {/* Employers Feature */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
               <div>
                 <span className="text-secondary font-bold tracking-widest uppercase text-xs mb-4 block">For Elite Partners</span>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-on-primary-fixed mb-6 leading-tight tracking-tighter">The Boutique Talent Pipeline</h2>
-                <p className="text-base sm:text-lg text-slate-600 mb-8 leading-relaxed">Reach the top 5% of Cameroonian students. Our platform filters for academic excellence and soft skills, saving you weeks of screening time.</p>
+                <h2 className="text-4xl font-extrabold text-on-primary-fixed mb-6 leading-tight tracking-tighter">The Boutique Talent Pipeline</h2>
+                <p className="text-lg text-slate-600 mb-8 leading-relaxed">Reach the top 5% of Cameroonian students. Our platform filters for academic excellence and soft skills, saving you weeks of screening time.</p>
                 <div className="space-y-6 mb-10">
                   <div className="flex gap-4 p-6 bg-white rounded-2xl hover:shadow-md transition-shadow cursor-default">
                     <div className="w-12 h-12 bg-surface-container rounded-full flex items-center justify-center shrink-0">
@@ -256,12 +256,12 @@ export default function Home() {
           </div>
         </section>
         {/* CTA Section */}
-        <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-surface">
-          <div className="max-w-screen-xl mx-auto bg-on-primary-fixed rounded-[2rem] sm:rounded-[3rem] p-8 sm:p-12 md:p-16 lg:p-20 text-center relative overflow-hidden">
+        <section className="py-24 px-8 bg-surface">
+          <div className="max-w-screen-xl mx-auto bg-on-primary-fixed rounded-[3rem] p-16 md:p-24 text-center relative overflow-hidden">
             <div className="absolute inset-0 architectural-grid opacity-10 pointer-events-none"></div>
             <div className="relative z-10 max-w-2xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 sm:mb-8 tracking-tighter">Ready for the elite experience?</h2>
-              <p className="text-base sm:text-lg lg:text-xl text-slate-400 mb-10 sm:mb-12">Join the waitlist or post your first listing today. Be where the talent is.</p>
+              <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-8 tracking-tighter">Ready for the elite experience?</h2>
+              <p className="text-xl text-slate-400 mb-12">Join the waitlist or post your first listing today. Be where the talent is.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <Link
                   href="/signup"

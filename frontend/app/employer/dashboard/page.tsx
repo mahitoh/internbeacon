@@ -5,17 +5,17 @@ export default function EmployerDashboard() {
   return (
     <div className="w-full">
         {/* Header Section */}
-        <header className="mb-10 sm:mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-5 sm:gap-6">
+        <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tighter text-on-primary-fixed mb-2 font-headline">Command Center</h2>
-            <p className="text-sm sm:text-base text-on-surface-variant font-medium max-w-lg">Orchestrate your global internship pipeline with surgical precision and curated insights.</p>
+            <h2 className="text-4xl font-extrabold tracking-tighter text-on-primary-fixed mb-2 font-headline">Command Center</h2>
+            <p className="text-on-surface-variant font-medium max-w-lg">Orchestrate your global internship pipeline with surgical precision and curated insights.</p>
           </div>
-          <div className="flex w-full lg:w-auto flex-col sm:flex-row gap-3 sm:gap-4">
-            <button className="bg-surface-container-high text-on-surface font-semibold px-5 sm:px-6 py-3 rounded-xl transition-all hover:bg-surface-container-highest flex items-center justify-center gap-2">
+          <div className="flex gap-4">
+            <button className="bg-surface-container-high text-on-surface font-semibold px-6 py-3 rounded-xl transition-all hover:bg-surface-container-highest flex items-center gap-2">
               <span className="material-symbols-outlined">file_download</span>
               Export Report
             </button>
-            <Link href="/employer/post" className="bg-primary-container text-white font-bold px-6 sm:px-8 py-3 rounded-xl transition-all hover:opacity-90 flex items-center justify-center gap-2 shadow-lg shadow-primary-container/10">
+            <Link href="/employer/post" className="bg-primary-container text-white font-bold px-8 py-3 rounded-xl transition-all hover:opacity-90 flex items-center gap-2 shadow-lg shadow-primary-container/10">
               <span className="material-symbols-outlined">add</span>
               Post Internship
             </Link>
@@ -25,7 +25,7 @@ export default function EmployerDashboard() {
         {/* Stats Bento Grid */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {/* Total Pipeline */}
-          <div className="bg-surface-container-lowest p-6 sm:p-7 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] border border-outline-variant/10 min-w-0">
+          <div className="bg-surface-container-lowest p-8 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] border border-outline-variant/10">
             <div className="flex justify-between items-start mb-6">
               <div className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-on-primary-fixed">
                 <span className="material-symbols-outlined text-2xl">groups</span>
@@ -36,11 +36,11 @@ export default function EmployerDashboard() {
               </span>
             </div>
             <p className="text-on-surface-variant text-sm font-semibold uppercase tracking-widest mb-1">Total Pipeline</p>
-            <h3 className="text-4xl sm:text-5xl font-extrabold text-on-primary-fixed tracking-tighter font-headline">1,284</h3>
+            <h3 className="text-5xl font-extrabold text-on-primary-fixed tracking-tighter font-headline">1,284</h3>
           </div>
 
           {/* Active Roles */}
-          <div className="bg-surface-container-lowest p-6 sm:p-7 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] border border-outline-variant/10 min-w-0">
+          <div className="bg-surface-container-lowest p-8 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] border border-outline-variant/10">
             <div className="flex justify-between items-start mb-6">
               <div className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center text-on-primary-fixed">
                 <span className="material-symbols-outlined text-2xl">work</span>
@@ -50,11 +50,11 @@ export default function EmployerDashboard() {
               </button>
             </div>
             <p className="text-on-surface-variant text-sm font-semibold uppercase tracking-widest mb-1">Active Roles</p>
-            <h3 className="text-4xl sm:text-5xl font-extrabold text-on-primary-fixed tracking-tighter font-headline">12</h3>
+            <h3 className="text-5xl font-extrabold text-on-primary-fixed tracking-tighter font-headline">12</h3>
           </div>
 
           {/* Top Matches */}
-          <div className="bg-primary-container p-6 sm:p-7 rounded-lg shadow-xl border border-white/5 relative overflow-hidden min-w-0">
+          <div className="bg-primary-container p-8 rounded-lg shadow-xl border border-white/5 relative overflow-hidden">
             <div className="relative z-10">
               <div className="flex justify-between items-start mb-6">
                 <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-white">
@@ -63,7 +63,7 @@ export default function EmployerDashboard() {
                 <span className="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold uppercase">AI Curated</span>
               </div>
               <p className="text-white/60 text-sm font-semibold uppercase tracking-widest mb-1">Top Matches</p>
-              <h3 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tighter font-headline">84</h3>
+              <h3 className="text-5xl font-extrabold text-white tracking-tighter font-headline">84</h3>
             </div>
             <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-secondary-container opacity-10 rounded-full blur-3xl"></div>
           </div>
@@ -82,80 +82,83 @@ export default function EmployerDashboard() {
 
             <div className="space-y-4">
               {/* Posting Card 1 */}
-              <div className="group bg-surface-container-lowest p-4 sm:p-5 rounded-lg shadow-sm hover:shadow-md transition-all border border-transparent hover:border-outline-variant/20 flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-5 min-w-0">
+              <div className="group bg-surface-container-lowest p-6 rounded-lg shadow-sm hover:shadow-md transition-all border border-transparent hover:border-outline-variant/20 flex flex-col md:flex-row items-center gap-6">
                 <div className="w-14 h-14 bg-surface-container-low rounded-xl flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-2xl text-on-primary-fixed">code</span>
                 </div>
-                <div className="flex-grow min-w-0 w-full">
-                  <h5 className="font-bold text-on-primary-fixed text-base sm:text-lg mb-1 group-hover:text-secondary transition-colors break-words">Frontend Engineering Intern</h5>
-                  <p className="text-sm text-on-surface-variant break-words">Posted 3 days ago • London (Hybrid)</p>
+                <div className="flex-grow">
+                  <h5 className="font-bold text-on-primary-fixed text-lg mb-1 group-hover:text-secondary transition-colors">Frontend Engineering Intern</h5>
+                  <p className="text-sm text-on-surface-variant">Posted 3 days ago • London (Hybrid)</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4 sm:gap-6 text-center shrink-0 w-full lg:w-auto">
+                <div className="flex items-center gap-8 text-center shrink-0">
                   <div>
                     <p className="text-2xl font-extrabold text-on-primary-fixed font-headline">42</p>
                     <p className="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">Applicants</p>
                   </div>
+                  <div className="w-px h-8 bg-outline-variant/30"></div>
                   <div>
                     <p className="text-2xl font-extrabold text-secondary font-headline">12</p>
                     <p className="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">Shortlisted</p>
                   </div>
                 </div>
-                <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low text-on-primary-fixed transition-all lg:ml-2 self-end lg:self-auto">
+                <button className="ml-4 w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low text-on-primary-fixed transition-all">
                   <span className="material-symbols-outlined">chevron_right</span>
                 </button>
               </div>
 
               {/* Posting Card 2 */}
-              <div className="group bg-surface-container-lowest p-4 sm:p-5 rounded-lg shadow-sm hover:shadow-md transition-all border border-transparent hover:border-outline-variant/20 flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-5 min-w-0">
+              <div className="group bg-surface-container-lowest p-6 rounded-lg shadow-sm hover:shadow-md transition-all border border-transparent hover:border-outline-variant/20 flex flex-col md:flex-row items-center gap-6">
                 <div className="w-14 h-14 bg-surface-container-low rounded-xl flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-2xl text-on-primary-fixed">palette</span>
                 </div>
-                <div className="flex-grow min-w-0 w-full">
-                  <h5 className="font-bold text-on-primary-fixed text-base sm:text-lg mb-1 group-hover:text-secondary transition-colors break-words">Product Design Associate</h5>
-                  <p className="text-sm text-on-surface-variant break-words">Posted 5 days ago • Remote</p>
+                <div className="flex-grow">
+                  <h5 className="font-bold text-on-primary-fixed text-lg mb-1 group-hover:text-secondary transition-colors">Product Design Associate</h5>
+                  <p className="text-sm text-on-surface-variant">Posted 5 days ago • Remote</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4 sm:gap-6 text-center shrink-0 w-full lg:w-auto">
+                <div className="flex items-center gap-8 text-center shrink-0">
                   <div>
                     <p className="text-2xl font-extrabold text-on-primary-fixed font-headline">18</p>
                     <p className="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">Applicants</p>
                   </div>
+                  <div className="w-px h-8 bg-outline-variant/30"></div>
                   <div>
                     <p className="text-2xl font-extrabold text-secondary font-headline">6</p>
                     <p className="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">Shortlisted</p>
                   </div>
                 </div>
-                <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low text-on-primary-fixed transition-all lg:ml-2 self-end lg:self-auto">
+                <button className="ml-4 w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low text-on-primary-fixed transition-all">
                   <span className="material-symbols-outlined">chevron_right</span>
                 </button>
               </div>
 
               {/* Posting Card 3 */}
-              <div className="group bg-surface-container-lowest p-4 sm:p-5 rounded-lg shadow-sm hover:shadow-md transition-all border border-transparent hover:border-outline-variant/20 flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-5 min-w-0">
+              <div className="group bg-surface-container-lowest p-6 rounded-lg shadow-sm hover:shadow-md transition-all border border-transparent hover:border-outline-variant/20 flex flex-col md:flex-row items-center gap-6">
                 <div className="w-14 h-14 bg-surface-container-low rounded-xl flex items-center justify-center shrink-0">
                   <span className="material-symbols-outlined text-2xl text-on-primary-fixed">analytics</span>
                 </div>
-                <div className="flex-grow min-w-0 w-full">
-                  <h5 className="font-bold text-on-primary-fixed text-base sm:text-lg mb-1 group-hover:text-secondary transition-colors break-words">Data Strategy Analyst</h5>
-                  <p className="text-sm text-on-surface-variant break-words">Posted 1 week ago • Berlin (On-site)</p>
+                <div className="flex-grow">
+                  <h5 className="font-bold text-on-primary-fixed text-lg mb-1 group-hover:text-secondary transition-colors">Data Strategy Analyst</h5>
+                  <p className="text-sm text-on-surface-variant">Posted 1 week ago • Berlin (On-site)</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4 sm:gap-6 text-center shrink-0 w-full lg:w-auto">
+                <div className="flex items-center gap-8 text-center shrink-0">
                   <div>
                     <p className="text-2xl font-extrabold text-on-primary-fixed font-headline">112</p>
                     <p className="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">Applicants</p>
                   </div>
+                  <div className="w-px h-8 bg-outline-variant/30"></div>
                   <div>
                     <p className="text-2xl font-extrabold text-secondary font-headline">24</p>
                     <p className="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">Shortlisted</p>
                   </div>
                 </div>
-                <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low text-on-primary-fixed transition-all lg:ml-2 self-end lg:self-auto">
+                <button className="ml-4 w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low text-on-primary-fixed transition-all">
                   <span className="material-symbols-outlined">chevron_right</span>
                 </button>
               </div>
             </div>
 
             {/* Recruitment Velocity Chart Area */}
-            <div className="mt-12 bg-surface-container-lowest p-5 sm:p-7 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] min-w-0">
+            <div className="mt-12 bg-surface-container-lowest p-8 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)]">
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h4 className="text-xl font-bold text-on-primary-fixed font-headline">Recruitment Velocity</h4>
@@ -193,7 +196,7 @@ export default function EmployerDashboard() {
 
           {/* Top Matches Sidebar */}
           <section className="lg:col-span-4 space-y-6">
-            <div className="bg-surface-container-low p-5 sm:p-6 rounded-lg sticky top-8 min-w-0">
+            <div className="bg-surface-container-low p-6 rounded-lg sticky top-8">
               <div className="flex items-center gap-2 mb-6">
                 <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                 <h4 className="text-lg font-bold text-on-primary-fixed font-headline">Curated Top Matches</h4>

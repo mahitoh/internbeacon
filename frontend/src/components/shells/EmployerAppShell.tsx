@@ -54,7 +54,7 @@ export function EmployerAppShell({ children }: { children: React.ReactNode }) {
       </header>
       <EmployerSidebar />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col md:ml-72">
-        <main className="mx-auto flex min-h-0 w-full max-w-[1280px] flex-1 flex-col min-w-0 px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+        <main className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col px-6 py-6 min-w-0 lg:px-10 lg:py-8">
           {children}
         </main>
       </div>

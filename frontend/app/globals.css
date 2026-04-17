@@ -4,6 +4,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+
+html {
+  font-size: 74.5%; /* ← this is the magic fix */
+}
+
 @theme {
   --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-display), ui-sans-serif, system-ui, sans-serif;

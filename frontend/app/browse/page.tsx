@@ -10,13 +10,13 @@ export default function BrowseInternships() {
     <div className="bg-surface text-on-surface antialiased min-h-screen flex flex-col font-body">
       <Navbar />
 
-      <main className="pt-28 sm:pt-32 pb-16 sm:pb-20 max-w-7xl mx-auto px-4 sm:px-6 w-full flex-grow">
+      <main className="pt-32 pb-20 max-w-7xl mx-auto px-6 w-full flex-grow">
         {/* Hero Search Section */}
         <header className="mb-12">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-primary mb-4 leading-tight font-headline">
+          <h1 className="text-5xl font-extrabold tracking-tight text-primary mb-4 leading-tight font-headline">
             Discover your next <span className="text-secondary-container">career chapter.</span>
           </h1>
-          <p className="text-on-surface-variant text-base sm:text-lg max-w-2xl mb-8">
+          <p className="text-on-surface-variant text-lg max-w-2xl mb-8">
             Curated opportunities from world-class companies, designed for the next generation of talent.
           </p>
 
@@ -45,7 +45,7 @@ export default function BrowseInternships() {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Sidebar Filters */}
           <aside className="lg:col-span-3 sticky top-32 space-y-8">
             <div className="bg-surface-container-low p-6 rounded-lg space-y-8">
@@ -129,16 +129,16 @@ export default function BrowseInternships() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Card 1 */}
-              <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all outline outline-1 outline-outline-variant/10 min-w-0">
+              <div className="bg-surface-container-lowest p-8 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all outline outline-1 outline-outline-variant/10">
                 <div className="flex justify-between items-start mb-6">
                   <div className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center p-2 outline outline-1 outline-outline-variant/10">
                     <img className="w-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDj5z0ED0iLuQJuwtL2jzguXFBUxIuyRHLhown1f4DoFW9Z4ZQ0Y0vmQoCeXkOjDEv45tY5EwYJfh4oX-MRwY4cc4krBcj5dn27qlTW9s6G8hS8buN3UY3l1JfbV_xDHME7ggSM7wazEwqaX3-pG05sDBzuAQ0DUX2n7PBOgLrtNkeqheFQocjTfwm6xBD6nZpplWoeB7Tk6XRlYOQlvQKwgHZyqFewFRbwo0nistOKaKONLDiRSH1GV_mo7a2IaWGg_qx-WDyWjac" alt="Stripe" />
                   </div>
                   <span className="bg-primary/5 text-primary text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Vetted</span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors font-headline break-words">Product Design Intern</h3>
+                <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors font-headline">Product Design Intern</h3>
                 <p className="text-on-surface-variant font-medium mb-6">Stripe • San Francisco / Remote</p>
                 <div className="flex flex-wrap gap-2 mb-8">
                   <span className="px-3 py-1 bg-surface-container-low text-on-surface-variant text-xs font-semibold rounded-full outline outline-1 outline-outline-variant/20">6 Months</span>
@@ -157,14 +157,14 @@ export default function BrowseInternships() {
               </div>
 
               {/* Card 2 */}
-              <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all outline outline-1 outline-outline-variant/10 min-w-0">
+              <div className="bg-surface-container-lowest p-8 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all outline outline-1 outline-outline-variant/10">
                 <div className="flex justify-between items-start mb-6">
                   <div className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center p-2 outline outline-1 outline-outline-variant/10">
                     <img className="w-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAknq6QEzb7LbgHkJdHl4LcBCCiCLrQ1RTBrfOjkM3xbfniGWSGShIkqVbTuAw6vSYkzvd3IztG9ywoV8afdxh26MZf8UcnYKxsSlNwGemRFp8SxCqTSVhjAZ1MK-DgvgerF6_X7wOG4zyQxx9QfprQ8WLUDST4YDpb3H9kpY2VQ3ZCPWOndeYn0pGP8-UlVJ2bu6vF42KqEAQei2vva2kbt9eiG-8xdaDDi7taQLVVO6Bbr6rvQOzDK_iIBFM2tSP09KkBah4geq0" alt="Airbnb" />
                   </div>
                   <span className="bg-amber-500/10 text-amber-600 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Urgent</span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors font-headline break-words">Frontend Engineering</h3>
+                <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors font-headline">Frontend Engineering</h3>
                 <p className="text-on-surface-variant font-medium mb-6">Airbnb • London, UK</p>
                 <div className="flex flex-wrap gap-2 mb-8">
                   <span className="px-3 py-1 bg-surface-container-low text-on-surface-variant text-xs font-semibold rounded-full outline outline-1 outline-outline-variant/20">3 Months</span>
@@ -183,13 +183,13 @@ export default function BrowseInternships() {
               </div>
 
               {/* Card 3 */}
-              <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all outline outline-1 outline-outline-variant/10 min-w-0">
+              <div className="bg-surface-container-lowest p-8 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all outline outline-1 outline-outline-variant/10">
                 <div className="flex justify-between items-start mb-6">
                   <div className="w-12 h-12 bg-surface-container-low rounded-xl flex items-center justify-center p-2 outline outline-1 outline-outline-variant/10">
                     <img className="w-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMBGkKZimjmzY98VdQyusnEzFt825Io5gWKAGLnVpW9zh5CJJNjd52Vj_N01gb57LQBk3V08QvIhDXXYiuQRxM8ymy-tOKbBfqSnEoBsUI3ZqADQ3e5_55WPnSinx7YEq5BdW3CK0qSb8TQ9azt5_9hMAlVandoLdugBxYaHzZDFbyENHMz36EQUBpqe1OAZ_WxhRL9cz7cq8lTKMUlDTbBwlb3v-phlLXQ2a4GNrf572HvodhGtWb55ailxMKlvlghnJwM34vAaw" alt="Notion" />
                   </div>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors font-headline break-words">Marketing Strategy</h3>
+                <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors font-headline">Marketing Strategy</h3>
                 <p className="text-on-surface-variant font-medium mb-6">Notion • New York City</p>
                 <div className="flex flex-wrap gap-2 mb-8">
                   <span className="px-3 py-1 bg-surface-container-low text-on-surface-variant text-xs font-semibold rounded-full outline outline-1 outline-outline-variant/20">6 Months</span>
@@ -208,14 +208,14 @@ export default function BrowseInternships() {
               </div>
 
               {/* Card 4 */}
-              <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all border border-secondary-container/50 bg-secondary-container/5 min-w-0">
+              <div className="bg-surface-container-lowest p-8 rounded-lg group hover:shadow-xl hover:shadow-primary/5 transition-all border border-secondary-container/50 bg-secondary-container/5">
                 <div className="flex justify-between items-start mb-6">
                   <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2 shadow-sm outline outline-1 outline-outline-variant/10">
                     <img className="w-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkR-9TWmQFko3Wgu3tJS-JkK6UHoYRvR_F6h36BoziCM297ij98-tePA23b7PeoJ0GUP6XB0EN0q5KUYCmmNaRsPaNi8a_xlTe3OmE-K_5T9xwy-ujOhu95KHnwjViAlSCMTHPsl7QdRLKqp9_Z6JO9n_jRaBBJLKMlAhXObr3s9IwmG0OJY86C01nSU1nnCrcnTkuYI1Qsh_sB9FWYEZR39zalJVts7oAdB7luUXppfe_QXkZYCuULMOzzSHQB5Vdhsb_q40u8QI" alt="Tesla" />
                   </div>
                   <span className="bg-secondary-container text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Curated</span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors font-headline break-words">Autopilot Systems Intern</h3>
+                <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors font-headline">Autopilot Systems Intern</h3>
                 <p className="text-on-surface-variant font-medium mb-6">Tesla • Palo Alto, CA</p>
                 <div className="flex flex-wrap gap-2 mb-8">
                   <span className="px-3 py-1 bg-white shadow-sm text-on-surface-variant text-xs font-semibold rounded-full border border-secondary-container/20">12 Months</span>
