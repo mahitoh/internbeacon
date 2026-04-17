@@ -11,46 +11,28 @@ function itemClass(active: boolean) {
     : "flex items-center gap-3.5 rounded-2xl p-3.5 text-slate-500 transition-colors hover:bg-slate-200/55";
 }
 
-export default function EmployerSidebar() {
+export default function AdminSidebar() {
   const pathname = usePathname();
 
-  const dash = pathname === "/employer/dashboard";
-  const applicants = pathname.startsWith("/employer/applicants");
-  const messages = pathname.startsWith("/employer/messages");
-  const post = pathname.startsWith("/employer/post");
+  const dash = pathname === "/admin/dashboard";
+  const users = pathname.startsWith("/admin/users");
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-full w-72 flex-col gap-4 border-r border-slate-200/80 bg-slate-50 p-6 md:flex">
       <div className="mb-6">
         <Logo className="h-8 w-auto max-w-[180px]" />
         <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-slate-500 font-headline">
-          Employer console
+          Admin console
         </p>
       </div>
       <nav className="flex flex-grow flex-col gap-2">
-        <Link href="/employer/dashboard" className={`${itemClass(dash)} transition-transform duration-200 hover:translate-x-0.5`}>
-          <span className="material-symbols-outlined text-xl">dashboard</span>
-          <span className="font-headline text-[14px] font-semibold">Dashboard</span>
+        <Link href="/admin/dashboard" className={`${itemClass(dash)} transition-transform duration-200 hover:translate-x-0.5`}>
+          <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
+          <span className="font-headline text-[14px] font-semibold">Overview</span>
         </Link>
-        <Link href="/employer/applicants" className={`${itemClass(applicants)} transition-transform duration-200 hover:translate-x-0.5`}>
-          <span className="material-symbols-outlined text-xl">description</span>
-          <span className="font-headline text-[14px] font-semibold">Applicants</span>
-        </Link>
-        <Link href="/employer/messages" className={`${itemClass(messages)} transition-transform duration-200 hover:translate-x-0.5`}>
-          <span className="material-symbols-outlined text-xl">chat</span>
-          <span className="font-headline text-[14px] font-semibold">Messages</span>
-        </Link>
-        <Link href="/employer/post" className={`${itemClass(post)} transition-transform duration-200 hover:translate-x-0.5`}>
-          <span className="material-symbols-outlined text-xl">add_circle</span>
-          <span className="font-headline text-[14px] font-semibold">Post internship</span>
-        </Link>
-        <Link href="/employer/profile" className={`${itemClass(pathname.startsWith("/employer/profile"))} transition-transform duration-200 hover:translate-x-0.5`}>
-          <span className="material-symbols-outlined text-xl">business</span>
-          <span className="font-headline text-[14px] font-semibold">Company Profile</span>
-        </Link>
-        <Link href="/employer/matches" className={`${itemClass(pathname.startsWith("/employer/matches"))} transition-transform duration-200 hover:translate-x-0.5`}>
-          <span className="material-symbols-outlined text-xl">group_add</span>
-          <span className="font-headline text-[14px] font-semibold">Matches</span>
+        <Link href="/admin/users" className={`${itemClass(users)} transition-transform duration-200 hover:translate-x-0.5`}>
+          <span className="material-symbols-outlined text-xl">manage_accounts</span>
+          <span className="font-headline text-[14px] font-semibold">User Management</span>
         </Link>
 
         <div className="my-2 border-t border-slate-200/70" />

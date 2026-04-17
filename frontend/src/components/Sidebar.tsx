@@ -62,6 +62,18 @@ export default function Sidebar() {
           <span className="material-symbols-outlined text-[20px]">person</span>
           <span className="text-[14px] font-semibold">Profile</span>
         </Link>
+        <Link href="/dashboard/resume" className={`${navItemClass(pathname.startsWith("/dashboard/resume"))} hover:translate-x-0.5 transition-transform duration-200`}>
+          <span className="material-symbols-outlined text-[20px]">bolt</span>
+          <span className="text-[14px] font-semibold">Optimizer</span>
+        </Link>
+        <Link href="/dashboard/recommendations" className={`${navItemClass(pathname.startsWith("/dashboard/recommendations"))} hover:translate-x-0.5 transition-transform duration-200`}>
+          <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
+          <span className="text-[14px] font-semibold">AI Assistant</span>
+        </Link>
+        <Link href="/dashboard/notifications" className={`${navItemClass(pathname.startsWith("/dashboard/notifications"))} hover:translate-x-0.5 transition-transform duration-200`}>
+          <span className="material-symbols-outlined text-[20px]">notifications</span>
+          <span className="text-[14px] font-semibold">Notifications</span>
+        </Link>
 
         <div className="my-2 border-t border-slate-200/70" />
 
