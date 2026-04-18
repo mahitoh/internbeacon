@@ -1,189 +1,225 @@
 # InternBeacon
 
-**Curated internships for students. A serious hiring console for employers.**  
-InternBeacon is a Next.js application for browsing roles, tracking applications, and managing employer workflows—styled as a premium marketplace with a consistent app shell across student and company experiences.
+Curated internships for students, and a serious hiring console for employers.
+
+InternBeacon currently runs as:
+- frontend: Next.js 16 app in `frontend/`
+- backend: Node.js/Express + Prisma API in `backend/`
+
+This README is the source of truth for running both together.
 
 ---
 
-## Why InternBeacon exists
+## Architecture
 
-Students waste time in scattered WhatsApp groups and unvetted listings. Employers need a single place to post roles and review applicants without losing context. This codebase is the **UI foundation**: routes, layouts, and design system tokens are wired so you can plug in auth, a real API, and data later without redrawing every screen.
+- Frontend (`frontend/`)
+  - Next.js 16 + React 19 + Tailwind v4
+  - Auth pages (`/login`, `/signup`) call backend API
+  - Student/employer dashboards are wired to authenticated backend endpoints
+  - Listings and internship detail fetch live offers from backend (with UI fallback)
 
----
-
-## What you get today
-
-| Area | Routes | Purpose |
-|------|--------|---------|
-| **Marketing** | `/`, `/browse`, `/discover`, `/listings` | Landing, search/browse, discovery, editorial listings index |
-| **Auth** | `/login`, `/signup` | Sign-in flows (UI) |
-| **Student console** | `/dashboard`, `/dashboard/feed`, `/dashboard/applications`, `/dashboard/profile` | Home stats, social-style feed, tracker, profile |
-| **Employer console** | `/employer/dashboard`, `/employer/applicants`, `/employer/messages`, `/employer/post` | Command center, pipeline, chat, posting wizard |
-| **Detail** | `/internships/[id]`, `/offers/[id]`, `/company/[id]` | Dynamic detail placeholders |
-| **Dev** | `/dev/pages` | Clickable index of all static routes while building |
-
-Layouts enforce **one sidebar width (`w-72`)**, **shared padding**, and **mobile top navigation** so the product does not feel like a pile of unrelated HTML exports.
+- Backend (`backend/`)
+  - Express 5 + Prisma + PostgreSQL
+  - API base path: `/api/v1`
+  - JWT auth using `Authorization: Bearer <token>`
 
 ---
 
-## Tech stack
+## Prerequisites
 
-- **[Next.js 16](https://nextjs.org)** (App Router, React 19)
-- **TypeScript**
-- **Tailwind CSS v4** (`@import "tailwindcss"` + `@theme` tokens in `app/globals.css`)
-- **Material Symbols** (icons, loaded in root layout)
-- **shadcn-style primitives** (`cn`, `Card`, Base UI `Button` where applicable)
-- **Design source**: HTML references live in `stitch_assets/` (and mirrored under `frontend/public/assets/` for static peek)
+- Node.js 20+
+- npm
+- PostgreSQL database (Neon/local/etc.)
 
 ---
 
-## Repository layout
+## 1) Backend setup
 
-```text
-internbeacon/
-├── README.md                 # You are here
-├── stitch_assets/            # Original Stitch / export HTML (reference)
-└── frontend/                 # Next.js application — this is what you run
-    ├── app/                  # Routes + route-group layouts
-    │   ├── layout.tsx        # Fonts, Material Symbols, global body classes
-    │   ├── globals.css       # Tailwind theme + design tokens
-    │   ├── dashboard/
-    │   │   └── layout.tsx    # Student shell (sidebar + footer)
-    │   └── employer/
-    │       └── layout.tsx    # Employer shell (sidebar, no heavy footer)
-    ├── public/
-    │   └── assets/
-    │       └── logo.svg
-    └── src/
-        ├── components/       # Navbar, Footer, Logo, Sidebar, shells, ui/
-        └── lib/                # utils, data helpers
+```bash
+cd backend
+npm install
+cp .env.example .env
 ```
 
-> **Note:** An older README may have described `apps/web` and `apps/api`. The current source of truth for the UI is **`frontend/`**. Add a separate API service when you are ready and link it from here.
+Edit `backend/.env` with real values:
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `JWT_REFRESH_SECRET`
+- optional service keys (AI/email/SMS)
+
+Initialize Prisma:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+Run backend:
+
+```bash
+npm run dev
+# or
+npm start
+```
+
+Backend should be available at:
+- `http://localhost:5000/health`
+- `http://localhost:5000/api-docs`
 
 ---
 
-## Quick start
-
-### Requirements
-
-- **Node.js 20+** (LTS recommended)
-- **npm** (ships with Node)
-
-### Install and run
+## 2) Frontend setup
 
 ```bash
 cd frontend
 npm install
+cp .env.example .env.local
+```
+
+`frontend/.env.local` should contain:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+```
+
+Run frontend:
+
+```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open:
+- `http://localhost:3000`
 
-### Production build
+If port 3000 is busy, Next.js will use 3001 automatically.
+
+---
+
+## 3) Run both together (two terminals)
+
+Terminal A:
+```bash
+cd backend
+npm run dev
+```
+
+Terminal B:
+```bash
+cd frontend
+npm run dev
+```
+
+Then test flow:
+1. Open `/signup`
+2. Create account (student or company)
+3. You should be redirected by role:
+   - STUDENT -> `/dashboard`
+   - COMPANY -> `/employer/dashboard`
+   - ADMIN -> `/admin/dashboard`
+4. Login works at `/login` with same redirect behavior
+
+---
+
+## Integrated routes/endpoints
+
+### Auth
+Frontend:
+- `/login`
+- `/signup`
+
+Backend:
+- `POST /api/v1/auth/login`
+- `POST /api/v1/auth/register`
+
+### Student
+Frontend pages wired:
+- `/dashboard`
+- `/dashboard/applications`
+- `/dashboard/recommendations`
+- `/dashboard/profile`
+
+Backend endpoints used:
+- `GET /api/v1/students/profile`
+- `GET /api/v1/students/stats`
+- `GET /api/v1/students/applications`
+- `GET /api/v1/students/recommendations`
+
+### Employer
+Frontend pages wired:
+- `/employer/dashboard`
+- `/employer/applicants`
+- `/employer/profile`
+
+Backend endpoints used:
+- `GET /api/v1/companies/profile`
+- `GET /api/v1/companies/offers`
+- `GET /api/v1/companies/applicants`
+- `PUT /api/v1/applications/status` (from applicants page status dropdown)
+
+### Offers (public)
+Frontend:
+- `/listings`
+- `/internships/[id]`
+
+Backend:
+- `GET /api/v1/offers`
+- `GET /api/v1/offers/:id`
+
+---
+
+## Build and verification
+
+Frontend production build:
 
 ```bash
 cd frontend
 npm run build
-npm start
 ```
 
-### Lint
+Backend quick health check:
 
 ```bash
-cd frontend
-npm run lint
+curl http://localhost:5000/health
 ```
 
 ---
 
-## Environment variables
+## Notes
 
-There is no hard dependency on `.env` for the static UI. When you add API calls, auth, or analytics, create `frontend/.env.local` (never commit secrets) and document each variable in this section.
-
-Suggested placeholders for a real launch:
-
-- `NEXT_PUBLIC_APP_URL` — canonical site URL
-- `DATABASE_URL` — if you add Prisma / Drizzle later
-- `AUTH_SECRET` — session/JWT signing
-- Provider keys (OAuth, email, uploads) as needed
+- Frontend stores auth token/user in localStorage for now.
+- API client lives in `frontend/src/lib/api.ts`.
+- If backend is unavailable, listings/detail pages fall back to mock UI data.
+- There are still many existing lint issues in untouched pages; build is passing.
 
 ---
 
-## Design system (short)
+## Project structure (current)
 
-Semantic colors and fonts are defined in `app/globals.css` under `@theme` (e.g. `on-primary-fixed`, `secondary-container`, `surface-container-low`). Components use Tailwind utilities mapped to those tokens so the Stitch palette stays consistent.
-
-- **Display / headlines**: Plus Jakarta Sans (`--font-display`)
-- **Body**: Inter (`--font-sans`)
-- **Utilities**: `font-headline`, `font-body` (aliases in theme)
-
----
-
-## Navigation architecture
-
-- **Marketing pages** use `Navbar` + `Footer` (logo, explore links, login, post CTA).
-- **`/dashboard/*`** uses `StudentAppShell`: fixed **desktop sidebar** + **mobile pill nav** + slim **app footer**.
-- **`/employer/*`** uses `EmployerAppShell`: same sidebar contract + **mobile pill nav** (no bulky footer so messages/applicants can use vertical space).
-
-Changing spacing or chrome once in the shell updates every page in that section.
-
----
-
-## Finding every route
-
-During development, open **`/dev/pages`** for a linked checklist of routes. The marketing footer also includes an **“All routes”** link for quick access.
+```text
+internbeacon/
+├── README.md
+├── backend/
+│   ├── server.js
+│   ├── prisma/schema.prisma
+│   └── src/
+│       ├── routes/
+│       ├── controllers/
+│       └── services/
+└── frontend/
+    ├── app/
+    ├── src/components/
+    └── src/lib/
+```
 
 ---
 
-## Adding a new page
+## Troubleshooting
 
-1. Create `app/your-route/page.tsx`.
-2. If it belongs to the student console, nest it under `app/dashboard/` so it picks up `dashboard/layout.tsx`. Same idea for `app/employer/`.
-3. Add the path to `app/dev/pages/page.tsx` so the index stays complete.
-4. If it is a primary destination, add a link in `Navbar`, `Sidebar`, or `Footer` as appropriate.
-
----
-
-## Deploying
-
-The app is a standard Next.js deployment:
-
-- **Vercel**: connect the repo, set root directory to `frontend`, use default Next.js settings.
-- **Docker / Node host**: run `npm run build` and `npm start` from `frontend`, or use an official Next.js Docker pattern.
-
-Enable **image domains** in `next.config` if you move remote images to your own CDN.
-
----
-
-## Roadmap (suggested)
-
-1. **Auth** — sessions, protected `/dashboard` and `/employer` layouts, role-based redirects.
-2. **API** — REST or tRPC; replace mock data in listing/detail pages.
-3. **Database** — Postgres + Prisma/Drizzle; migrations in CI.
-4. **Search** — server-side filters; URL-driven state on `/browse` and `/listings`.
-5. **Real-time** — employer messages with WebSockets or a managed chat provider.
-6. **i18n** — FR/EN toggle already hinted in footer copy.
-
----
-
-## Contributing
-
-1. Keep changes **scoped** to the feature (avoid drive-by refactors).
-2. Run **`npm run build`** before opening a PR.
-3. Match existing **Tailwind + naming** conventions in touched files.
-4. Update **`/dev/pages`** if you add user-facing routes.
-
----
-
-## License
-
-Specify your license here when you publish the repo (e.g. MIT, Apache-2.0, or proprietary).
-
----
-
-## Acknowledgments
-
-UI patterns and copy draw from curated “Stitch” style exports in `stitch_assets/`. The running app is implemented in React/Next.js with a unified shell so those designs ship as one product—not a folder of disconnected HTML files.
-
-**Built for Cameroon-first talent and employers—designed to scale beyond.**
+- 401 Unauthorized on dashboard pages:
+  - Login again at `/login` to refresh token in localStorage.
+- CORS errors:
+  - Ensure backend is running and `FRONTEND_URL` (if set) matches your frontend origin.
+- Empty student/company pages:
+  - Ensure the logged-in user has the correct role/profile created via `/signup`.
+- API URL wrong:
+  - Check `frontend/.env.local` -> `NEXT_PUBLIC_API_URL`.

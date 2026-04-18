@@ -12,10 +12,11 @@ const {
 
 const router = express.Router();
 
+// Public route (must be declared before auth middleware)
+router.get("/public/:id", getPublicProfile);
+
 router.use(authenticateToken);
 router.use(authorizeRole(['COMPANY']));
-
-router.get("/public/:id", getPublicProfile);
 
 router.get('/profile', getProfile);
 router.put('/profile', updateProfile);

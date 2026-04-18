@@ -184,10 +184,10 @@ export default function Page() {
 <svg className="w-full h-full drop-shadow-lg" viewBox="0 0 800 300">
 {/* Area Gradient */}
 <defs>
-<lineargradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
+<linearGradient id="areaGradient" x1="0" x2="0" y1="0" y2="1">
 <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.3"></stop>
 <stop offset="100%" stopColor="#F59E0B" stopOpacity="0"></stop>
-</lineargradient>
+</linearGradient>
 </defs>
 {/* Grid Lines */}
 <line stroke="#E2E8F0" strokeDasharray="4" strokeWidth="1" x1="0" x2="800" y1="50" y2="50"></line>

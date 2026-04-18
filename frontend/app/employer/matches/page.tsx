@@ -66,7 +66,7 @@ export default function Page() {
 <label className="text-[10px] uppercase font-bold tracking-widest text-on-tertiary-container block">Education Level</label>
 <div className="space-y-2">
 <label className="flex items-center gap-3 text-sm cursor-pointer group">
-<input checked="" className="rounded border-outline-variant text-secondary-container focus:ring-secondary-container" type="checkbox"/>
+<input defaultChecked className="rounded border-outline-variant text-secondary-container focus:ring-secondary-container" type="checkbox"/>
 <span className="group-hover:text-primary transition-colors">Master's Degree</span>
 </label>
 <label className="flex items-center gap-3 text-sm cursor-pointer group">

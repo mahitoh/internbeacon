@@ -19,14 +19,16 @@ function pillClass(active: boolean) {
     : `${base} text-slate-600 hover:bg-slate-100 hover:text-slate-900 active:scale-[0.98]`;
 }
 
-export default function Navbar() {
-  const pathname = usePathname();
+type NavPillsProps = {
+  className?: string;
+  pathname: string;
+};
 
-  const NavPills = ({ className }: { className?: string }) => (
+function NavPills({ className, pathname }: NavPillsProps) {
+  return (
     <div className={className}>
       {NAV_ITEMS.map(({ href, label }) => {
-        const active =
-          pathname === href || pathname.startsWith(`${href}/`);
+        const active = pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link key={href} href={href} className={pillClass(active)}>
             {label}
@@ -35,6 +37,10 @@ export default function Navbar() {
       })}
     </div>
   );
+}
+
+export default function Navbar() {
+  const pathname = usePathname();
 
   return (
     <nav className="fixed top-0 z-50 w-full border-b border-slate-200/70 bg-white/95 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-white/75">
@@ -44,11 +50,11 @@ export default function Navbar() {
         </div>
 
         {/* Desktop */}
-        <NavPills className="hidden min-w-0 flex-1 items-center gap-2 md:flex lg:gap-4 ml-6" />
+        <NavPills pathname={pathname} className="hidden min-w-0 flex-1 items-center gap-2 md:flex lg:gap-4 ml-6" />
 
         {/* Mobile: scrollable pills */}
         <div className="min-w-0 flex-1 overflow-hidden md:hidden">
-          <NavPills className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" />
+          <NavPills pathname={pathname} className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" />
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
