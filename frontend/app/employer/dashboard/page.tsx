@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { getCompanyOffers, type OfferApiModel } from "@/lib/api";
+import { getCompanyOffers, getUserFriendlyError, type OfferApiModel } from "@/lib/api";
 
 export default function EmployerDashboard() {
   const [offers, setOffers] = useState<OfferApiModel[]>([]);
@@ -21,7 +21,7 @@ export default function EmployerDashboard() {
         setOffers(data);
       } catch (err) {
         if (!mounted) return;
-        setError(err instanceof Error ? err.message : "Could not load company offers");
+        setError(getUserFriendlyError(err, "Could not load company offers"));
       } finally {
         if (mounted) setLoading(false);
       }

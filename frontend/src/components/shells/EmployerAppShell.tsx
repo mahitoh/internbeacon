@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import EmployerSidebar from "@/components/EmployerSidebar";
 import Logo from "@/components/Logo";
+import { clearAuth, getAuthToken, getStoredUser, roleHomePath } from "@/lib/api";
 
 const MOBILE_LINKS = [
   { href: "/employer/dashboard", label: "Dashboard" },
@@ -22,6 +24,19 @@ function mobilePill(active: boolean) {
 
 export function EmployerAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    const stored = getStoredUser();
+    const token = getAuthToken();
+    if (!stored || !token) {
+      router.replace("/login");
+      return;
+    }
+    if (stored.role !== "COMPANY") {
+      router.replace(roleHomePath(stored.role));
+    }
+  }, [router]);
 
   return (
     <div className="flex min-h-screen w-full bg-[#f7f9fb] font-body text-on-surface antialiased selection:bg-secondary-container/30">
@@ -29,12 +44,16 @@ export function EmployerAppShell({ children }: { children: React.ReactNode }) {
         <div className="flex min-h-[3.75rem] flex-col gap-2 px-3 py-2.5">
           <div className="flex items-center justify-between gap-2">
             <Logo className="h-8 w-auto max-w-[160px] shrink-0" />
-            <Link
-              href="/"
+            <button
+              type="button"
+              onClick={() => {
+                clearAuth();
+                window.location.href = "/login";
+              }}
               className="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm font-headline"
             >
-              Exit
-            </Link>
+              Logout
+            </button>
           </div>
           <nav
             className="flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

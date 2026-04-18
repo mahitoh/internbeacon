@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { MOCK_INTERNSHIPS } from "@/lib/data";
-import { getOfferById, mapOfferToInternship } from "@/lib/api";
+import { getOfferById, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { FiClock, FiDollarSign, FiCalendar, FiArrowLeft, FiShare2, FiHeart, FiShield, FiGlobe } from "react-icons/fi";
@@ -32,7 +32,7 @@ export default function InternshipDetailPage() {
         if (!mounted) return;
         const fallback = MOCK_INTERNSHIPS.find((i) => i.id === id) || null;
         setInternship(fallback);
-        setError(err instanceof Error ? err.message : "Could not load offer");
+        setError(getUserFriendlyError(err, "Could not load offer"));
       } finally {
         if (mounted) setLoading(false);
       }

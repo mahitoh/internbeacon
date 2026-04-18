@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Logo from "@/components/Logo";
 import { AppShellFooter } from "@/components/shells/AppShellFooter";
+import { clearAuth, getAuthToken, getStoredUser, roleHomePath, type AuthUser } from "@/lib/api";
 
 const MOBILE_LINKS = [
   { href: "/dashboard", label: "Home" },
@@ -27,6 +29,21 @@ function mobilePill(active: boolean) {
  */
 export function StudentAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user] = useState<AuthUser | null>(() => getStoredUser());
+
+  useEffect(() => {
+    const stored = user;
+    const token = getAuthToken();
+    if (!stored || !token) {
+      router.replace("/login");
+      return;
+    }
+    if (stored.role !== "STUDENT") {
+      router.replace(roleHomePath(stored.role));
+      return;
+    }
+  }, [router, user]);
 
   return (
     <div className="flex min-h-screen w-full bg-slate-100 font-body text-on-surface antialiased selection:bg-secondary-container/30">
@@ -35,10 +52,10 @@ export function StudentAppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center justify-between gap-2">
             <Logo className="h-8 w-auto max-w-[160px] shrink-0" />
             <Link
-              href="/login"
+              href="/dashboard/profile"
               className="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm font-headline"
             >
-              Log in
+              {user?.name?.charAt(0).toUpperCase() || "Me"}
             </Link>
           </div>
           <nav
@@ -55,6 +72,16 @@ export function StudentAppShell({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
+          <button
+            type="button"
+            onClick={() => {
+              clearAuth();
+              window.location.href = "/login";
+            }}
+            className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs font-bold text-red-600 shadow-sm font-headline"
+          >
+            Logout
+          </button>
         </div>
       </header>
       <Sidebar />

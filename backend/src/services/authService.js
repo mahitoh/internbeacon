@@ -84,4 +84,22 @@ const refresh = async (refreshToken) => {
   }
 };
 
-module.exports = { register, login, refresh };
+const getCurrentUser = async (userId) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  return user;
+};
+
+module.exports = { register, login, refresh, getCurrentUser };

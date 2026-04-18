@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import {
+  getUserFriendlyError,
   getStoredUser,
   getStudentApplications,
   getStudentProfile,
@@ -40,7 +41,7 @@ export default function Dashboard() {
         setRecommendationCount(recommendations.length);
       } catch (error) {
         if (!mounted) return;
-        setApiError(error instanceof Error ? error.message : "Failed to load dashboard data");
+        setApiError(getUserFriendlyError(error, "Failed to load dashboard data"));
       }
     };
 

@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
+import { clearAuth, getStoredUser, type AuthUser } from "@/lib/api";
 
 function navItemClass(active: boolean) {
   return active
@@ -13,12 +14,20 @@ function navItemClass(active: boolean) {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
 
   const isDashHome = pathname === "/dashboard";
   const isApplications = pathname.startsWith("/dashboard/applications");
   const isFeed = pathname.startsWith("/dashboard/feed");
   const isProfile = pathname.startsWith("/dashboard/profile");
   const isBrowse = pathname.startsWith("/browse") || pathname.startsWith("/listings") || pathname.startsWith("/discover");
+
+  const handleLogout = () => {
+    clearAuth();
+    setUser(null);
+    router.push("/login");
+  };
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-full w-72 flex-col gap-4 border-r border-slate-200/80 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-950 md:flex">
@@ -34,9 +43,9 @@ export default function Sidebar() {
           </div>
           <div>
             <p className="text-[13px] font-semibold leading-tight text-slate-900 dark:text-slate-50">
-              Jean-Luc
+              {user?.name || "Student"}
             </p>
-            <p className="text-[11px] text-slate-500">Student</p>
+            <p className="text-[11px] text-slate-500">{user?.role === "STUDENT" ? "Student" : "User"}</p>
           </div>
         </div>
       </div>
@@ -54,7 +63,7 @@ export default function Sidebar() {
           <span className="material-symbols-outlined text-[20px]">description</span>
           <span className="text-[14px] font-semibold">Applications</span>
         </Link>
-        <Link href="/browse" className={`${navItemClass(isBrowse)} hover:translate-x-0.5 transition-transform duration-200`}>
+        <Link href="/listings" className={`${navItemClass(isBrowse)} hover:translate-x-0.5 transition-transform duration-200`}>
           <span className="material-symbols-outlined text-[20px]">search</span>
           <span className="text-[14px] font-semibold">Browse roles</span>
         </Link>
@@ -88,7 +97,7 @@ export default function Sidebar() {
 
       <div className="mt-auto flex flex-col gap-2 pt-4 border-t border-slate-200/70">
         <button
-          onClick={() => { window.location.href = "/"; }}
+          onClick={handleLogout}
           className="flex items-center gap-3 px-4 py-3 text-slate-400 transition-colors hover:text-red-500 rounded-2xl hover:bg-red-50"
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>

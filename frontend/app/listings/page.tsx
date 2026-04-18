@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import InternshipCard from "@/components/InternshipCard";
 import { MOCK_INTERNSHIPS } from "@/lib/data";
 import { FiSearch, FiFilter, FiArrowDown } from "react-icons/fi";
-import { getOffers, mapOfferToInternship } from "@/lib/api";
+import { getOffers, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
 import type { Internship } from "@/types";
 
 export default function ListingsPage() {
@@ -28,7 +28,7 @@ export default function ListingsPage() {
         setInternships(mapped.length ? mapped : MOCK_INTERNSHIPS);
       } catch (err) {
         if (!mounted) return;
-        setError(err instanceof Error ? err.message : "Could not load offers");
+        setError(getUserFriendlyError(err, "Could not load offers"));
         setInternships(MOCK_INTERNSHIPS);
       } finally {
         if (mounted) setLoading(false);

@@ -94,6 +94,16 @@ const toError = async (response: Response) => {
   }
 };
 
+const GENERIC_ERROR_MESSAGE = "Something went wrong. Please try again.";
+
+function sanitizeMessage(message?: string | null) {
+  if (!message) return GENERIC_ERROR_MESSAGE;
+  if (/request failed|network|fetch|unexpected token|syntaxerror/i.test(message)) {
+    return "Could not reach the server. Please try again in a moment.";
+  }
+  return message;
+}
+
 function getToken() {
   if (!isBrowser()) return null;
   return localStorage.getItem(TOKEN_KEY);
@@ -124,23 +134,42 @@ export function clearAuth() {
   localStorage.removeItem(USER_KEY);
 }
 
+export function getAuthToken() {
+  return getToken();
+}
+
+export function getUserFriendlyError(
+  err: unknown,
+  fallback = GENERIC_ERROR_MESSAGE
+) {
+  if (err instanceof Error) {
+    return sanitizeMessage(err.message);
+  }
+  return fallback;
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init.headers || {}),
-    },
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...(init.headers || {}),
+      },
+      cache: "no-store",
+    });
+  } catch {
+    throw new Error("Could not reach the server. Please try again in a moment.");
+  }
 
   if (!response.ok) {
-    throw new Error(await toError(response));
+    throw new Error(sanitizeMessage(await toError(response)));
   }
 
   const payload = (await response.json()) as ApiResponse<T>;
   if (!payload.success) {
-    throw new Error(payload.message || "Request failed");
+    throw new Error(sanitizeMessage(payload.message || "Request failed"));
   }
 
   return payload.data as T;
@@ -166,6 +195,10 @@ export async function loginUser(email: string, password: string) {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
+}
+
+export async function getAuthProfile() {
+  return authRequest<AuthUser>("/auth/me");
 }
 
 export async function registerUser(params: {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
-import { getStoredUser, getStudentApplications, type ApplicationModel } from "@/lib/api";
+import { getStoredUser, getStudentApplications, getUserFriendlyError, type ApplicationModel } from "@/lib/api";
 
 export default function ApplicationTracking() {
   const user = useMemo(() => getStoredUser(), []);
@@ -22,7 +22,7 @@ export default function ApplicationTracking() {
         setApplications(data);
       } catch (err) {
         if (!mounted) return;
-        setError(err instanceof Error ? err.message : "Could not load applications");
+        setError(getUserFriendlyError(err, "Could not load applications"));
       } finally {
         if (mounted) setLoading(false);
       }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getStudentRecommendations, mapOfferToInternship, type OfferApiModel } from "@/lib/api";
+import { getStudentRecommendations, getUserFriendlyError, mapOfferToInternship, type OfferApiModel } from "@/lib/api";
 import InternshipCard from "@/components/InternshipCard";
 
 export default function RecommendationsPage() {
@@ -21,7 +21,7 @@ export default function RecommendationsPage() {
         setOffers(recs);
       } catch (err) {
         if (!mounted) return;
-        setError(err instanceof Error ? err.message : "Could not load recommendations");
+        setError(getUserFriendlyError(err, "Could not load recommendations"));
       } finally {
         if (mounted) setLoading(false);
       }

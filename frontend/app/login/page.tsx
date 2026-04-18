@@ -2,8 +2,8 @@
 
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
-import React, { useState } from "react";
-import { loginUser, persistAuth, roleHomePath } from "@/lib/api";
+import React, { useEffect, useState } from "react";
+import { getStoredUser, getUserFriendlyError, loginUser, persistAuth, roleHomePath } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
@@ -14,6 +14,13 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    const user = getStoredUser();
+    if (user) {
+      router.replace(roleHomePath(user.role));
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,11 +35,15 @@ export default function Login() {
     try {
       setLoading(true);
       const data = await loginUser(email, password);
+      if (data.user.role !== role) {
+        setError(`This account is registered as ${data.user.role.toLowerCase()}. Please switch role to continue.`);
+        return;
+      }
       persistAuth(data);
       setSuccess(`Signed in successfully as ${data.user.name}. Redirecting...`);
       router.push(roleHomePath(data.user.role));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(getUserFriendlyError(err, "Login failed"));
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getCompanyApplicants, updateApplicationStatus, type ApplicantModel } from "@/lib/api";
+import { getCompanyApplicants, getUserFriendlyError, updateApplicationStatus, type ApplicantModel } from "@/lib/api";
 
 const STATUS_OPTIONS = ["PENDING", "SHORTLISTED", "ACCEPTED", "REJECTED"] as const;
 
@@ -22,7 +22,7 @@ export default function ManageApplicants() {
         setApplicants(data);
       } catch (err) {
         if (!mounted) return;
-        setError(err instanceof Error ? err.message : "Could not load applicants");
+        setError(getUserFriendlyError(err, "Could not load applicants"));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -39,7 +39,7 @@ export default function ManageApplicants() {
       await updateApplicationStatus(id, status);
       setApplicants((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update status");
+      setError(getUserFriendlyError(err, "Failed to update status"));
     }
   };
 

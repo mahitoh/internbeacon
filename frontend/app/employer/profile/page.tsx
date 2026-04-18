@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getCompanyProfile } from "@/lib/api";
+import { getCompanyProfile, getUserFriendlyError } from "@/lib/api";
 
 export default function EmployerProfilePage() {
   const [profile, setProfile] = useState<Awaited<ReturnType<typeof getCompanyProfile>> | null>(null);
@@ -20,7 +20,7 @@ export default function EmployerProfilePage() {
         setProfile(data);
       } catch (err) {
         if (!mounted) return;
-        setError(err instanceof Error ? err.message : "Could not load company profile");
+        setError(getUserFriendlyError(err, "Could not load company profile"));
       } finally {
         if (mounted) setLoading(false);
       }

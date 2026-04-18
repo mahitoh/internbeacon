@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
+import { clearAuth, getStoredUser, type AuthUser } from "@/lib/api";
 
 function itemClass(active: boolean) {
   return active
@@ -13,11 +14,19 @@ function itemClass(active: boolean) {
 
 export default function EmployerSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
 
   const dash = pathname === "/employer/dashboard";
   const applicants = pathname.startsWith("/employer/applicants");
   const messages = pathname.startsWith("/employer/messages");
   const post = pathname.startsWith("/employer/post");
+
+  const handleLogout = () => {
+    clearAuth();
+    setUser(null);
+    router.push("/login");
+  };
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-full w-72 flex-col gap-4 border-r border-slate-200/80 bg-slate-50 p-6 md:flex">
@@ -78,11 +87,11 @@ export default function EmployerSidebar() {
             alt="Employer"
           />
           <div className="flex flex-col">
-            <span className="text-xs font-bold text-slate-900">Marcus Sterling</span>
-            <span className="text-[10px] font-medium text-slate-500">Sr. Talent Lead</span>
+            <span className="text-xs font-bold text-slate-900">{user?.name || "Employer Account"}</span>
+            <span className="text-[10px] font-medium text-slate-500">Company</span>
           </div>
           <button
-            onClick={() => { window.location.href = "/"; }}
+            onClick={handleLogout}
             className="ml-auto text-slate-400 transition-colors hover:text-red-500"
             aria-label="Log out"
           >

@@ -2,8 +2,8 @@
 
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
-import React, { useState } from "react";
-import { registerUser, persistAuth, roleHomePath } from "@/lib/api";
+import React, { useEffect, useState } from "react";
+import { getStoredUser, getUserFriendlyError, persistAuth, registerUser, roleHomePath } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export default function Signup() {
@@ -16,6 +16,13 @@ export default function Signup() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  useEffect(() => {
+    const user = getStoredUser();
+    if (user) {
+      router.replace(roleHomePath(user.role));
+    }
+  }, [router]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -23,6 +30,10 @@ export default function Signup() {
 
     if (!name || !email || !password) {
       setError("Please fill in all required fields.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password should be at least 6 characters.");
       return;
     }
 
@@ -33,7 +44,7 @@ export default function Signup() {
       setSuccess(`Account created successfully for ${data.user.name}. Redirecting...`);
       router.push(roleHomePath(data.user.role));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Signup failed");
+      setError(getUserFriendlyError(err, "Signup failed"));
     } finally {
       setLoading(false);
     }

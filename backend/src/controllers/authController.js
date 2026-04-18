@@ -1,4 +1,4 @@
-const { register, login, refresh } = require('../services/authService');
+const { register, login, refresh, getCurrentUser } = require('../services/authService');
 
 const registerUser = async (req, res) => {
   try {
@@ -30,4 +30,13 @@ const refreshToken = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, refreshToken };
+const getMe = async (req, res) => {
+  try {
+    const user = await getCurrentUser(req.user.id);
+    res.json({ success: true, data: user });
+  } catch (error) {
+    res.status(404).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, refreshToken, getMe };

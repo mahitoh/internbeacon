@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getStudentProfile } from "@/lib/api";
+import { getStudentProfile, getUserFriendlyError } from "@/lib/api";
 
 export default function StudentProfile() {
   const [profile, setProfile] = useState<Awaited<ReturnType<typeof getStudentProfile>> | null>(null);
@@ -20,7 +20,7 @@ export default function StudentProfile() {
         setProfile(data);
       } catch (err) {
         if (!mounted) return;
-        setError(err instanceof Error ? err.message : "Could not load profile");
+        setError(getUserFriendlyError(err, "Could not load profile"));
       } finally {
         if (mounted) setLoading(false);
       }
