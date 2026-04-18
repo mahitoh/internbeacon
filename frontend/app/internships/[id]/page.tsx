@@ -32,7 +32,11 @@ export default function InternshipDetailPage() {
         if (!mounted) return;
         const fallback = MOCK_INTERNSHIPS.find((i) => i.id === id) || null;
         setInternship(fallback);
-        setError(getUserFriendlyError(err, "Could not load offer"));
+        if (!fallback) {
+          setError(getUserFriendlyError(err, "Could not load offer"));
+        } else {
+          setError(null);
+        }
       } finally {
         if (mounted) setLoading(false);
       }
