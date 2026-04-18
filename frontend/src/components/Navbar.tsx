@@ -70,16 +70,17 @@ export default function Navbar() {
           {user ? (
             <>
               <Link
-                href={roleHomePath(user.role)}
-                className="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:text-slate-900"
+                href={user.role === 'COMPANY' ? '/employer/profile' : user.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard/profile'}
+                className="hidden sm:inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white pl-4 pr-1 py-1 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50"
               >
                 <span className="max-w-[110px] truncate">{user.name}</span>
-                <span className="text-slate-400">/</span>
-                <span>Dashboard</span>
+                <div className="h-8 w-8 flex items-center justify-center rounded-full bg-slate-900 text-white font-bold leading-none">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
               </Link>
               <Link
-                href={roleHomePath(user.role)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white text-sm font-bold shadow-lg shadow-slate-900/20"
+                href={user.role === 'COMPANY' ? '/employer/profile' : user.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard/profile'}
+                className="sm:hidden inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white text-sm font-bold shadow-lg shadow-slate-900/20"
                 aria-label={`${user.name} profile`}
               >
                 {user.name.charAt(0).toUpperCase()}
