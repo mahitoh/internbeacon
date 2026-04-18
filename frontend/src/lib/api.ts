@@ -83,6 +83,7 @@ const TOKEN_KEY = "internbeacon_token";
 const REFRESH_KEY = "internbeacon_refresh_token";
 const USER_KEY = "internbeacon_user";
 export const AUTH_CHANGE_EVENT = "internbeacon-auth-change";
+let refreshPromise: Promise<string | null> | null = null;
 
 const isBrowser = () => typeof window !== "undefined";
 
@@ -185,27 +186,57 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 
 async function authRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = getToken();
-  if (!token) {
-    throw new Error("Your session is not available. Please log in.");
-  }
-
-  try {
-    return await request<T>(path, {
+  const runWithToken = async (token: string) =>
+    request<T>(path, {
       ...init,
       headers: {
         ...(init.headers || {}),
         Authorization: `Bearer ${token}`,
       },
     });
+
+  const token = getToken();
+  if (!token) throw new Error("Your session is not available. Please log in.");
+
+  try {
+    return await runWithToken(token);
   } catch (error) {
     const message = getUserFriendlyError(error);
-    if (isAuthMessage(message)) {
+    if (!isAuthMessage(message)) throw error;
+
+    const refreshed = await refreshAccessToken();
+    if (!refreshed) {
       clearAuth();
       throw new Error("Your session has expired. Please log in again.");
     }
-    throw error;
+    return runWithToken(refreshed);
   }
+}
+
+async function refreshAccessToken(): Promise<string | null> {
+  if (!isBrowser()) return null;
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    const refreshToken = localStorage.getItem(REFRESH_KEY);
+    if (!refreshToken) return null;
+    try {
+      const data = await request<{ token: string }>("/auth/refresh", {
+        method: "POST",
+        body: JSON.stringify({ refreshToken }),
+      });
+      if (!data.token) return null;
+      localStorage.setItem(TOKEN_KEY, data.token);
+      window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
+      return data.token;
+    } catch {
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
 }
 
 export async function loginUser(email: string, password: string) {
@@ -241,6 +272,17 @@ export async function getOfferById(id: string) {
 
 export async function getStudentProfile() {
   return authRequest<StudentProfile>("/students/profile");
+}
+
+export async function updateStudentProfile(params: {
+  name?: string;
+  bio?: string;
+  skills?: string[];
+}) {
+  return authRequest<StudentProfile>("/students/profile", {
+    method: "PUT",
+    body: JSON.stringify(params),
+  });
 }
 
 export async function getStudentStats() {

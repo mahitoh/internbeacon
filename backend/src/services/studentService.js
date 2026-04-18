@@ -4,13 +4,14 @@ const Joi = require('joi');
 const getStudentProfile = async (userId) => {
   const student = await prisma.student.findUnique({
     where: { userId },
-    include: { user: true },
+    include: { user: { select: { id: true, name: true, email: true } } },
   });
   if (!student) throw new Error('Student not found');
   return student;
 };
 
 const updateStudentProfileSchema = Joi.object({
+  name: Joi.string().trim().min(2).max(80).optional(),
   bio: Joi.string().max(500).optional(),
   skills: Joi.array().items(Joi.string()).max(20).optional(),
 });
@@ -19,10 +20,35 @@ const updateStudentProfile = async (userId, data) => {
   const { error } = updateStudentProfileSchema.validate(data);
   if (error) throw new Error(error.details[0].message);
 
-  const { bio, skills } = data;
-  return await prisma.student.update({
+  const existing = await prisma.student.findUnique({
     where: { userId },
-    data: { bio, skills, profileStrength: calculateStrength(data) },
+    include: { user: { select: { id: true, name: true, email: true } } },
+  });
+  if (!existing) throw new Error('Student not found');
+
+  const nextBio = data.bio !== undefined ? data.bio : existing.bio;
+  const nextSkills = data.skills !== undefined ? data.skills : existing.skills;
+  const nextStrength = calculateStrength({ bio: nextBio, skills: nextSkills });
+
+  return await prisma.$transaction(async (tx) => {
+    if (data.name !== undefined) {
+      await tx.user.update({
+        where: { id: userId },
+        data: { name: data.name },
+      });
+    }
+
+    const updatedStudent = await tx.student.update({
+      where: { userId },
+      data: {
+        bio: data.bio !== undefined ? data.bio : undefined,
+        skills: data.skills !== undefined ? data.skills : undefined,
+        profileStrength: nextStrength,
+      },
+      include: { user: { select: { id: true, name: true, email: true } } },
+    });
+
+    return updatedStudent;
   });
 };
 
