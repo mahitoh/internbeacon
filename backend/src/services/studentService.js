@@ -70,17 +70,28 @@ const getRecommendations = async (studentId, page = 1, limit = 10) => {
     orderBy: { score: 'desc' },
     skip,
     take: limit,
-    include: {
-      offer: {
-        include: { company: { include: { user: true } } },
-      },
-    },
   });
 
-  return matches.map(m => ({
-    ...m.offer,
-    matchScore: m.score,
-  }));
+  if (matches.length === 0) return [];
+
+  const offerIds = [...new Set(matches.map(m => m.offerId))];
+  const offers = await prisma.offer.findMany({
+    where: { id: { in: offerIds } },
+    include: { company: { include: { user: true } } },
+  });
+
+  const offersById = new Map(offers.map(offer => [offer.id, offer]));
+
+  return matches
+    .map(m => {
+      const offer = offersById.get(m.offerId);
+      if (!offer) return null;
+      return {
+        ...offer,
+        matchScore: m.score,
+      };
+    })
+    .filter(Boolean);
 };
 
 module.exports = {

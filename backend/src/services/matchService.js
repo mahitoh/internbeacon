@@ -36,45 +36,71 @@ const createMatch = async (studentId, offerId, score) => {
 const getMatchesForStudent = async (studentId) => {
   const matches = await prisma.match.findMany({
     where: { studentId },
-    include: {
-      offer: {
-        include: {
-          company: {
-            include: {
-              user: {
-                select: { name: true }
-              }
-            }
-          }
-        }
-      }
-    },
     orderBy: {
       score: 'desc'
     }
   });
 
-  return matches;
+  if (matches.length === 0) return [];
+
+  const offerIds = [...new Set(matches.map(match => match.offerId))];
+  const offers = await prisma.offer.findMany({
+    where: { id: { in: offerIds } },
+    include: {
+      company: {
+        include: {
+          user: {
+            select: { name: true }
+          }
+        }
+      }
+    }
+  });
+  const offersById = new Map(offers.map(offer => [offer.id, offer]));
+
+  return matches
+    .map(match => {
+      const offer = offersById.get(match.offerId);
+      if (!offer) return null;
+      return {
+        ...match,
+        offer
+      };
+    })
+    .filter(Boolean);
 };
 
 const getMatchesForOffer = async (offerId) => {
   const matches = await prisma.match.findMany({
     where: { offerId },
-    include: {
-      student: {
-        include: {
-          user: {
-            select: { name: true, email: true }
-          }
-        }
-      }
-    },
     orderBy: {
       score: 'desc'
     }
   });
 
-  return matches;
+  if (matches.length === 0) return [];
+
+  const studentIds = [...new Set(matches.map(match => match.studentId))];
+  const students = await prisma.student.findMany({
+    where: { id: { in: studentIds } },
+    include: {
+      user: {
+        select: { name: true, email: true }
+      }
+    }
+  });
+  const studentsById = new Map(students.map(student => [student.id, student]));
+
+  return matches
+    .map(match => {
+      const student = studentsById.get(match.studentId);
+      if (!student) return null;
+      return {
+        ...match,
+        student
+      };
+    })
+    .filter(Boolean);
 };
 
 const calculateMatchScore = async (studentId, offerId) => {

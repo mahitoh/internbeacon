@@ -3,6 +3,9 @@
 import { useSyncExternalStore } from "react";
 import { AUTH_CHANGE_EVENT, getStoredUser, type AuthUser } from "@/lib/api";
 
+let cachedRawUser: string | null = null;
+let cachedUser: AuthUser | null = null;
+
 function subscribe(onStoreChange: () => void) {
   if (typeof window === "undefined") return () => {};
 
@@ -19,7 +22,16 @@ function subscribe(onStoreChange: () => void) {
 }
 
 function getSnapshot(): AuthUser | null {
-  return getStoredUser();
+  if (typeof window === "undefined") return null;
+
+  const raw = window.localStorage.getItem("internbeacon_user");
+  if (raw === cachedRawUser) {
+    return cachedUser;
+  }
+
+  cachedRawUser = raw;
+  cachedUser = getStoredUser();
+  return cachedUser;
 }
 
 function getServerSnapshot(): AuthUser | null {

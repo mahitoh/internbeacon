@@ -105,6 +105,12 @@ function sanitizeMessage(message?: string | null) {
   return message;
 }
 
+function isAuthMessage(message: string) {
+  return /invalid token|token expired|not logged in|session|unauthorized/i.test(
+    message
+  );
+}
+
 function getToken() {
   if (!isBrowser()) return null;
   return localStorage.getItem(TOKEN_KEY);
@@ -181,16 +187,25 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 async function authRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = getToken();
   if (!token) {
-    throw new Error("You are not logged in.");
+    throw new Error("Your session is not available. Please log in.");
   }
 
-  return request<T>(path, {
-    ...init,
-    headers: {
-      ...(init.headers || {}),
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    return await request<T>(path, {
+      ...init,
+      headers: {
+        ...(init.headers || {}),
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    const message = getUserFriendlyError(error);
+    if (isAuthMessage(message)) {
+      clearAuth();
+      throw new Error("Your session has expired. Please log in again.");
+    }
+    throw error;
+  }
 }
 
 export async function loginUser(email: string, password: string) {

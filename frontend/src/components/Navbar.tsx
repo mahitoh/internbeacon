@@ -71,21 +71,23 @@ export default function Navbar() {
             <>
               <Link
                 href={roleHomePath(user.role)}
-                className="hidden sm:inline-flex px-4 py-2.5 rounded-full text-slate-700 hover:text-slate-900 font-headline text-sm font-bold transition-all duration-300 ease-in-out hover:bg-slate-100"
+                className="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:text-slate-900"
               >
-                Dashboard
+                <span className="max-w-[110px] truncate">{user.name}</span>
+                <span className="text-slate-400">/</span>
+                <span>Dashboard</span>
               </Link>
               <Link
                 href={roleHomePath(user.role)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white font-bold shadow-lg"
-                aria-label="Profile"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-white text-sm font-bold shadow-lg shadow-slate-900/20"
+                aria-label={`${user.name} profile`}
               >
                 {user.name.charAt(0).toUpperCase()}
               </Link>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="px-4 py-2.5 rounded-full text-slate-500 hover:text-red-600 font-headline text-sm font-bold transition-all duration-300 ease-in-out hover:bg-red-50"
+                className="rounded-full px-3.5 py-2 text-sm font-semibold text-slate-500 transition-all hover:bg-red-50 hover:text-red-600"
               >
                 Logout
               </button>
