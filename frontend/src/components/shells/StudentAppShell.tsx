@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import Logo from "@/components/Logo";
 import { AppShellFooter } from "@/components/shells/AppShellFooter";
-import { clearAuth, getAuthToken, getStoredUser, roleHomePath, type AuthUser } from "@/lib/api";
+import { clearAuth, getAuthToken, roleHomePath } from "@/lib/api";
+import { useAuthUser } from "@/lib/authClient";
 
 const MOBILE_LINKS = [
   { href: "/dashboard", label: "Home" },
@@ -30,7 +31,7 @@ function mobilePill(active: boolean) {
 export function StudentAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user] = useState<AuthUser | null>(() => getStoredUser());
+  const user = useAuthUser();
 
   useEffect(() => {
     const stored = user;

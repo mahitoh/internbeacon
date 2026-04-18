@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
-import { clearAuth, getStoredUser, type AuthUser } from "@/lib/api";
+import { clearAuth } from "@/lib/api";
+import { useAuthUser } from "@/lib/authClient";
 
 function navItemClass(active: boolean) {
   return active
@@ -15,7 +16,7 @@ function navItemClass(active: boolean) {
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
+  const user = useAuthUser();
 
   const isDashHome = pathname === "/dashboard";
   const isApplications = pathname.startsWith("/dashboard/applications");
@@ -25,7 +26,6 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     clearAuth();
-    setUser(null);
     router.push("/login");
   };
 

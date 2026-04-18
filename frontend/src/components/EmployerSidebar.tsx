@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
-import { clearAuth, getStoredUser, type AuthUser } from "@/lib/api";
+import { clearAuth } from "@/lib/api";
+import { useAuthUser } from "@/lib/authClient";
 
 function itemClass(active: boolean) {
   return active
@@ -15,7 +16,7 @@ function itemClass(active: boolean) {
 export default function EmployerSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
+  const user = useAuthUser();
 
   const dash = pathname === "/employer/dashboard";
   const applicants = pathname.startsWith("/employer/applicants");
@@ -24,7 +25,6 @@ export default function EmployerSidebar() {
 
   const handleLogout = () => {
     clearAuth();
-    setUser(null);
     router.push("/login");
   };
 

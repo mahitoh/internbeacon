@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
 import Logo from "@/components/Logo";
-import { clearAuth, getStoredUser, roleHomePath, type AuthUser } from "@/lib/api";
+import { clearAuth, roleHomePath } from "@/lib/api";
+import { useAuthUser } from "@/lib/authClient";
 
 const NAV_ITEMS = [
   { href: "/browse", label: "Browse" },
@@ -44,11 +44,10 @@ function NavPills({ className, pathname }: NavPillsProps) {
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
+  const user = useAuthUser();
 
   const handleLogout = () => {
     clearAuth();
-    setUser(null);
     router.push("/");
   };
 

@@ -82,6 +82,7 @@ export type ApplicantModel = {
 const TOKEN_KEY = "internbeacon_token";
 const REFRESH_KEY = "internbeacon_refresh_token";
 const USER_KEY = "internbeacon_user";
+export const AUTH_CHANGE_EVENT = "internbeacon-auth-change";
 
 const isBrowser = () => typeof window !== "undefined";
 
@@ -125,6 +126,7 @@ export function persistAuth(payload: AuthPayload) {
   localStorage.setItem(TOKEN_KEY, payload.token);
   localStorage.setItem(REFRESH_KEY, payload.refreshToken);
   localStorage.setItem(USER_KEY, JSON.stringify(payload.user));
+  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
 }
 
 export function clearAuth() {
@@ -132,6 +134,7 @@ export function clearAuth() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_KEY);
   localStorage.removeItem(USER_KEY);
+  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
 }
 
 export function getAuthToken() {
