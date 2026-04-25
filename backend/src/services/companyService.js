@@ -1,52 +1,92 @@
 const { prisma } = require('../config/database');
 const Joi = require('joi');
 
+const updateCompanyProfileSchema = Joi.object({
+  description: Joi.string().max(2000).allow('').optional(),
+  website: Joi.string().uri().allow('').optional(),
+  industry: Joi.string().max(120).allow('').optional(),
+  city: Joi.string().max(120).allow('').optional(),
+  name: Joi.string().trim().min(2).max(100).optional(),
+});
+
+const createOfferSchema = Joi.object({
+  title: Joi.string().trim().min(3).max(160).required(),
+  description: Joi.string().trim().min(20).required(),
+  location: Joi.string().max(120).optional(),
+  salary: Joi.string().max(80).allow('').optional(),
+  category: Joi.string().max(120).allow('').optional(),
+  languages: Joi.array().items(Joi.string().max(50)).default([]),
+  image: Joi.string().uri().allow('').optional(),
+});
+
 const getCompanyProfile = async (userId) => {
   const company = await prisma.company.findUnique({
     where: { userId },
-    include: { user: true },
+    include: {
+      user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+    },
   });
+
   if (!company) throw new Error('Company not found');
   return company;
 };
 
-const updateCompanyProfileSchema = Joi.object({
-  name: Joi.string().max(100).optional(),
-  description: Joi.string().max(1000).optional(),
-  website: Joi.string().uri().optional(),
-});
-
 const updateCompanyProfile = async (userId, data) => {
-  const { error } = updateCompanyProfileSchema.validate(data);
-  if (error) throw new Error(error.details[0].message);
+  const { error, value } = updateCompanyProfileSchema.validate(data, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+  if (error) throw new Error(error.details.map((d) => d.message).join(', '));
 
-  return await prisma.company.update({
-    where: { userId },
-    data,
+  const updates = { ...value };
+  const name = updates.name;
+  delete updates.name;
+
+  return prisma.$transaction(async (tx) => {
+    if (name !== undefined) {
+      await tx.user.update({
+        where: { id: userId },
+        data: { name },
+      });
+    }
+
+    const updated = await tx.company.update({
+      where: { userId },
+      data: updates,
+      include: {
+        user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+      },
+    });
+
+    return updated;
   });
 };
 
-const createOfferSchema = Joi.object({
-  title: Joi.string().required(),
-  description: Joi.string().required(),
-  location: Joi.string().optional(),
-  salary: Joi.number().optional(),
-  deadline: Joi.date().optional(),
-});
-
 const createOffer = async (userId, data) => {
-  const { error } = createOfferSchema.validate(data);
-  if (error) throw new Error(error.details[0].message);
+  const { error, value } = createOfferSchema.validate(data, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+  if (error) throw new Error(error.details.map((d) => d.message).join(', '));
 
   const company = await prisma.company.findUnique({ where: { userId } });
+  if (!company) throw new Error('Company profile not found');
+
   const offer = await prisma.offer.create({
     data: {
-      ...data,
+      ...value,
       companyId: company.id,
+      languages: value.languages || [],
+    },
+    include: {
+      company: {
+        include: {
+          user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        },
+      },
     },
   });
 
-  // Emit real-time update
   if (global.io) {
     global.io.emit('new-offer', offer);
   }
@@ -56,56 +96,79 @@ const createOffer = async (userId, data) => {
 
 const getOffers = async (userId, page = 1, limit = 10) => {
   const company = await prisma.company.findUnique({ where: { userId } });
+  if (!company) throw new Error('Company profile not found');
+
   const skip = (page - 1) * limit;
-  return await prisma.offer.findMany({
-    where: { companyId: company.id },
-    include: { applications: { include: { student: { include: { user: true } } } } },
-    skip,
-    take: limit,
-  });
+  const [items, total] = await Promise.all([
+    prisma.offer.findMany({
+      where: { companyId: company.id },
+      include: {
+        applications: {
+          include: { student: { include: { user: true } } },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.offer.count({ where: { companyId: company.id } }),
+  ]);
+
+  return {
+    items,
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
 };
 
 const getApplicants = async (userId, page = 1, limit = 10) => {
   const company = await prisma.company.findUnique({ where: { userId } });
-  const skip = (page - 1) * limit;
-  const offers = await prisma.offer.findMany({
-    where: { companyId: company.id },
-    include: {
-      applications: {
-        include: { student: { include: { user: true } } },
-        skip,
-        take: limit,
-      },
-    },
-  });
+  if (!company) throw new Error('Company profile not found');
 
-  const applicants = [];
-  offers.forEach(offer => {
-    offer.applications.forEach(app => {
-      applicants.push({ ...app, offer: { title: offer.title, id: offer.id } });
-    });
-  });
-  return applicants;
+  const skip = (page - 1) * limit;
+  const [applications, total] = await Promise.all([
+    prisma.application.findMany({
+      where: { offer: { companyId: company.id } },
+      include: {
+        student: { include: { user: true, school: true } },
+        offer: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.application.count({ where: { offer: { companyId: company.id } } }),
+  ]);
+
+  return {
+    items: applications,
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
 };
 
 const getPublicCompanyProfile = async (companyId) => {
   const cacheKey = `public-company-${companyId}`;
-  let company = global.cache?.get(cacheKey);
-  if (!company) {
-    company = await prisma.company.findUnique({
-      where: { id: companyId },
-      include: {
-        user: { select: { name: true, email: true } },
-        offers: {
-          where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
-          orderBy: { createdAt: 'desc' },
-          take: 5,
-        },
+  const cached = global.cache?.get(cacheKey);
+  if (cached) return cached;
+
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    include: {
+      user: { select: { name: true, email: true, avatarUrl: true } },
+      offers: {
+        orderBy: { createdAt: 'desc' },
+        take: 10,
       },
-    });
-    if (!company) throw new Error('Company not found');
-    global.cache?.set(cacheKey, company);
-  }
+    },
+  });
+
+  if (!company) throw new Error('Company not found');
+  global.cache?.set(cacheKey, company);
   return company;
 };
 

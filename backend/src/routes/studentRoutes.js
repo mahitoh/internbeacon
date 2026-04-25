@@ -6,9 +6,12 @@ const {
   getStats,
   getApps,
   getRecs,
+  listSchools,
 } = require('../controllers/studentController');
 
 const router = express.Router();
+
+router.get('/schools', listSchools);
 
 // All student routes require authentication and STUDENT role
 router.use(authenticateToken);

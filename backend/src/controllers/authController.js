@@ -2,10 +2,10 @@ const { register, login, refresh, getCurrentUser } = require('../services/authSe
 
 const registerUser = async (req, res) => {
   try {
-    const userData = req.body;
-    const result = await register(userData);
+    const result = await register(req.body);
     res.status(201).json({ success: true, data: result });
   } catch (error) {
+    global.logger?.error('Register error', { message: error.message });
     res.status(400).json({ success: false, message: error.message });
   }
 };
@@ -16,6 +16,7 @@ const loginUser = async (req, res) => {
     const result = await login({ email, password });
     res.json({ success: true, data: result });
   } catch (error) {
+    global.logger?.error('Login error', { message: error.message });
     res.status(401).json({ success: false, message: error.message });
   }
 };
@@ -26,6 +27,7 @@ const refreshToken = async (req, res) => {
     const result = await refresh(refreshToken);
     res.json({ success: true, data: result });
   } catch (error) {
+    global.logger?.error('Refresh token error', { message: error.message });
     res.status(401).json({ success: false, message: error.message });
   }
 };
@@ -35,6 +37,7 @@ const getMe = async (req, res) => {
     const user = await getCurrentUser(req.user.id);
     res.json({ success: true, data: user });
   } catch (error) {
+    global.logger?.error('Get current user error', { message: error.message });
     res.status(404).json({ success: false, message: error.message });
   }
 };

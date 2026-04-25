@@ -1,6 +1,5 @@
 const express = require('express');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
-const { getPublicCompanyProfile } = require("../services/companyService");
 const {
   getPublicProfile,
   getProfile,
@@ -13,7 +12,7 @@ const {
 const router = express.Router();
 
 // Public route (must be declared before auth middleware)
-router.get("/public/:id", getPublicProfile);
+router.get('/public/:id', getPublicProfile);
 
 router.use(authenticateToken);
 router.use(authorizeRole(['COMPANY']));

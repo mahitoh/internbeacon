@@ -6,9 +6,7 @@ const register = async (data) => {
   const { email, password, name, role } = data;
 
   const existingUser = await prisma.user.findUnique({ where: { email } });
-  if (existingUser) {
-    throw new Error('User already exists');
-  }
+  if (existingUser) throw new Error('User already exists');
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -21,7 +19,6 @@ const register = async (data) => {
     },
   });
 
-  // Create profile based on role
   if (user.role === 'STUDENT') {
     await prisma.student.create({
       data: { userId: user.id, skills: [] },
@@ -40,21 +37,27 @@ const register = async (data) => {
     data: { refreshToken },
   });
 
-  return { user: { id: user.id, email: user.email, name: user.name, role: user.role }, token, refreshToken };
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      avatarUrl: user.avatarUrl,
+    },
+    token,
+    refreshToken,
+  };
 };
 
 const login = async (data) => {
   const { email, password } = data;
 
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    throw new Error('Invalid credentials');
-  }
+  if (!user) throw new Error('Invalid credentials');
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new Error('Invalid credentials');
-  }
+  if (!isMatch) throw new Error('Invalid credentials');
 
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
   const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
@@ -64,7 +67,17 @@ const login = async (data) => {
     data: { refreshToken },
   });
 
-  return { user: { id: user.id, email: user.email, name: user.name, role: user.role }, token, refreshToken };
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      avatarUrl: user.avatarUrl,
+    },
+    token,
+    refreshToken,
+  };
 };
 
 const refresh = async (refreshToken) => {
@@ -77,9 +90,8 @@ const refresh = async (refreshToken) => {
     }
 
     const newToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-
     return { token: newToken };
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Invalid refresh token');
   }
 };
@@ -92,13 +104,28 @@ const getCurrentUser = async (userId) => {
       email: true,
       name: true,
       role: true,
+      avatarUrl: true,
+      student: {
+        select: {
+          id: true,
+          avatarUrl: true,
+          city: true,
+          school: { select: { id: true, name: true, city: true } },
+        },
+      },
+      company: {
+        select: {
+          id: true,
+          industry: true,
+          city: true,
+          logoUrl: true,
+          coverImageUrl: true,
+        },
+      },
     },
   });
 
-  if (!user) {
-    throw new Error('User not found');
-  }
-
+  if (!user) throw new Error('User not found');
   return user;
 };
 

@@ -24,6 +24,7 @@ const notificationRoutes  = require('./src/routes/notificationRoutes');
 const adminRoutes         = require('./src/routes/adminRoutes');
 const aiRoutes            = require('./src/routes/aiRoutes');
 const progressRoutes      = require('./src/routes/progressRoutes');
+const uploadRoutes        = require('./src/routes/uploadRoutes');
 
 const { errorHandler, notFound } = require('./src/middleware/errorHandler');
 
@@ -80,6 +81,7 @@ app.use(globalLimiter);
 // ─── Body Parsing ────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use('/uploads', express.static('uploads'));
 
 // ─── Health Check ────────────────────────────────────────────
 app.get('/', (req, res) => {
@@ -127,6 +129,7 @@ app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/admin',         adminRoutes);
 app.use("/api/v1/ai",          aiRoutes);
 app.use('/api/v1/progress',      progressRoutes);
+app.use('/api/v1/uploads',       uploadRoutes);
 
 // ─── Error Handling ──────────────────────────────────────────
 app.use(notFound);

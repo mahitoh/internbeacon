@@ -7,9 +7,7 @@ const router = express.Router();
 router.get('/', getAllOffers);
 router.get('/:id', getOffer);
 router.post('/apply', authenticateToken, apply);
-
 router.post('/', authenticateToken, create);
-
-router.post("/quick-apply", authenticateToken, quickApply);
+router.post('/quick-apply', authenticateToken, quickApply);
 
 module.exports = router;

@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand",
     "dev": "node server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed": "prisma db seed"
   },
   "keywords": [],
   "author": "",
@@ -42,5 +43,8 @@
   "devDependencies": {
     "nodemon": "^3.1.14",
     "prisma": "^5.22.0"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }
