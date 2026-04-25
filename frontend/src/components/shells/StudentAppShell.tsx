@@ -14,7 +14,7 @@ const MOBILE_LINKS = [
   { href: "/dashboard/feed", label: "Feed" },
   { href: "/dashboard/applications", label: "Applications" },
   { href: "/dashboard/profile", label: "Profile" },
-  { href: "/browse", label: "Browse" },
+  { href: "/dashboard/browse", label: "Browse" },
 ] as const;
 
 function mobilePill(active: boolean) {
