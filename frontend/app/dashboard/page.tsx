@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   getUserFriendlyError,
-  getStoredUser,
   getStudentApplications,
   getStudentProfile,
   getStudentRecommendations,
@@ -11,8 +10,7 @@ import {
 } from "@/lib/api";
 
 export default function Dashboard() {
-  const user = useMemo(() => getStoredUser(), []);
-  const [name, setName] = useState(user?.name || "Student");
+  const [name, setName] = useState("Student");
   const [profileStrength, setProfileStrength] = useState(0);
   const [stats, setStats] = useState({ applications: 0, shortlisted: 0, pending: 0, saved: 0 });
   const [applicationCount, setApplicationCount] = useState(0);
@@ -34,11 +32,11 @@ export default function Dashboard() {
         ]);
 
         if (!mounted) return;
-        setName(profile.user?.name || user?.name || "Student");
+        setName(profile.user?.name || "Student");
         setProfileStrength(profile.profileStrength || 0);
-        setStats(studentStats);
-        setApplicationCount(applications.length);
-        setRecommendationCount(recommendations.length);
+        setStats(studentStats || { applications: 0, shortlisted: 0, pending: 0, saved: 0 });
+        setApplicationCount(Array.isArray(applications) ? applications.length : 0);
+        setRecommendationCount(Array.isArray(recommendations) ? recommendations.length : 0);
       } catch (error) {
         if (!mounted) return;
         setApiError(getUserFriendlyError(error, "Failed to load dashboard data"));
@@ -49,7 +47,7 @@ export default function Dashboard() {
     return () => {
       mounted = false;
     };
-  }, [user?.name]);
+  }, []);
 
   return (
     <>

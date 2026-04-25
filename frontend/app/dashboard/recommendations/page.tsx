@@ -19,7 +19,7 @@ export default function RecommendationsPage() {
         // We'll keep the load logic, but show demo data below as requested
         const recs = await getStudentRecommendations();
         if (!mounted) return;
-        setOffers(recs);
+        setOffers(Array.isArray(recs) ? recs : []);
       } catch (err) {
         if (!mounted) return;
         setError(getUserFriendlyError(err, "Could not load recommendations"));

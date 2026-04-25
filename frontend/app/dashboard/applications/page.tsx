@@ -5,9 +5,12 @@ import React, { useEffect, useState } from "react";
 import { getStudentApplications, getUserFriendlyError, type ApplicationModel } from "@/lib/api";
 
 export default function ApplicationTracking() {
-  const [applications, setApplications] = useState<ApplicationModel[]>([]);
+  const [applications, setApplications] = useState<ApplicationModel[] | unknown>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Always guarantee an array — the API may return an object wrapper instead of a raw array
+  const appList: ApplicationModel[] = Array.isArray(applications) ? applications : [];
 
   useEffect(() => {
     let mounted = true;
@@ -59,21 +62,21 @@ export default function ApplicationTracking() {
         <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
           <p className="text-xs font-bold uppercase tracking-widest text-outline mb-2">Total Applied</p>
           <div className="flex items-baseline gap-2">
-            <h3 className="text-4xl font-extrabold font-headline text-primary-container">{loading ? "-" : applications.length}</h3>
+            <h3 className="text-4xl font-extrabold font-headline text-primary-container">{loading ? "-" : appList.length}</h3>
           </div>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
           <p className="text-xs font-bold uppercase tracking-widest text-outline mb-2">In Review</p>
-          <h3 className="text-4xl font-extrabold font-headline text-amber-500">{applications.filter((app) => app.status === "PENDING").length}</h3>
+          <h3 className="text-4xl font-extrabold font-headline text-amber-500">{appList.filter((app) => app.status === "PENDING").length}</h3>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
           <p className="text-xs font-bold uppercase tracking-widest text-outline mb-2">Interviews</p>
-          <h3 className="text-4xl font-extrabold font-headline text-secondary-container">{applications.filter((app) => app.status === "SHORTLISTED").length}</h3>
+          <h3 className="text-4xl font-extrabold font-headline text-secondary-container">{appList.filter((app) => app.status === "SHORTLISTED").length}</h3>
         </div>
         <div className="bg-primary-container p-6 rounded-xl shadow-sm border border-outline-variant/10 text-white relative overflow-hidden">
           <span className="material-symbols-outlined absolute right-2 -bottom-4 text-[100px] opacity-10" data-icon="rocket">rocket_launch</span>
           <p className="text-xs font-bold uppercase tracking-widest text-on-primary-container mb-2 relative z-10">Accepted</p>
-          <h3 className="text-4xl font-extrabold font-headline text-white relative z-10">{applications.filter((app) => app.status === "ACCEPTED").length}</h3>
+          <h3 className="text-4xl font-extrabold font-headline text-white relative z-10">{appList.filter((app) => app.status === "ACCEPTED").length}</h3>
           <p className="text-[10px] mt-1 relative z-10">Confirmed offers</p>
         </div>
       </div>
@@ -83,12 +86,12 @@ export default function ApplicationTracking() {
 
       {/* Tabs Layout */}
       <div className="mb-6 border-b border-surface-container-high flex gap-8">
-        <button className="pb-4 border-b-2 border-primary-container font-bold text-sm text-primary-container">Active ({applications.length})</button>
+        <button className="pb-4 border-b-2 border-primary-container font-bold text-sm text-primary-container">Active ({appList.length})</button>
       </div>
 
       <div className="space-y-6">
         {/* Render real applications if available */}
-        {applications.map((app) => (
+        {appList.map((app) => (
           <div key={app.id} className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/20 hover:border-primary/30 transition-colors group">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-5">
@@ -141,7 +144,7 @@ export default function ApplicationTracking() {
           </div>
         ))}
 
-        {!loading && applications.length === 0 ? (
+        {!loading && appList.length === 0 ? (
           <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/20">
             <p className="text-sm text-on-surface-variant">You have not submitted any applications yet.</p>
           </div>
