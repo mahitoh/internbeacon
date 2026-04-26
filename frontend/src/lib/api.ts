@@ -314,7 +314,9 @@ export async function getCompanyOffers() {
 }
 
 export async function getCompanyApplicants() {
-  return authRequest<ApplicantModel[]>("/companies/applicants");
+  const data = await authRequest<ApplicantModel[] | PaginatedResponse<ApplicantModel>>("/companies/applicants");
+  if (Array.isArray(data)) return data;
+  return data.items ?? [];
 }
 
 export async function updateApplicationStatus(id: string, status: "PENDING" | "SHORTLISTED" | "ACCEPTED" | "REJECTED") {

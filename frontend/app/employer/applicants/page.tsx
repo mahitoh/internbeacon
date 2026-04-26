@@ -65,7 +65,7 @@ export default function ManageApplicants() {
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-container-low">
-              {applicants.map((app) => (
+              {(Array.isArray(applicants) ? applicants : []).map((app) => (
                 <tr key={app.id} className="hover:bg-surface-container-low/30 transition-colors">
                   <td className="px-8 py-5 text-sm font-semibold text-on-primary-fixed">{app.student.user.name}</td>
                   <td className="px-6 py-5 text-sm text-on-surface">{app.student.user.email}</td>
@@ -88,7 +88,7 @@ export default function ManageApplicants() {
         </div>
       </div>
 
-      {!loading && !applicants.length ? (
+      {!loading && !(Array.isArray(applicants) ? applicants : []).length ? (
         <div className="bg-surface-container-low p-8 rounded-lg mt-6">
           <p className="text-on-surface-variant">No applicants found.</p>
         </div>
