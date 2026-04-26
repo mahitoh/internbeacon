@@ -21,8 +21,8 @@ function mobilePill(active: boolean) {
   const base =
     "shrink-0 rounded-xl px-3.5 py-2 text-[13px] font-semibold tracking-tight transition-all duration-200";
   return active
-    ? `${base} bg-[#00236F] text-white shadow-md shadow-[#00236F]/20`
-    : `${base} bg-white text-slate-600 shadow-sm hover:bg-[#F4F3FA] hover:text-[#00236F] active:scale-[0.98]`;
+    ? `${base} bg-slate-900 text-white shadow-md shadow-slate-900/20`
+    : `${base} bg-white text-slate-600 shadow-sm ring-1 ring-slate-200/90 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]`;
 }
 
 /**
@@ -47,14 +47,14 @@ export function StudentAppShell({ children }: { children: React.ReactNode }) {
   }, [router, user]);
 
   return (
-    <div className="flex min-h-screen w-full bg-[#F4F3FA] font-body text-[#1A1B21] antialiased selection:bg-[#00236F]/20">
-      <header className="sticky top-0 z-50 bg-white/95 shadow-sm backdrop-blur-md md:hidden">
+    <div className="flex min-h-screen w-full bg-slate-100 font-body text-on-surface antialiased selection:bg-secondary-container/30">
+      <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-white/95 shadow-sm backdrop-blur-md md:hidden">
         <div className="flex min-h-[3.75rem] flex-col gap-2 px-3 py-2.5">
           <div className="flex items-center justify-between gap-2">
             <Logo className="h-8 w-auto max-w-[160px] shrink-0" />
             <Link
               href="/dashboard/profile"
-              className="shrink-0 rounded-xl bg-[#00236F] px-3 py-2 text-xs font-bold text-white shadow-sm font-headline"
+              className="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm font-headline"
             >
               {user?.name?.charAt(0).toUpperCase() || "Me"}
             </Link>
@@ -79,16 +79,16 @@ export function StudentAppShell({ children }: { children: React.ReactNode }) {
               clearAuth();
               window.location.href = "/login";
             }}
-            className="rounded-xl bg-red-50 px-3 py-2 text-xs font-bold text-red-600 shadow-sm font-headline"
+            className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs font-bold text-red-600 shadow-sm font-headline"
           >
             Logout
           </button>
         </div>
       </header>
       <Sidebar />
-      <div className="flex min-h-screen w-full flex-1 flex-col md:ml-64">
+      <div className="flex min-h-screen w-full flex-1 flex-col md:ml-72">
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-          <div className="mx-auto min-h-0 w-full max-w-[1600px] flex-1 px-6 py-8 min-w-0 lg:px-12 lg:py-12">
+          <div className="mx-auto min-h-0 w-full max-w-[1600px] flex-1 px-6 py-8 min-w-0 lg:px-10 lg:py-10">
             {children}
           </div>
           <AppShellFooter area="student" />

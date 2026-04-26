@@ -37,115 +37,108 @@ export default function Sidebar() {
     router.push("/login");
   };
 
-  const displayName = user?.name || "Student";
+  const displayName = user?.name || "Jean-Luc";
   const initials    = getInitials(displayName);
 
   return (
-    <aside className="fixed left-0 top-0 z-40 hidden h-full w-64 flex-col bg-slate-900 py-8 px-4 md:flex shadow-2xl">
-      {/* Logo */}
-      <div className="mb-10 px-4">
-        <span className="text-2xl font-bold text-white tracking-tighter">InternBeacon</span>
-      </div>
-
-      {/* User Profile */}
-      <div className="flex items-center gap-3 px-4 mb-8">
-        <div className="w-10 h-10 rounded-full bg-slate-700 overflow-hidden ring-2 ring-amber-500/20 flex items-center justify-center">
-          <span className="text-white font-bold text-sm">{initials}</span>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-white font-bold text-sm">{displayName}</span>
-          <span className="text-slate-400 text-xs">Elite Talent • Vetted</span>
+    <aside className="fixed left-0 top-0 h-full p-6 flex-col gap-4 bg-slate-50 dark:bg-slate-950 w-72 border-r-0 z-40 hidden md:flex">
+      <div className="mb-8 px-2">
+        <span className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">InternBeacon</span>
+        <div className="mt-8 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center font-bold text-slate-600">
+            {initials}
+          </div>
+          <div>
+            <p className="text-[13px] font-semibold text-slate-900 dark:text-slate-50 leading-tight">{displayName}</p>
+            <p className="text-[11px] text-slate-500">Elite Talent View</p>
+          </div>
         </div>
       </div>
-
-      {/* Nav */}
-      <nav className="flex-1 space-y-1">
-        {/* Active: Home */}
+      
+      <nav className="flex-1 flex flex-col gap-1">
         <Link 
           href="/dashboard" 
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isDashHome 
-              ? "text-white border-r-4 border-amber-500 bg-slate-800/50" 
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">home</span>
-          <span className="text-sm">Home</span>
+          <span className="material-symbols-outlined text-[20px]">dashboard</span>
+          <span className="text-[13px]">Dashboard</span>
+        </Link>
+        
+        <Link 
+          href="/dashboard/feed" 
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
+            isFeed 
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
+          }`}
+        >
+          <span className="material-symbols-outlined text-[20px]">group</span>
+          <span className="text-[13px]">Network</span>
         </Link>
 
         <Link 
           href="/dashboard/browse" 
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isBrowse 
-              ? "text-white border-r-4 border-amber-500 bg-slate-800/50" 
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
           }`}
         >
           <span className="material-symbols-outlined text-[20px]">work</span>
-          <span className="text-sm">Opportunities</span>
+          <span className="text-[13px]">Opportunities</span>
         </Link>
 
         <Link 
           href="/dashboard/applications" 
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isApplications 
-              ? "text-white border-r-4 border-amber-500 bg-slate-800/50" 
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">assignment_turned_in</span>
-          <span className="text-sm">Applications</span>
-        </Link>
-
-        <Link 
-          href="/dashboard/feed" 
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
-            isFeed 
-              ? "text-white border-r-4 border-amber-500 bg-slate-800/50" 
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
-          }`}
-        >
-          <span className="material-symbols-outlined text-[20px]">group</span>
-          <span className="text-sm">Network</span>
+          <span className="material-symbols-outlined text-[20px]">description</span>
+          <span className="text-[13px]">Applications</span>
         </Link>
 
         <Link 
           href="/dashboard/saved" 
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isSaved 
-              ? "text-white border-r-4 border-amber-500 bg-slate-800/50" 
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">book</span>
-          <span className="text-sm">Resources</span>
+          <span className="material-symbols-outlined text-[20px]">bookmark</span>
+          <span className="text-[13px]">Saved</span>
         </Link>
-      </nav>
-
-      {/* Footer Nav */}
-      <div className="mt-auto pt-6 space-y-1">
-        <button className="w-full bg-amber-500 text-slate-900 font-bold py-3 rounded-xl mb-6 text-sm hover:opacity-90 active:scale-95 transition-all">
-          View Portfolio
-        </button>
 
         <Link 
           href="/dashboard/settings" 
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isSettings 
-              ? "text-white bg-slate-800" 
-              : "text-slate-400 hover:bg-slate-800 hover:text-white"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
           }`}
         >
           <span className="material-symbols-outlined text-[20px]">settings</span>
-          <span className="text-sm">Settings</span>
+          <span className="text-[13px]">Settings</span>
         </Link>
+      </nav>
 
+      <div className="mt-auto flex flex-col gap-4">
+        <button className="bg-secondary-container text-on-secondary-container py-3 px-4 rounded-xl text-[13px] font-bold transition-all hover:opacity-90 active:scale-95">
+          Upgrade Plan
+        </button>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 font-medium hover:bg-slate-800 hover:text-white transition-colors w-full"
+          className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-900 transition-colors w-full group"
         >
-          <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span className="text-sm">Support</span>
+          <span className="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">logout</span>
+          <span className="text-[13px] font-semibold">Log Out</span>
         </button>
       </div>
     </aside>
