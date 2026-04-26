@@ -21,16 +21,13 @@ export default function Sidebar() {
   const user = useAuthUser();
 
   const isDashHome      = pathname === "/dashboard";
-  const isApplications  = pathname.startsWith("/dashboard/applications");
   const isFeed          = pathname.startsWith("/dashboard/feed");
-  const isProfile       = pathname.startsWith("/dashboard/profile");
   const isBrowse        = pathname.startsWith("/dashboard/browse") || pathname.startsWith("/listings");
-  const isResume        = pathname.startsWith("/dashboard/resume");
-  const isRecommend     = pathname.startsWith("/dashboard/recommendations");
-  const isNotif         = pathname.startsWith("/dashboard/notifications");
-  const isMessages      = pathname.startsWith("/dashboard/messages");
+  const isApplications  = pathname.startsWith("/dashboard/applications");
   const isSaved         = pathname.startsWith("/dashboard/saved");
+  const isAnalytics     = pathname.startsWith("/dashboard/analytics");
   const isSettings      = pathname.startsWith("/dashboard/settings");
+  const isHelp          = pathname.startsWith("/dashboard/help");
 
   const handleLogout = () => {
     clearAuth();
@@ -41,7 +38,7 @@ export default function Sidebar() {
   const initials    = getInitials(displayName);
 
   return (
-    <aside className="fixed left-0 top-0 h-full p-6 flex-col gap-4 bg-slate-50 dark:bg-slate-950 w-72 border-r-0 z-40 hidden md:flex">
+    <aside className="fixed left-0 top-0 h-full p-6 flex flex-col gap-4 bg-slate-50 dark:bg-slate-950 w-72 border-r-0 z-40 hidden md:flex">
       <div className="mb-8 px-2">
         <span className="text-xl font-black text-slate-900 dark:text-slate-50 tracking-tighter">InternBeacon</span>
         <div className="mt-8 flex items-center gap-3">
@@ -60,72 +57,96 @@ export default function Sidebar() {
           href="/dashboard" 
           className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isDashHome 
-              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
-              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">dashboard</span>
-          <span className="text-[13px]">Dashboard</span>
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isDashHome ? "'FILL' 1" : "'FILL' 0" }}>dashboard</span>
+          <span className="text-[13px] font-semibold">Dashboard</span>
         </Link>
         
         <Link 
           href="/dashboard/feed" 
           className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isFeed 
-              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
-              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">group</span>
-          <span className="text-[13px]">Network</span>
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isFeed ? "'FILL' 1" : "'FILL' 0" }}>group</span>
+          <span className="text-[13px] font-semibold">Network</span>
         </Link>
 
         <Link 
           href="/dashboard/browse" 
           className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isBrowse 
-              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
-              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">work</span>
-          <span className="text-[13px]">Opportunities</span>
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isBrowse ? "'FILL' 1" : "'FILL' 0" }}>work</span>
+          <span className="text-[13px] font-semibold">Opportunities</span>
         </Link>
 
         <Link 
           href="/dashboard/applications" 
           className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isApplications 
-              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
-              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">description</span>
-          <span className="text-[13px]">Applications</span>
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isApplications ? "'FILL' 1" : "'FILL' 0" }}>description</span>
+          <span className="text-[13px] font-semibold">Applications</span>
         </Link>
 
         <Link 
           href="/dashboard/saved" 
           className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isSaved 
-              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
-              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">bookmark</span>
-          <span className="text-[13px]">Saved</span>
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isSaved ? "'FILL' 1" : "'FILL' 0" }}>bookmark</span>
+          <span className="text-[13px] font-semibold">Saved</span>
+        </Link>
+
+        <Link 
+          href="/dashboard/analytics" 
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
+            isAnalytics 
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
+          }`}
+        >
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isAnalytics ? "'FILL' 1" : "'FILL' 0" }}>insights</span>
+          <span className="text-[13px] font-semibold">Analytics</span>
         </Link>
 
         <Link 
           href="/dashboard/settings" 
           className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
             isSettings 
-              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm font-semibold" 
-              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold"
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">settings</span>
-          <span className="text-[13px]">Settings</span>
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isSettings ? "'FILL' 1" : "'FILL' 0" }}>settings</span>
+          <span className="text-[13px] font-semibold">Settings</span>
+        </Link>
+        
+        <Link 
+          href="/dashboard/help" 
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl hover:translate-x-1 transition-transform duration-200 group ${
+            isHelp 
+              ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 shadow-sm" 
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
+          }`}
+        >
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isHelp ? "'FILL' 1" : "'FILL' 0" }}>help</span>
+          <span className="text-[13px] font-semibold">Help</span>
         </Link>
       </nav>
 
