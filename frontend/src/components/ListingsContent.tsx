@@ -49,58 +49,58 @@ export default function ListingsContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-10">
-      <div className="flex flex-col lg:flex-row justify-between items-end mb-16 sm:mb-32 gap-10">
-        <div className="space-y-6 lg:w-2/3">
-          <div className="text-secondary font-black uppercase tracking-[0.4em] text-[10px]">Registry V.0.2</div>
-          <h1 className="font-display font-black text-5xl lg:text-8xl tracking-tighter leading-[0.85] text-on-surface uppercase">
+      <div className="flex flex-col lg:flex-row justify-between items-end mb-24 lg:mb-40 gap-12">
+        <div className="space-y-8 lg:w-2/3">
+          <div className="text-secondary font-black uppercase tracking-[0.6em] text-[10px]">Registry Protocol V.0.2</div>
+          <h1 className="font-display font-black text-6xl lg:text-[9rem] tracking-tighter leading-[0.8] text-on-surface uppercase">
             THE GLOBAL <br /><span className="text-secondary">OPPORTUNITY</span> <br />INDEX.
           </h1>
         </div>
 
         <div className="lg:w-1/3 flex flex-col items-end text-right">
-          <p className="text-[13px] font-medium text-on-surface/40 leading-relaxed max-w-[280px] mb-8">
-            Currently tracking {internships.length} high-fidelity positions across five continents. Updated in real-time.
+          <p className="text-sm font-bold text-outline leading-relaxed max-w-[320px] mb-10 uppercase tracking-tight">
+            Systematically tracking {internships.length} high-fidelity positions across five continents. Refreshed in real-time.
           </p>
-          <div className="flex items-center gap-4 text-xs font-black uppercase tracking-[0.2em] text-primary">
-            Scroll to explore <FiArrowDown className="animate-bounce" />
+          <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-[0.4em] text-primary group cursor-pointer">
+            Begin Exploration <FiArrowDown className="animate-bounce group-hover:translate-y-2 transition-transform" />
           </div>
         </div>
       </div>
 
       <div className="mb-8">
-        {loading ? <p className="text-sm font-semibold text-on-surface/60">Loading live offers...</p> : null}
+        {loading ? <p className="text-[10px] font-black uppercase tracking-widest text-outline animate-pulse">Syncing positions...</p> : null}
         {!loading && error ? (
-          <p className="text-sm font-semibold text-amber-700">Live API unavailable ({error}). Showing fallback data.</p>
+          <div className="text-[10px] font-black uppercase tracking-widest text-amber-600 bg-amber-50 p-4 rounded-xl inline-block border border-amber-100">Live API unavailable ({error}). fallback mode.</div>
         ) : null}
       </div>
 
-      <div className="mb-16 sm:mb-32 relative group">
-        <div className="absolute inset-0 bg-primary/5 -skew-y-1 transform group-hover:skew-y-0 transition-transform -z-10" />
-        <div className="flex flex-col md:flex-row items-center gap-0 bg-surface-container shadow-ambient">
-          <div className="flex-grow w-full flex items-center px-6 sm:px-10 py-6 sm:py-8 gap-6 md:border-r border-on-surface/5">
-            <FiSearch className="text-2xl text-on-surface/30" />
+      <div className="mb-24 lg:mb-40 relative">
+        <div className="flex flex-col md:flex-row items-center gap-0 bg-surface-container-lowest rounded-[2rem] shadow-editorial overflow-hidden">
+          <div className="flex-grow w-full flex items-center px-10 py-10 gap-8">
+            <FiSearch className="text-3xl text-outline/30" />
             <input
               type="text"
-              placeholder="SEARCH POSITIONS, COMPANIES, OR DOMAINS..."
-              className="w-full bg-transparent border-none outline-none font-display font-black text-xl tracking-tight placeholder:text-on-surface/10 text-on-surface"
+              placeholder="SEARCH BY ROLE, FIRM, OR CORE DOMAIN..."
+              className="w-full bg-transparent border-none outline-none font-display font-black text-2xl tracking-tighter placeholder:text-outline/10 text-on-surface uppercase"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button className="w-full md:w-auto px-12 py-8 flex items-center justify-center gap-4 font-black uppercase tracking-[0.2em] text-[10px] hover:text-primary transition-colors whitespace-nowrap">
-            <FiFilter />
-            Refine Meta
+          <button className="w-full md:w-auto px-16 py-10 flex items-center justify-center gap-4 font-black uppercase tracking-[0.3em] text-[10px] bg-black text-white hover:bg-secondary transition-all whitespace-nowrap">
+            <FiFilter className="text-lg" />
+            Refine Index
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-on-surface/5 mb-16 sm:mb-32 border border-on-surface/5">
+      <div className="flex flex-wrap gap-4 mb-24 lg:mb-40">
         {["ENGINEERING", "DESIGN", "MARKETING", "FINANCE", "LEGAL", "STRATEGY"].map((cat) => (
-          <button key={cat} className="bg-surface py-6 sm:py-8 px-4 text-[9px] font-black uppercase tracking-[0.3em] text-on-surface/40 hover:text-primary hover:bg-surface-container-low transition-all">
+          <button key={cat} className="bg-surface-container-low py-4 px-8 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] text-outline hover:text-white hover:bg-secondary transition-all shadow-sm">
             {cat}
           </button>
         ))}
       </div>
+
 
       {filteredInternships.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-12 sm:gap-y-20 gap-x-12">

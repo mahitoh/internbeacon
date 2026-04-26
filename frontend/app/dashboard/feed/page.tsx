@@ -6,21 +6,21 @@ import Link from "next/link";
 export default function StudentFeed() {
   return (
     <div className="w-full max-w-7xl">
-      <header className="mb-10">
-        <span className="text-xs uppercase tracking-[0.2em] font-bold text-secondary mb-2 block font-headline">Discover</span>
-        <h1 className="text-4xl font-extrabold tracking-tight text-on-background font-headline mb-2">Your Feed</h1>
-        <p className="text-on-surface-variant max-w-xl">Curated internships, company updates, and opportunities matched to your profile.</p>
+      <header className="mb-12">
+        <span className="text-[10px] uppercase tracking-[0.4em] font-black text-secondary mb-3 block font-headline">Intelligence</span>
+        <h1 className="text-5xl lg:text-7xl font-black tracking-tighter text-on-background font-headline leading-[0.9] mb-4">Your Feed</h1>
+        <p className="text-on-surface-variant max-w-xl text-base font-medium leading-relaxed">Curated internships, company updates, and opportunities matched specifically to your academic profile.</p>
       </header>
 
       {/* Filter tabs */}
-      <div className="flex gap-2 mb-10 border-b border-outline-variant/20 overflow-x-auto">
+      <div className="flex gap-8 mb-12 border-b border-outline-variant/10 overflow-x-auto no-scrollbar">
         {["For You", "Trending", "New This Week", "Saved"].map((tab, i) => (
           <button
             key={tab}
-            className={`shrink-0 px-4 py-3 text-sm font-bold transition-colors border-b-2 -mb-px ${
+            className={`shrink-0 pb-4 text-xs font-black uppercase tracking-widest transition-all border-b-2 -mb-px ${
               i === 0
                 ? "border-secondary text-on-primary-fixed"
-                : "border-transparent text-on-surface-variant hover:text-on-primary-fixed"
+                : "border-transparent text-outline hover:text-on-primary-fixed hover:border-outline-variant/30"
             }`}
           >
             {tab}
@@ -28,9 +28,9 @@ export default function StudentFeed() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Main feed */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-8 space-y-8">
           {[
             {
               company: "Lumina Systems",
@@ -74,40 +74,44 @@ export default function StudentFeed() {
           ].map((item) => (
             <article
               key={item.id}
-              className="group bg-surface-container-lowest rounded-2xl p-6 flex gap-5 items-start border border-outline-variant/10 hover:border-outline-variant/30 hover:shadow-md transition-all"
+              className="group bg-surface-container-lowest rounded-[2rem] p-8 flex gap-8 items-start border-none shadow-editorial hover:scale-[1.01] transition-all duration-500"
             >
-              <div className="w-14 h-14 rounded-2xl overflow-hidden bg-surface-container-low flex-shrink-0 border border-outline-variant/10 flex items-center justify-center p-2">
-                <img className="w-full h-full object-contain" src={item.logo} alt={item.company} />
+              <div className="w-20 h-20 rounded-2xl overflow-hidden bg-surface-container-low flex-shrink-0 border-none flex items-center justify-center p-3 shadow-sm">
+                <img className="w-full h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-500" src={item.logo} alt={item.company} />
               </div>
               <div className="flex-grow min-w-0">
-                <div className="flex items-start justify-between gap-4 mb-1">
+                <div className="flex items-start justify-between gap-6 mb-2">
                   <div>
-                    <h3 className="font-headline font-bold text-lg text-on-primary-fixed group-hover:text-secondary transition-colors">{item.role}</h3>
-                    <p className="text-sm font-medium text-outline">{item.company} · {item.location}</p>
+                    <h3 className="font-headline font-black text-2xl text-on-primary-fixed group-hover:text-secondary transition-colors leading-tight">{item.role}</h3>
+                    <p className="text-sm font-bold text-outline uppercase tracking-wider">{item.company} <span className="mx-2 text-outline/30">·</span> {item.location}</p>
                   </div>
-                  <span className="shrink-0 bg-secondary-container/10 text-secondary-container px-3 py-1 rounded-full text-xs font-black border border-secondary-container/10">
+                  <span className="shrink-0 bg-secondary-container/10 text-secondary-container px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-secondary-container/10">
                     {item.match} match
                   </span>
                 </div>
-                <p className="text-xs text-on-surface-variant mt-2 mb-4">{item.tag}</p>
-                <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-outline">
-                  <span className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-base">payments</span>
+                <div className="flex flex-wrap gap-2 mt-4 mb-6">
+                  {item.tag.split(" · ").map(t => (
+                    <span key={t} className="px-3 py-1 bg-surface-container text-on-surface-variant text-[10px] font-black uppercase tracking-tighter rounded-lg">{t}</span>
+                  ))}
+                </div>
+                <div className="flex flex-wrap items-center gap-6 text-xs font-bold text-outline">
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-lg">payments</span>
                     {item.stipend}
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-base">calendar_today</span>
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-lg">calendar_today</span>
                     {item.duration}
                   </span>
-                  <span className={`flex items-center gap-1.5 ${item.deadlineColor}`}>
-                    <span className="material-symbols-outlined text-base">schedule</span>
+                  <span className={`flex items-center gap-2 ${item.deadlineColor}`}>
+                    <span className="material-symbols-outlined text-lg">schedule</span>
                     {item.deadline}
                   </span>
                 </div>
               </div>
               <Link
                 href={`/internships/${item.id}`}
-                className="shrink-0 self-center bg-black text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-all hidden md:block"
+                className="shrink-0 self-center bg-black text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary transition-all hidden xl:block shadow-editorial"
               >
                 Apply
               </Link>
@@ -115,45 +119,49 @@ export default function StudentFeed() {
           ))}
         </div>
 
-        {/* Right sidebar */}
-        <div className="space-y-6">
-          <div className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10">
-            <h4 className="font-bold text-on-primary-fixed mb-4 font-headline">Top companies hiring</h4>
-            <div className="space-y-4">
-              {["Orange Cameroon", "ENEO", "UBA Bank", "CFAO Motors"].map((co) => (
-                <div key={co} className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-surface-container-low rounded-xl flex items-center justify-center">
-                    <span className="material-symbols-outlined text-base text-on-surface-variant">business</span>
+        {/* Right sidebar - Sticky */}
+        <div className="lg:col-span-4 relative">
+          <div className="sticky top-8 space-y-8">
+            <div className="bg-surface-container-lowest rounded-[2rem] p-8 border-none shadow-editorial">
+              <h4 className="font-black text-on-primary-fixed mb-6 font-headline uppercase tracking-tight text-xl">Top recruiters</h4>
+              <div className="space-y-6">
+                {["Orange Cameroon", "ENEO", "UBA Bank", "CFAO Motors"].map((co) => (
+                  <div key={co} className="flex items-center gap-4 group cursor-pointer">
+                    <div className="w-12 h-12 bg-surface-container-low rounded-2xl flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all">
+                      <span className="material-symbols-outlined text-xl">business</span>
+                    </div>
+                    <div className="flex-grow">
+                      <p className="text-sm font-black text-on-primary-fixed group-hover:text-secondary transition-colors">{co}</p>
+                      <p className="text-[10px] font-bold text-outline uppercase tracking-widest">2–4 open roles</p>
+                    </div>
+                    <Link href="/browse" className="bg-surface-container-low p-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                    </Link>
                   </div>
-                  <div className="flex-grow">
-                    <p className="text-sm font-semibold text-on-primary-fixed">{co}</p>
-                    <p className="text-xs text-outline">2–4 open roles</p>
-                  </div>
-                  <Link href="/browse" className="text-secondary text-xs font-bold hover:underline">
-                    View
-                  </Link>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="bg-on-primary-fixed rounded-2xl p-6 text-white">
-            <h4 className="font-bold mb-2 font-headline">Complete your profile</h4>
-            <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-              A complete profile gets 3× more views from employers.
-            </p>
-            <div className="w-full h-1.5 bg-white/10 rounded-full mb-4">
-              <div className="h-full bg-secondary-container rounded-full w-[72%]" />
+            <div className="bg-on-primary-fixed rounded-[2rem] p-10 text-white shadow-editorial relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-secondary opacity-20 -mr-16 -mt-16 rounded-full blur-3xl"></div>
+              <h4 className="font-black mb-4 font-headline text-2xl leading-tight">Complete <br />your profile</h4>
+              <p className="text-xs text-slate-400 mb-8 leading-relaxed font-medium">
+                A complete profile gets 3× more views from top-tier employers.
+              </p>
+              <div className="w-full h-2 bg-white/10 rounded-full mb-8">
+                <div className="h-full bg-secondary-container rounded-full w-[72%] transition-all duration-1000 shadow-[0_0_20px_rgba(254,166,25,0.4)]" />
+              </div>
+              <Link
+                href="/dashboard/profile"
+                className="block text-center py-4 bg-white text-on-primary-fixed hover:bg-secondary hover:text-white transition-all rounded-2xl text-xs font-black uppercase tracking-widest"
+              >
+                Boost Profile →
+              </Link>
             </div>
-            <Link
-              href="/dashboard/profile"
-              className="block text-center py-2.5 bg-white/10 hover:bg-white/20 transition-colors rounded-xl text-sm font-bold"
-            >
-              Complete profile →
-            </Link>
           </div>
         </div>
       </div>
     </div>
+
   );
 }

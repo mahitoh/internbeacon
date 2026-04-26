@@ -9,48 +9,48 @@ interface InternshipCardProps {
 
 export default function InternshipCard({ internship }: InternshipCardProps) {
   return (
-    <div className="group relative bg-card border border-border rounded-2xl p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-primary/5 rounded-xl flex items-center justify-center text-primary font-bold text-lg group-hover:scale-110 transition-transform">
+    <div className="group relative bg-surface-container-lowest rounded-[2rem] p-8 transition-all duration-500 hover:scale-[1.02] shadow-editorial border-none">
+      <div className="flex justify-between items-start mb-6">
+        <div className="flex items-center gap-5">
+          <div className="w-16 h-16 bg-surface-container-low rounded-2xl flex items-center justify-center text-secondary font-black text-2xl group-hover:bg-secondary group-hover:text-white transition-all duration-500 shadow-sm">
             {internship.company[0]}
           </div>
           <div>
-            <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors leading-tight">
+            <h3 className="font-black text-xl text-on-primary-fixed group-hover:text-secondary transition-colors leading-tight font-headline">
               {internship.title}
             </h3>
-            <p className="text-sm text-muted-foreground font-medium">{internship.company}</p>
+            <p className="text-xs text-outline font-black uppercase tracking-widest mt-1">{internship.company}</p>
           </div>
         </div>
-        <div className="text-[10px] font-bold uppercase tracking-widest bg-primary/10 text-primary px-3 py-1 rounded-full">
-          Featured
+        <div className="text-[9px] font-black uppercase tracking-[0.2em] bg-secondary-container/10 text-secondary-container px-3 py-1 rounded-full border border-secondary-container/10">
+          Core Position
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground line-clamp-2 mb-6 leading-relaxed">
+      <p className="text-sm text-outline font-medium line-clamp-2 mb-8 leading-relaxed">
         {internship.description}
       </p>
 
-      <div className="grid grid-cols-2 gap-y-3 mb-6">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-          <span className="material-symbols-outlined text-base leading-none text-primary" aria-hidden="true">location_on</span>
+      <div className="grid grid-cols-2 gap-y-4 mb-8">
+        <div className="flex items-center gap-3 text-xs text-outline font-bold">
+          <span className="material-symbols-outlined text-lg leading-none text-secondary" aria-hidden="true">location_on</span>
           {internship.location}
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-          <span className="material-symbols-outlined text-base leading-none text-primary" aria-hidden="true">schedule</span>
+        <div className="flex items-center gap-3 text-xs text-outline font-bold">
+          <span className="material-symbols-outlined text-lg leading-none text-secondary" aria-hidden="true">schedule</span>
           {internship.duration}
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium text-emerald-600 dark:text-emerald-400">
-          <span className="material-symbols-outlined text-base leading-none" aria-hidden="true">payments</span>
+        <div className="flex items-center gap-3 text-xs font-black text-secondary uppercase tracking-tighter">
+          <span className="material-symbols-outlined text-lg leading-none" aria-hidden="true">payments</span>
           {internship.stipend}
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-6">
-        {internship.tags.map((tag) => (
+      <div className="flex flex-wrap gap-2 mb-8">
+        {internship.tags.slice(0, 3).map((tag) => (
           <span
             key={tag}
-            className="text-[10px] font-bold bg-secondary/5 text-secondary px-2.5 py-1 rounded-md border border-secondary/10"
+            className="text-[9px] font-black uppercase tracking-tighter bg-surface-container text-on-surface-variant px-3 py-1 rounded-lg"
           >
             {tag}
           </span>
@@ -59,10 +59,11 @@ export default function InternshipCard({ internship }: InternshipCardProps) {
 
       <Link
         href={`/internships/${internship.id}`}
-        className="block w-full text-center py-3 bg-foreground text-background font-bold text-sm rounded-xl transition-all hover:bg-primary hover:text-white"
+        className="block w-full text-center py-4 bg-black text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all hover:bg-secondary hover:shadow-editorial active:scale-95 shadow-editorial"
       >
-        View Details
+        Access Index
       </Link>
     </div>
+
   );
 }
