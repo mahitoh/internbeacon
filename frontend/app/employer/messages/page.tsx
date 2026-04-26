@@ -6,18 +6,18 @@ import React from "react";
 
 export default function Messages() {
   return (
-    <div className="h-[calc(100dvh-6rem)] flex flex-col min-h-0 overflow-hidden rounded-2xl border border-slate-200/80 bg-surface antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed">
-        <header className="z-40 flex h-14 items-center justify-between border-b border-slate-200/60 bg-white/90 px-4 backdrop-blur-md md:hidden shrink-0">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-surface antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed md:min-h-[calc(100dvh-8rem)]">
+        <header className="z-40 flex h-14 items-center justify-between border-b border-slate-200/60 bg-white/90 px-4 backdrop-blur-md md:hidden">
           <Logo className="h-7 w-auto max-w-[140px]" />
           <span className="material-symbols-outlined text-primary" aria-hidden>
             forum
           </span>
         </header>
 
-        <div className="flex flex-1 min-h-0 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden">
           {/* Panel 1: Conversation List */}
-          <section className="w-full md:w-72 flex flex-col shrink-0 border-r border-slate-200/60 bg-surface-container-low z-20">
-            <div className="p-6 shrink-0">
+          <section className="w-full md:w-80 lg:w-[400px] flex flex-col border-r-0 bg-surface-container-low z-20">
+            <div className="p-6">
               <h2 className="text-2xl font-extrabold tracking-tight text-primary mb-6 font-headline">Messages</h2>
               <div className="relative group">
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
@@ -25,7 +25,7 @@ export default function Messages() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto min-h-0 px-4 space-y-2 pb-10 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto px-4 space-y-2 pb-10 custom-scrollbar">
               {/* Active Chat Item */}
               <div className="p-4 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 flex gap-4 cursor-pointer">
                 <div className="relative flex-shrink-0">
@@ -83,9 +83,9 @@ export default function Messages() {
           </section>
 
           {/* Panel 2: Active Thread */}
-          <section className="hidden md:flex flex-1 flex-col min-h-0 bg-surface-container-lowest">
+          <section className="hidden md:flex flex-1 flex-col bg-surface-container-lowest border-l border-outline-variant/10">
             {/* Thread Header */}
-            <header className="h-24 px-8 flex shrink-0 items-center justify-between border-b border-surface-container-low shadow-sm z-10 bg-white">
+            <header className="h-24 px-8 flex flex-shrink-0 items-center justify-between border-b border-surface-container-low shadow-sm z-10 bg-white">
               <div className="flex items-center gap-4">
                 <img className="h-10 w-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBORfeEWxzeCq7HhNWfa406cfY_masDRvjQY4IEkrWwx-o8AjIs-kNb02Zpl1o2RaLMykzo3IyaVkuv-LdaPbryRhmnjEO2YOB2NzEU90Pt8qr8QY3Mstzf1Tq5qL7ilk6Ox6E4NfO-_R9J-P-NHFEHEvI5hDMerKlAYdkk95LA5hNWTxHe3XUdoTT5dM8C84eV-Sgn6-YLuTENaVuRKVY6JxootTK9UQAaUHKanJsEa1OmTzu9SeL7YYXWtu94LRY4bNJSFNeoF5I" alt="Candidate" />
                 <div>
@@ -113,7 +113,7 @@ export default function Messages() {
             </header>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto min-h-0 px-8 py-8 space-y-8 bg-surface/30">
+            <div className="flex-1 overflow-y-auto px-8 py-8 space-y-8 bg-surface/30">
               <div className="flex justify-center">
                 <span className="text-[11px] font-bold text-outline-variant bg-surface-container-low px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm">October 25, 2023</span>
               </div>
@@ -168,7 +168,7 @@ export default function Messages() {
             </div>
 
             {/* Input Area */}
-            <div className="p-6 bg-white border-t border-outline-variant/10 z-10 shrink-0">
+            <div className="p-6 bg-white border-t border-outline-variant/10 z-10 flex-shrink-0">
               <div className="bg-surface-container-lowest border border-outline-variant/20 shadow-sm rounded-2xl p-2 flex items-end gap-2 group focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
                 <button className="p-3 text-outline hover:text-primary transition-colors">
                   <span className="material-symbols-outlined">add_circle</span>
@@ -198,6 +198,26 @@ export default function Messages() {
             </button>
           </section>
         </div>
+
+        {/* Mobile Bottom Nav */}
+        <nav className="relative z-10 flex h-20 shrink-0 items-center justify-around border-t border-surface-container-low bg-white px-4 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] md:hidden">
+          <Link href="/employer/dashboard" className="flex flex-col items-center gap-1 text-outline">
+            <span className="material-symbols-outlined">home</span>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Home</span>
+          </Link>
+          <Link href="/employer/messages" className="flex flex-col items-center gap-1 text-primary">
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat_bubble</span>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Messages</span>
+          </Link>
+          <Link href="/browse" className="flex flex-col items-center gap-1 text-outline">
+            <span className="material-symbols-outlined">search</span>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Explore</span>
+          </Link>
+          <Link href="/employer/post" className="flex flex-col items-center gap-1 text-outline">
+            <span className="material-symbols-outlined">person</span>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Post</span>
+          </Link>
+        </nav>
     </div>
   );
 }
