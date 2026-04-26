@@ -8,6 +8,10 @@ type ApiResponse<T> = {
   message?: string;
 };
 
+type PaginatedResponse<T> = {
+  items?: T[];
+};
+
 export type AuthUser = {
   id: string;
   email: string;
@@ -263,7 +267,9 @@ export async function registerUser(params: {
 }
 
 export async function getOffers() {
-  return request<OfferApiModel[]>("/offers");
+  const data = await request<OfferApiModel[] | PaginatedResponse<OfferApiModel>>("/offers");
+  if (Array.isArray(data)) return data;
+  return data.items ?? [];
 }
 
 export async function getOfferById(id: string) {
