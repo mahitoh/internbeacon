@@ -335,70 +335,9 @@ export default function StudentFeed() {
         ))}
       </div>
 
-      {/* Three Column Layout */}
+      {/* Two Column Layout */}
       <div className="flex gap-6 flex-1 min-h-0">
-        {/* LEFT: Profile Summary */}
-        <aside className="hidden xl:flex w-[260px] shrink-0 flex-col gap-4 self-start sticky top-0">
-          {/* Profile Card */}
-          <div className="bg-white rounded-[2rem] p-6 shadow-sm text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00236F] to-[#006591] p-0.5 mx-auto mb-4">
-              <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-                <span className="text-2xl font-bold text-[#00236F]">AL</span>
-              </div>
-            </div>
-            <h2 className="font-headline text-lg font-bold text-[#1A1B21]">Alex Sterling</h2>
-            <p className="text-slate-500 text-xs font-medium">Stanford University • CS &apos;25</p>
-            
-            <div className="flex gap-2 mt-4">
-              <div className="flex-1 bg-[#F4F3FA] p-3 rounded-xl">
-                <span className="block text-lg font-bold text-[#1A1B21]">12</span>
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Apps</span>
-              </div>
-              <div className="flex-1 bg-[#F4F3FA] p-3 rounded-xl">
-                <span className="block text-lg font-bold text-[#006591]">85%</span>
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Interview</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Resume Score */}
-          <div className="bg-gradient-to-br from-[#1A1B21] to-[#00236F] text-white rounded-[2rem] p-6 relative overflow-hidden">
-            <div className="relative z-10">
-              <h3 className="font-headline font-bold text-base mb-1">Resume Score</h3>
-              <p className="text-white/60 text-xs mb-3">Top 5% of applicants this week</p>
-              <div className="h-2 bg-white/10 rounded-full w-full overflow-hidden">
-                <div className="h-full bg-[#006591] w-[95%] rounded-full"></div>
-              </div>
-            </div>
-            <div className="absolute -right-4 -bottom-4 opacity-10">
-              <span className="material-symbols-outlined text-8xl">verified</span>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div className="bg-white rounded-[2rem] p-5 shadow-sm">
-            <p className="text-[10px] uppercase tracking-widest font-black text-[#006591] mb-3">Quick Links</p>
-            <nav className="space-y-1">
-              {[
-                { icon: "person", label: "Profile", href: "/dashboard/profile" },
-                { icon: "work", label: "Applications", href: "/dashboard/applications" },
-                { icon: "bookmark", label: "Saved", href: "#" },
-                { icon: "settings", label: "Settings", href: "#" },
-              ].map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 hover:bg-[#F4F3FA] hover:text-[#00236F] transition-colors text-sm font-medium"
-                >
-                  <span className="material-symbols-outlined text-[16px]">{link.icon}</span>
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </aside>
-
-        {/* MIDDLE: Feed */}
+        {/* LEFT: Feed */}
         <div className="flex-1 min-w-0 overflow-y-auto pr-1 space-y-4 pb-4">
           {FEED_ITEMS.map((item) => renderFeedItem(item))}
 

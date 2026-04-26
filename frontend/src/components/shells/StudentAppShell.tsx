@@ -86,7 +86,7 @@ export function StudentAppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <Sidebar />
-      <div className="flex min-h-screen w-full flex-1 flex-col md:ml-72">
+      <div className="flex min-h-screen w-full flex-1 flex-col md:ml-64">
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <div className="mx-auto min-h-0 w-full max-w-[1600px] flex-1 px-6 py-8 min-w-0 lg:px-12 lg:py-12">
             {children}
