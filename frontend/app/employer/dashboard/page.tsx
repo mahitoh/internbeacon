@@ -33,7 +33,8 @@ export default function EmployerDashboard() {
     };
   }, []);
 
-  const totalApplicants = offers.reduce((sum, offer) => sum + (offer.applications?.length || 0), 0);
+  const safeOffers = Array.isArray(offers) ? offers : [];
+  const totalApplicants = safeOffers.reduce((sum, offer) => sum + (offer.applications?.length || 0), 0);
 
   return (
     <div className="w-full">
@@ -51,7 +52,7 @@ export default function EmployerDashboard() {
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         <div className="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/10">
           <p className="text-xs uppercase tracking-widest font-bold text-outline">Active Roles</p>
-          <h3 className="text-4xl font-extrabold font-headline">{offers.length}</h3>
+          <h3 className="text-4xl font-extrabold font-headline">{safeOffers.length}</h3>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/10">
           <p className="text-xs uppercase tracking-widest font-bold text-outline">Total Applicants</p>
@@ -59,7 +60,7 @@ export default function EmployerDashboard() {
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/10">
           <p className="text-xs uppercase tracking-widest font-bold text-outline">Avg per Role</p>
-          <h3 className="text-4xl font-extrabold font-headline">{offers.length ? Math.round(totalApplicants / offers.length) : 0}</h3>
+          <h3 className="text-4xl font-extrabold font-headline">{safeOffers.length ? Math.round(totalApplicants / safeOffers.length) : 0}</h3>
         </div>
       </section>
 
@@ -67,7 +68,7 @@ export default function EmployerDashboard() {
       {error ? <p className="text-sm text-amber-700 font-semibold mb-4">{error}</p> : null}
 
       <section className="space-y-4">
-        {offers.map((offer) => (
+        {safeOffers.map((offer) => (
           <article key={offer.id} className="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -82,7 +83,7 @@ export default function EmployerDashboard() {
           </article>
         ))}
 
-        {!loading && !offers.length ? (
+        {!loading && !safeOffers.length ? (
           <div className="bg-surface-container-low p-8 rounded-lg">
             <p className="text-on-surface-variant">No offers posted yet.</p>
           </div>

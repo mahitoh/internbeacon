@@ -62,6 +62,49 @@ export default function StudentFeed() {
 
         {/* Center Column: Scrollable Feed */}
         <section className="lg:col-span-6 space-y-6">
+          
+          {/* Recruiter Post */}
+          <article className="bg-surface-container-lowest rounded-DEFAULT custom-shadow overflow-hidden group border border-outline-variant/5">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border border-outline-variant/10">
+                    <img alt="Sarah Jenkins" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80"/>
+                  </div>
+                  <div>
+                    <h3 className="font-headline font-bold text-slate-900">Sarah Jenkins</h3>
+                    <p className="text-slate-400 text-xs font-medium">University Recruiter at Meta • 1 hour ago</p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                We're officially opening up applications for our Fall 2024 SWE Co-ops! 🚀 If you are passionate about scalable systems and want to build products used by billions, apply through InternBeacon. I'll be reviewing profiles with the "Vetted Talent" badge first. Feel free to reach out with questions!
+              </p>
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 mb-4 flex items-center justify-between">
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm">Software Engineering Co-op (Fall 2024)</h4>
+                  <p className="text-slate-500 text-xs">Menlo Park, CA • Remote Eligible</p>
+                </div>
+                <button className="bg-slate-900 text-white px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors">
+                  View Role
+                </button>
+              </div>
+              <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
+                <button className="flex items-center gap-1.5 text-slate-500 hover:text-amber-600 transition-colors text-sm font-bold">
+                  <span className="material-symbols-outlined text-[20px]">thumb_up</span>
+                  <span>124</span>
+                </button>
+                <button className="flex items-center gap-1.5 text-slate-500 hover:text-amber-600 transition-colors text-sm font-bold">
+                  <span className="material-symbols-outlined text-[20px]">chat_bubble_outline</span>
+                  <span>18</span>
+                </button>
+                <button className="flex items-center gap-1.5 text-slate-500 hover:text-amber-600 transition-colors text-sm font-bold ml-auto">
+                  <span className="material-symbols-outlined text-[20px]">share</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
           {/* Google Post */}
           <article className="bg-surface-container-lowest rounded-DEFAULT custom-shadow overflow-hidden group border border-outline-variant/5">
             <div className="p-6">
@@ -106,6 +149,36 @@ export default function StudentFeed() {
                   <a className="text-amber-600 text-xs font-bold underline decoration-2 underline-offset-4 hover:text-amber-700 transition-colors" href="#">Schedule Interview</a>
                   <a className="text-slate-400 text-xs font-bold hover:text-slate-600 transition-colors" href="#">View Details</a>
                 </div>
+              </div>
+            </div>
+          </article>
+
+          {/* Student Connection Post */}
+          <article className="bg-surface-container-lowest rounded-DEFAULT custom-shadow overflow-hidden group border border-outline-variant/5">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border border-outline-variant/10">
+                    <img alt="David Chen" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80"/>
+                  </div>
+                  <div>
+                    <h3 className="font-headline font-bold text-slate-900">David Chen</h3>
+                    <p className="text-slate-400 text-xs font-medium">CS Junior @ MIT • Connection • 5 hours ago</p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                I'm incredibly excited to share that I will be joining Apple this summer as an iOS Engineering Intern! 🍏 Huge thanks to my mentors, friends, and the InternBeacon platform for making the process so seamless. Looking forward to building amazing things in Cupertino!
+              </p>
+              <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
+                <button className="flex items-center gap-1.5 text-slate-500 hover:text-amber-600 transition-colors text-sm font-bold">
+                  <span className="material-symbols-outlined text-[20px]">thumb_up</span>
+                  <span>482</span>
+                </button>
+                <button className="flex items-center gap-1.5 text-slate-500 hover:text-amber-600 transition-colors text-sm font-bold">
+                  <span className="material-symbols-outlined text-[20px]">chat_bubble_outline</span>
+                  <span>56</span>
+                </button>
               </div>
             </div>
           </article>

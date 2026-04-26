@@ -308,7 +308,9 @@ export async function getCompanyProfile() {
 }
 
 export async function getCompanyOffers() {
-  return authRequest<OfferApiModel[]>("/companies/offers");
+  const data = await authRequest<OfferApiModel[] | PaginatedResponse<OfferApiModel>>("/companies/offers");
+  if (Array.isArray(data)) return data;
+  return data.items ?? [];
 }
 
 export async function getCompanyApplicants() {
