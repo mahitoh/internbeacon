@@ -9,8 +9,8 @@ import { useAuthUser } from "@/lib/authClient";
 
 function navItemClass(active: boolean) {
   return active
-    ? "flex items-center gap-3.5 rounded-2xl bg-white px-4 py-3.5 text-slate-900 shadow-md shadow-slate-200/50 ring-1 ring-slate-200/90"
-    : "flex items-center gap-3.5 rounded-2xl px-4 py-3.5 text-slate-500 transition-colors hover:bg-slate-200/60";
+    ? "flex items-center gap-3.5 rounded-2xl bg-[#00236F] px-4 py-3.5 text-white shadow-lg shadow-[#00236F]/20 font-bold transition-all"
+    : "flex items-center gap-3.5 rounded-2xl px-4 py-3.5 text-slate-500 transition-all hover:bg-white/60 hover:text-[#00236F]";
 }
 
 function getInitials(name: string) {
@@ -22,29 +22,22 @@ function getInitials(name: string) {
     .join("");
 }
 
-// Pick a consistent background colour from the user's name
-function avatarColor(name: string) {
-  const colours = [
-    "bg-violet-600", "bg-blue-600", "bg-teal-600",
-    "bg-emerald-600", "bg-amber-600", "bg-rose-600",
-  ];
-  const idx = name.charCodeAt(0) % colours.length;
-  return colours[idx];
-}
-
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const user = useAuthUser();
 
-  const isDashHome   = pathname === "/dashboard";
-  const isApplications = pathname.startsWith("/dashboard/applications");
-  const isFeed       = pathname.startsWith("/dashboard/feed");
-  const isProfile    = pathname.startsWith("/dashboard/profile");
-  const isBrowse     = pathname.startsWith("/dashboard/browse") || pathname.startsWith("/listings");
-  const isResume     = pathname.startsWith("/dashboard/resume");
-  const isRecommend  = pathname.startsWith("/dashboard/recommendations");
-  const isNotif      = pathname.startsWith("/dashboard/notifications");
+  const isDashHome      = pathname === "/dashboard";
+  const isApplications  = pathname.startsWith("/dashboard/applications");
+  const isFeed          = pathname.startsWith("/dashboard/feed");
+  const isProfile       = pathname.startsWith("/dashboard/profile");
+  const isBrowse        = pathname.startsWith("/dashboard/browse") || pathname.startsWith("/listings");
+  const isResume        = pathname.startsWith("/dashboard/resume");
+  const isRecommend     = pathname.startsWith("/dashboard/recommendations");
+  const isNotif         = pathname.startsWith("/dashboard/notifications");
+  const isMessages      = pathname.startsWith("/dashboard/messages");
+  const isSaved         = pathname.startsWith("/dashboard/saved");
+  const isSettings      = pathname.startsWith("/dashboard/settings");
 
   const handleLogout = () => {
     clearAuth();
@@ -53,94 +46,103 @@ export default function Sidebar() {
 
   const displayName = user?.name || "Student";
   const initials    = getInitials(displayName);
-  const colour      = avatarColor(displayName);
 
   return (
-    <aside className="fixed left-0 top-0 z-40 hidden h-full w-72 flex-col border-r border-slate-200/80 bg-slate-50 p-6 md:flex">
-      {/* Logo + user card */}
-      <div className="mb-8 px-2">
-        <Logo className="h-8 w-auto max-w-[180px]" />
+    <aside className="fixed left-0 top-0 z-40 hidden h-full w-72 flex-col bg-[#F4F3FA] p-6 md:flex">
+      {/* Logo + user card with tonal depth */}
+      <div className="mb-10 px-2">
+        <Logo className="h-8 w-auto max-w-[180px] mb-8" />
 
-        <div className="mt-8 flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
-          {/* Avatar — initials, no external image */}
+        <div className="flex items-center gap-4 rounded-[2rem] bg-white p-4 shadow-sm">
           <div
-            className={`h-10 w-10 shrink-0 rounded-full ${colour} flex items-center justify-center text-white text-sm font-bold select-none`}
+            className="h-12 w-12 shrink-0 rounded-full bg-gradient-to-br from-[#00236F] to-[#006591] flex items-center justify-center text-white text-sm font-bold select-none shadow-lg shadow-[#00236F]/20"
           >
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-[13px] font-semibold leading-tight text-slate-900">
+            <p className="truncate text-[14px] font-bold leading-tight text-[#1A1B21]">
               {displayName}
             </p>
-            <p className="text-[11px] text-slate-500">
-              {user?.role === "STUDENT" ? "Student" : "User"}
+            <p className="text-[11px] text-slate-400 font-medium tracking-wide">
+              {user?.role === "STUDENT" ? "Elite Talent • Vetted" : "Member"}
             </p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex flex-1 flex-col gap-1">
-        <Link href="/dashboard" className={`${navItemClass(isDashHome)} hover:translate-x-0.5 transition-transform duration-200`}>
+      <nav className="flex flex-1 flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar">
+        <div className="text-[10px] uppercase tracking-[0.25em] font-black text-[#006591] mb-3 px-4">Main Menu</div>
+        
+        <Link href="/dashboard" className={navItemClass(isDashHome)}>
           <span className="material-symbols-outlined text-[20px]">dashboard</span>
-          <span className="text-[14px] font-semibold">Dashboard</span>
+          <span className="text-[14px]">Command Center</span>
         </Link>
 
-        <Link href="/dashboard/feed" className={`${navItemClass(isFeed)} hover:translate-x-0.5 transition-transform duration-200`}>
+        <Link href="/dashboard/feed" className={navItemClass(isFeed)}>
           <span className="material-symbols-outlined text-[20px]">dynamic_feed</span>
-          <span className="text-[14px] font-semibold">Feed</span>
+          <span className="text-[14px]">Discovery Feed</span>
         </Link>
 
-        <Link href="/dashboard/applications" className={`${navItemClass(isApplications)} hover:translate-x-0.5 transition-transform duration-200`}>
-          <span className="material-symbols-outlined text-[20px]">description</span>
-          <span className="text-[14px] font-semibold">Applications</span>
-        </Link>
-
-        {/* Browse — now points to /dashboard/browse to stay in shell */}
-        <Link href="/dashboard/browse" className={`${navItemClass(isBrowse)} hover:translate-x-0.5 transition-transform duration-200`}>
+        <Link href="/dashboard/browse" className={navItemClass(isBrowse)}>
           <span className="material-symbols-outlined text-[20px]">search</span>
-          <span className="text-[14px] font-semibold">Browse roles</span>
+          <span className="text-[14px]">Browse All</span>
         </Link>
 
-        <Link href="/dashboard/profile" className={`${navItemClass(isProfile)} hover:translate-x-0.5 transition-transform duration-200`}>
-          <span className="material-symbols-outlined text-[20px]">person</span>
-          <span className="text-[14px] font-semibold">Profile</span>
+        <div className="mt-8 text-[10px] uppercase tracking-[0.25em] font-black text-[#006591] mb-3 px-4">Applications</div>
+
+        <Link href="/dashboard/applications" className={navItemClass(isApplications)}>
+          <span className="material-symbols-outlined text-[20px]">description</span>
+          <span className="text-[14px]">My Applications</span>
         </Link>
 
-        <Link href="/dashboard/resume" className={`${navItemClass(isResume)} hover:translate-x-0.5 transition-transform duration-200`}>
+        <Link href="/dashboard/saved" className={navItemClass(isSaved)}>
+          <span className="material-symbols-outlined text-[20px]">bookmark</span>
+          <span className="text-[14px]">Saved Roles</span>
+        </Link>
+
+        <div className="mt-8 text-[10px] uppercase tracking-[0.25em] font-black text-[#006591] mb-3 px-4">Career Tools</div>
+
+        <Link href="/dashboard/resume" className={navItemClass(isResume)}>
           <span className="material-symbols-outlined text-[20px]">bolt</span>
-          <span className="text-[14px] font-semibold">Optimizer</span>
+          <span className="text-[14px]">Resume Optimizer</span>
         </Link>
 
-        <Link href="/dashboard/recommendations" className={`${navItemClass(isRecommend)} hover:translate-x-0.5 transition-transform duration-200`}>
+        <Link href="/dashboard/recommendations" className={navItemClass(isRecommend)}>
           <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
-          <span className="text-[14px] font-semibold">AI Assistant</span>
+          <span className="text-[14px]">AI Career Coach</span>
         </Link>
 
-        <Link href="/dashboard/notifications" className={`${navItemClass(isNotif)} hover:translate-x-0.5 transition-transform duration-200`}>
+        <div className="mt-8 text-[10px] uppercase tracking-[0.25em] font-black text-[#006591] mb-3 px-4">Personal</div>
+
+        <Link href="/dashboard/messages" className={navItemClass(isMessages)}>
+          <span className="material-symbols-outlined text-[20px]">chat_bubble</span>
+          <span className="text-[14px]">Messages</span>
+        </Link>
+
+        <Link href="/dashboard/profile" className={navItemClass(isProfile)}>
+          <span className="material-symbols-outlined text-[20px]">account_circle</span>
+          <span className="text-[14px]">Profile</span>
+        </Link>
+
+        <Link href="/dashboard/notifications" className={navItemClass(isNotif)}>
           <span className="material-symbols-outlined text-[20px]">notifications</span>
-          <span className="text-[14px] font-semibold">Notifications</span>
+          <span className="text-[14px]">Notifications</span>
         </Link>
-
-        <div className="my-2 border-t border-slate-200/70" />
-
-        <a
-          href="mailto:support@internbeacon.cm"
-          className={`${navItemClass(false)} hover:translate-x-0.5 transition-transform duration-200`}
-        >
-          <span className="material-symbols-outlined text-[20px]">help</span>
-          <span className="text-[14px] font-semibold">Help & support</span>
-        </a>
       </nav>
 
-      {/* Logout */}
-      <div className="mt-auto flex flex-col gap-2 pt-4 border-t border-slate-200/70">
+      {/* Footer Nav */}
+      <div className="mt-auto flex flex-col gap-2 pt-8">
+        <Link href="/dashboard/settings" className={navItemClass(isSettings)}>
+          <span className="material-symbols-outlined text-[20px]">settings</span>
+          <span className="text-[14px]">Settings</span>
+        </Link>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 text-slate-400 transition-colors hover:text-red-500 rounded-2xl hover:bg-red-50"
+          className="flex items-center gap-3.5 px-4 py-3.5 text-slate-400 transition-all hover:text-[#ba1a1a] rounded-2xl hover:bg-red-50"
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span className="text-[14px] font-semibold">Log out</span>
+          <span className="text-[14px] font-bold">Sign Out</span>
         </button>
       </div>
     </aside>
