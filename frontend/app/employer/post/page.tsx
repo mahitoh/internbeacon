@@ -5,128 +5,137 @@ import React from 'react';
 
 export default function PostNewOffer() {
   return (
-    <div className="mx-auto w-full max-w-3xl pb-16">
-          {/* Progress Rail */}
-          <div className="mb-12">
-            <div className="flex justify-between mb-4">
-              <span className="text-xs font-bold tracking-widest uppercase text-secondary-container">Step 01: Role Details</span>
-              <span className="text-xs font-bold tracking-widest uppercase text-outline">Step 02</span>
-              <span className="text-xs font-bold tracking-widest uppercase text-outline">Step 03</span>
-            </div>
-            <div className="h-[2px] w-full bg-surface-container-high rounded-full overflow-hidden">
-              <div className="h-full bg-secondary-container w-1/3 transition-all duration-500"></div>
-            </div>
-          </div>
+    <div className="mx-auto w-full max-w-[1440px] px-8 py-12">
+      {/* Step Navigation */}
+      <div className="flex items-center justify-center gap-16 mb-16">
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-700">Step 01: Role Details</span>
+          <div className="h-1 w-48 bg-amber-700 rounded-full"></div>
+        </div>
+        <div className="flex flex-col items-center gap-3 opacity-30">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Step 02</span>
+          <div className="h-1 w-48 bg-slate-200 rounded-full"></div>
+        </div>
+        <div className="flex flex-col items-center gap-3 opacity-30">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Step 03</span>
+          <div className="h-1 w-48 bg-slate-200 rounded-full"></div>
+        </div>
+      </div>
 
-          {/* Content Canvas */}
-          <div className="bg-surface-container-lowest p-10 md:p-16 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)]">
-            {/* Editorial Header */}
-            <div className="mb-12">
-              <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-primary mb-4 font-headline">
-                Define the opportunity.
-              </h1>
-              <p className="text-on-surface-variant text-lg leading-relaxed max-w-xl">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-[3rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.05)] border border-slate-100 overflow-hidden mb-16">
+          <div className="p-16 md:p-24">
+            <header className="mb-16">
+              <h1 className="text-5xl font-extrabold tracking-tight text-slate-900 font-headline mb-6">Define the opportunity.</h1>
+              <p className="text-slate-500 text-lg font-medium leading-relaxed max-w-2xl">
                 Provide the foundational details of your internship. Clarity attracts the highest caliber of emerging talent.
               </p>
-            </div>
+            </header>
 
-            {/* Multi-step Form (Step 1 Active) */}
-            <form className="space-y-10">
-              {/* Section: Basic Info */}
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 gap-6">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold tracking-widest uppercase text-primary/60 ml-1">Internship Title</label>
-                    <input className="bg-surface-container-low border-transparent focus:border-primary focus:ring-0 rounded-DEFAULT p-4 text-primary transition-all placeholder:text-outline-variant" placeholder="e.g. Product Design Intern" type="text" />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold tracking-widest uppercase text-primary/60 ml-1">Department</label>
-                      <select className="bg-surface-container-low border-transparent focus:border-primary focus:ring-0 rounded-DEFAULT p-4 text-primary transition-all appearance-none cursor-pointer">
+            <form className="space-y-12">
+              <div className="space-y-8">
+                <div className="flex flex-col gap-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Internship Title</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Product Design Intern" 
+                    className="bg-slate-50 border-none rounded-2xl p-6 text-slate-900 font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-slate-900 transition-all text-sm"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="flex flex-col gap-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Department</label>
+                    <div className="relative">
+                      <select className="w-full bg-slate-50 border-none rounded-2xl p-6 text-slate-900 font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-slate-900 transition-all text-sm">
                         <option>Engineering</option>
                         <option>Design</option>
-                        <option>Marketing</option>
                         <option>Product</option>
-                        <option>Sales</option>
+                        <option>Marketing</option>
                       </select>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold tracking-widest uppercase text-primary/60 ml-1">Location</label>
-                      <input className="bg-surface-container-low border-transparent focus:border-primary focus:ring-0 rounded-DEFAULT p-4 text-primary transition-all placeholder:text-outline-variant" placeholder="Remote, New York, etc." type="text" />
+                      <span className="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
                     </div>
                   </div>
+                  <div className="flex flex-col gap-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Location</label>
+                    <input 
+                      type="text" 
+                      placeholder="Remote, New York, etc." 
+                      className="bg-slate-50 border-none rounded-2xl p-6 text-slate-900 font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-slate-900 transition-all text-sm"
+                    />
+                  </div>
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-6">
-                <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold tracking-widest uppercase text-primary/60 ml-1">Description</label>
-                    <textarea className="bg-surface-container-low border-transparent focus:border-primary focus:ring-0 rounded-DEFAULT p-4 text-primary transition-all placeholder:text-outline-variant min-h-[120px]" placeholder="Brief context about this role..." />
-                </div>
-              </div>
 
-              {/* Section: Engagement Model */}
-              <div className="p-8 bg-surface-container-low rounded-lg border-l-4 border-secondary-container">
-                <div className="flex items-start gap-4">
-                  <span className="material-symbols-outlined text-secondary-container mt-1">info</span>
+                <div className="bg-amber-50 rounded-3xl p-8 border-l-4 border-amber-500 flex items-start gap-5">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
+                    <span className="material-symbols-outlined font-bold">info</span>
+                  </div>
                   <div>
-                    <h3 className="font-bold text-primary mb-1 font-headline">Curation Tip</h3>
-                    <p className="text-sm text-on-surface-variant leading-relaxed">
+                    <h3 className="text-sm font-black text-slate-900 mb-2">Curation Tip</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed font-medium">
                       High-performance teams often offer flexible hours. Specify if this is a "Core Hours" or "Flexible Sync" role.
                     </p>
                   </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-bold tracking-widest uppercase text-primary/60 ml-1">Duration</label>
-                  <div className="flex items-center bg-surface-container-low rounded-DEFAULT px-4">
-                    <input className="bg-transparent border-none focus:ring-0 w-16 p-4 text-primary outline-none" placeholder="3" type="number" />
-                    <span className="text-on-surface-variant font-medium">Months</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="flex flex-col gap-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Duration</label>
+                    <div className="flex items-center bg-slate-50 rounded-2xl px-6 group focus-within:ring-2 focus-within:ring-slate-900 transition-all">
+                      <input 
+                        type="number" 
+                        placeholder="3" 
+                        className="bg-transparent border-none p-6 text-slate-900 font-bold focus:ring-0 w-20 text-sm"
+                      />
+                      <span className="text-slate-400 font-black uppercase tracking-widest text-[10px]">Months</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Stipend (Monthly)</label>
+                    <div className="flex items-center bg-slate-50 rounded-2xl px-6 group focus-within:ring-2 focus-within:ring-slate-900 transition-all">
+                      <span className="text-slate-400 font-bold mr-2">$</span>
+                      <input 
+                        type="text" 
+                        placeholder="2,500" 
+                        className="bg-transparent border-none p-6 text-slate-900 font-bold focus:ring-0 flex-1 text-sm"
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-bold tracking-widest uppercase text-primary/60 ml-1">Stipend (Monthly)</label>
-                  <div className="flex items-center bg-surface-container-low rounded-DEFAULT px-4">
-                    <span className="text-on-surface-variant font-medium">$</span>
-                    <input className="bg-transparent border-none focus:ring-0 flex-1 p-4 text-primary outline-none" placeholder="2,500" type="text" />
-                  </div>
-                </div>
               </div>
 
-              {/* Footer Actions */}
-              <div className="pt-10 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-outline-variant/10">
-                <button className="text-on-surface-variant font-semibold hover:text-primary transition-colors order-2 md:order-1" type="button">
-                  Save as Draft
+              <div className="pt-12 flex flex-col md:flex-row items-center justify-between gap-8 border-t border-slate-50">
+                <button className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors">Save as Draft</button>
+                <button className="w-full md:w-auto bg-slate-900 text-white font-black uppercase tracking-[0.2em] text-[10px] px-12 py-5 rounded-2xl shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
+                  Continue to Requirements
+                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
                 </button>
-                <div className="flex items-center gap-4 w-full md:w-auto order-1 md:order-2">
-                  <button className="flex-1 md:flex-none px-10 py-4 bg-primary text-white rounded-xl font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2" type="button">
-                    Continue to Requirements
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                  </button>
-                </div>
               </div>
             </form>
           </div>
+        </div>
 
-          {/* Bottom Contextual Card (Asymmetric Layout) */}
-          <div className="mt-12 flex flex-col md:flex-row gap-8 items-center bg-white p-6 rounded-2xl border border-outline-variant/10 shadow-sm">
-            <div className="relative w-full md:w-1/2 aspect-video rounded-lg overflow-hidden shrink-0">
-              <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-oIBuzr3tuVrcozPt44tMF-CxZqQhWCaB1xbg1etuk1x7aBrJL-bJomrCWNS2lWYaDO3hfPAdmSByY14K5fbPlyw5UiCbdcxbji3IcJ_f_BpxqJfdatqC7kLLLnZ5r8ALs8n22-mtQH7U_9mQ6a3JNkEzUemARryQMeVdtBJcLvfharpDJCd4FXKgKti8egWsBtw-ik7MXCRquuqeMVnTj_zhNWu-_cyU2QhYqkwJkzq7T5xiiwehnvp297Cxe3ZZVlv7_z3xdZE" alt="Team"/>
-              <div className="absolute inset-0 bg-primary/20 backdrop-grayscale-[0.5]"></div>
-            </div>
-            <div className="w-full md:w-1/2 space-y-4">
-              <div className="inline-flex items-center gap-2 bg-primary text-secondary-container px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                Premium Partner
-              </div>
-              <h4 className="text-2xl font-bold text-primary tracking-tight font-headline">Your listing is optimized for elite discovery.</h4>
-              <p className="text-on-surface-variant text-sm leading-relaxed">
-                By using InternBeacon, your role is automatically formatted for our Curated Gallery, where vetted talent from top-tier institutions browse for their next career-defining move.
-              </p>
-            </div>
+        {/* Bottom Optimization Card */}
+        <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-8 flex flex-col md:flex-row items-center gap-10">
+          <div className="w-full md:w-5/12 aspect-[4/3] rounded-2xl overflow-hidden shadow-lg shrink-0">
+            <img 
+              src="https://images.unsplash.com/photo-1522071823991-b59fea12f42a?auto=format&fit=crop&w=800&q=80" 
+              className="w-full h-full object-cover" 
+              alt="Team optimization" 
+            />
           </div>
+          <div className="flex-1">
+            <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest mb-6">
+              <span className="material-symbols-outlined text-[14px]">verified</span>
+              Premium Partner
+            </div>
+            <h2 className="text-2xl font-extrabold text-slate-900 font-headline tracking-tight mb-4">Your listing is optimized for elite discovery.</h2>
+            <p className="text-slate-500 text-sm leading-relaxed font-medium">
+              By using InternBeacon, your role is automatically formatted for our Curated Gallery, where vetted talent from top-tier institutions browse for their next career-defining move.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
