@@ -1,5 +1,6 @@
 "use client";
 
+import NextLink from "next/link";
 import React, { useEffect, useState } from "react";
 import { getCompanyApplicants, getUserFriendlyError, updateApplicationStatus, type ApplicantModel } from "@/lib/api";
 
@@ -50,9 +51,9 @@ export default function ManageApplicants() {
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div className="flex items-center gap-4">
-          <Link href="/employer/dashboard" className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors shadow-sm">
+          <NextLink href="/employer/dashboard" className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors shadow-sm">
             <span className="material-symbols-outlined">arrow_back</span>
-          </Link>
+          </NextLink>
           <div>
             <div className="flex items-center gap-3 mb-1">
               <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 font-headline">Product Design Intern 2024</h1>
@@ -70,10 +71,10 @@ export default function ManageApplicants() {
             </div>
           </div>
         </div>
-        <Link href="/employer/post" className="bg-slate-900 text-white font-bold px-6 py-3 rounded-2xl transition-all hover:bg-slate-800 inline-flex items-center gap-2 shadow-lg shadow-slate-900/10 text-sm">
+        <NextLink href="/employer/post" className="bg-slate-900 text-white font-bold px-6 py-3 rounded-2xl transition-all hover:bg-slate-800 inline-flex items-center gap-2 shadow-lg shadow-slate-900/10 text-sm">
           <span className="material-symbols-outlined text-xl">add</span>
           Post Internship
-        </Link>
+        </NextLink>
       </header>
 
       {/* Stats Summary Section */}
