@@ -6,6 +6,7 @@ const {
   getRecommendations,
   getSchools,
 } = require('../services/studentService');
+const { getApplicationByIdForStudent } = require('../services/applicationService');
 
 const getProfile = async (req, res) => {
   try {
@@ -88,6 +89,16 @@ const listSchools = async (_req, res) => {
   }
 };
 
+const getAppById = async (req, res) => {
+  try {
+    const data = await getApplicationByIdForStudent(req.params.id, req.user.id);
+    res.json({ success: true, data });
+  } catch (error) {
+    global.logger?.error('Get application by id error', { message: error.message });
+    res.status(404).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -95,4 +106,5 @@ module.exports = {
   getApps,
   getRecs,
   listSchools,
+  getAppById,
 };

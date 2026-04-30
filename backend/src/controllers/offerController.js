@@ -1,4 +1,5 @@
-const { getOffers, getOfferById, applyToOffer, createOffer } = require('../services/offerService');
+const { getOffers, getOfferById, createOffer, deleteOffer } = require('../services/offerService');
+const { applyToOffer } = require('../services/applicationService');
 
 const getAllOffers = async (req, res) => {
   try {
@@ -25,13 +26,8 @@ const getOffer = async (req, res) => {
 const apply = async (req, res) => {
   const { offerId, coverLetter, resume, portfolio, availability } = req.body;
   try {
-    const student = await require('../config/database').prisma.student.findUnique({
-      where: { userId: req.user.id },
-    });
-    if (!student) return res.status(404).json({ success: false, message: 'Student profile not found' });
-
     const additionalData = { coverLetter, resume, portfolio, availability };
-    const data = await applyToOffer(student.id, offerId, additionalData);
+    const data = await applyToOffer(req.user.id, offerId, additionalData);
     res.status(201).json({ success: true, data });
   } catch (error) {
     global.logger?.error('Apply offer error', { message: error.message });
@@ -73,7 +69,7 @@ const quickApply = async (req, res) => {
       availability: 'Flexible',
     };
 
-    const data = await applyToOffer(student.id, offerId, additionalData);
+    const data = await applyToOffer(req.user.id, offerId, additionalData);
     res.status(201).json({ success: true, data });
   } catch (error) {
     global.logger?.error('Quick apply error', { message: error.message });
@@ -81,4 +77,15 @@ const quickApply = async (req, res) => {
   }
 };
 
-module.exports = { getAllOffers, getOffer, apply, create, quickApply };
+const remove = async (req, res) => {
+  try {
+    const data = await deleteOffer(req.params.id, req.user.id);
+    res.json({ success: true, data });
+  } catch (error) {
+    global.logger?.error('Delete offer error', { message: error.message });
+    const status = error.message === 'Offer not found' ? 404 : 403;
+    res.status(status).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { getAllOffers, getOffer, apply, create, quickApply, remove };

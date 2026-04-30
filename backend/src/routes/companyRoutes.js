@@ -2,6 +2,7 @@ const express = require('express');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
 const {
   getPublicProfile,
+  getPublicList,
   getProfile,
   updateProfile,
   postOffer,
@@ -12,6 +13,7 @@ const {
 const router = express.Router();
 
 // Public route (must be declared before auth middleware)
+router.get('/', getPublicList);
 router.get('/public/:id', getPublicProfile);
 
 router.use(authenticateToken);
