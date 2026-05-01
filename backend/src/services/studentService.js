@@ -1,5 +1,6 @@
 const { prisma } = require('../config/database');
 const Joi = require('joi');
+const { recalculateMatchesForStudent } = require('./matchService');
 
 const updateStudentProfileSchema = Joi.object({
   name: Joi.string().trim().min(2).max(80).optional(),
@@ -38,7 +39,7 @@ const updateStudentProfile = async (userId, data) => {
   const nextSkills = value.skills !== undefined ? value.skills : existing.skills;
   const nextStrength = calculateStrength({ bio: nextBio, skills: nextSkills });
 
-  return prisma.$transaction(async (tx) => {
+  const updatedStudent = await prisma.$transaction(async (tx) => {
     if (value.name !== undefined) {
       await tx.user.update({
         where: { id: userId },
@@ -63,6 +64,12 @@ const updateStudentProfile = async (userId, data) => {
 
     return updatedStudent;
   });
+
+  recalculateMatchesForStudent(updatedStudent.id).catch((error) => {
+    global.logger?.error('Recalculate student matches error', { message: error.message, studentId: updatedStudent.id });
+  });
+
+  return updatedStudent;
 };
 
 const calculateStrength = (data) => {

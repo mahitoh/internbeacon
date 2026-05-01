@@ -2,8 +2,12 @@ const { createMatch, getMatchesForStudent, getMatchesForOffer, calculateMatchSco
 
 const getStudentMatches = async (req, res) => {
   try {
-    const studentId = req.user.id;
-    const matches = await getMatchesForStudent(studentId);
+    const student = await require('../config/database').prisma.student.findUnique({
+      where: { userId: req.user.id }
+    });
+    if (!student) return res.status(404).json({ success: false, message: 'Student profile not found' });
+
+    const matches = await getMatchesForStudent(student.id);
     res.json({ success: true, data: matches });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

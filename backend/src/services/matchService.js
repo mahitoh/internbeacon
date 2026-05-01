@@ -106,7 +106,7 @@ const getMatchesForOffer = async (offerId) => {
 const calculateMatchScore = async (studentId, offerId) => {
   // Simple matching logic - in real app, this would be more sophisticated
   const student = await prisma.student.findUnique({
-    where: { userId: studentId },
+    where: { id: studentId },
     select: { skills: true }
   });
 
@@ -136,9 +136,37 @@ const calculateMatchScore = async (studentId, offerId) => {
   return score;
 };
 
+const recalculateMatchesForStudent = async (studentId) => {
+  const offers = await prisma.offer.findMany({
+    select: { id: true }
+  });
+
+  await Promise.allSettled(
+    offers.map(async (offer) => {
+      const score = await calculateMatchScore(studentId, offer.id);
+      await createMatch(studentId, offer.id, score);
+    })
+  );
+};
+
+const recalculateMatchesForOffer = async (offerId) => {
+  const students = await prisma.student.findMany({
+    select: { id: true }
+  });
+
+  await Promise.allSettled(
+    students.map(async (student) => {
+      const score = await calculateMatchScore(student.id, offerId);
+      await createMatch(student.id, offerId, score);
+    })
+  );
+};
+
 module.exports = {
   createMatch,
   getMatchesForStudent,
   getMatchesForOffer,
-  calculateMatchScore
+  calculateMatchScore,
+  recalculateMatchesForStudent,
+  recalculateMatchesForOffer
 };

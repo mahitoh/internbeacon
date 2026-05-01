@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import InternshipCard from "@/components/InternshipCard";
 import { MOCK_INTERNSHIPS } from "@/lib/data";
 import { FiSearch, FiFilter, FiArrowDown } from "react-icons/fi";
-import { getOffers, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
+import { fetchInternshipOffers, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
 import type { Internship } from "@/types";
 
 export default function ListingsContent() {
@@ -20,10 +20,15 @@ export default function ListingsContent() {
       try {
         setLoading(true);
         setError(null);
-        const offers = await getOffers();
+        const offers = await fetchInternshipOffers();
         if (!mounted) return;
         const mapped = offers.map(mapOfferToInternship);
-        setInternships(mapped.length ? mapped : MOCK_INTERNSHIPS);
+        // If API returns data, use it but pad with mock data if it's too few (for visualization)
+        if (mapped.length > 0) {
+          setInternships([...mapped, ...MOCK_INTERNSHIPS.slice(0, Math.max(0, 12 - mapped.length))]);
+        } else {
+          setInternships(MOCK_INTERNSHIPS);
+        }
       } catch (err) {
         if (!mounted) return;
         setError(getUserFriendlyError(err, "Could not load offers"));

@@ -7,6 +7,7 @@ const {
   getApps,
   getRecs,
   listSchools,
+  getAppById,
 } = require('../controllers/studentController');
 
 const router = express.Router();
@@ -21,6 +22,7 @@ router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
 router.get('/stats', getStats);
 router.get('/applications', getApps);
+router.get('/applications/:id', getAppById);
 router.get('/recommendations', getRecs);
 
 module.exports = router;

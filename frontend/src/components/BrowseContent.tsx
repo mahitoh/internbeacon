@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import NextLink from "next/link";
-import { getOffers, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
+import { fetchInternshipOffers, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
 import { MOCK_INTERNSHIPS } from "@/lib/data";
 import type { Internship } from "@/types";
 import { StudentPageHeader } from "@/components/student/StudentPageHeader";
@@ -23,7 +23,7 @@ export default function BrowseContent() {
     (async () => {
       try {
         setLoading(true);
-        const offers = await getOffers();
+        const offers = await fetchInternshipOffers();
         if (!mounted) return;
         const mapped = offers.map(mapOfferToInternship);
         setInternships(mapped.length ? mapped : MOCK_INTERNSHIPS);

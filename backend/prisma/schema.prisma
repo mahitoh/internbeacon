@@ -124,6 +124,7 @@ model Match {
   score     Float
   createdAt DateTime @default(now())
 
+  @@unique([studentId, offerId])
   @@index([studentId])
   @@index([offerId])
 }

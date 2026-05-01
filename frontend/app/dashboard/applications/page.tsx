@@ -188,7 +188,7 @@ export default function ApplicationTracking() {
                       </p>
                       <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
                         Applied on {new Date(app.createdAt).toLocaleDateString()} and last updated on{" "}
-                        {new Date(app.createdAt).toLocaleDateString()}.
+                        {new Date((app.updatedAt || app.createdAt)).toLocaleDateString()}.
                       </p>
                     </div>
                   </div>

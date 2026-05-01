@@ -5,6 +5,7 @@ const {
   getOffers,
   getApplicants,
   getPublicCompanyProfile,
+  getPublicCompanies,
 } = require('../services/companyService');
 
 const getProfile = async (req, res) => {
@@ -72,6 +73,20 @@ const getPublicProfile = async (req, res) => {
   }
 };
 
+const getPublicList = async (req, res) => {
+  try {
+    const page = Number.parseInt(req.query.page, 10) || 1;
+    const limit = Number.parseInt(req.query.limit, 10) || 20;
+    const q = req.query.q || '';
+
+    const data = await getPublicCompanies(page, limit, q);
+    res.json({ success: true, data });
+  } catch (error) {
+    global.logger?.error('Get public company list error', { message: error.message });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -79,4 +94,5 @@ module.exports = {
   getCompanyOffers,
   getApps,
   getPublicProfile,
+  getPublicList,
 };

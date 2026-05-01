@@ -125,4 +125,22 @@ const createOffer = async (companyId, offerData) => {
   return created;
 };
 
-module.exports = { getOffers, getOfferById, applyToOffer, createOffer };
+const deleteOffer = async (offerId, userId) => {
+  const company = await prisma.company.findUnique({ where: { userId } });
+  if (!company) throw new Error('Company profile required');
+
+  const offer = await prisma.offer.findUnique({ where: { id: offerId } });
+  if (!offer) throw new Error('Offer not found');
+  if (offer.companyId !== company.id) throw new Error('Unauthorized');
+
+  await prisma.offer.delete({ where: { id: offerId } });
+  return { id: offerId, deleted: true };
+};
+
+module.exports = {
+  getOffers,
+  getOfferById,
+  applyToOffer,
+  createOffer,
+  deleteOffer,
+};

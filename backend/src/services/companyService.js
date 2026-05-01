@@ -1,5 +1,6 @@
 const { prisma } = require('../config/database');
 const Joi = require('joi');
+const { recalculateMatchesForOffer } = require('./matchService');
 
 const updateCompanyProfileSchema = Joi.object({
   description: Joi.string().max(2000).allow('').optional(),
@@ -91,6 +92,10 @@ const createOffer = async (userId, data) => {
     global.io.emit('new-offer', offer);
   }
 
+  recalculateMatchesForOffer(offer.id).catch((error) => {
+    global.logger?.error('Recalculate offer matches error', { message: error.message, offerId: offer.id });
+  });
+
   return offer;
 };
 
@@ -172,6 +177,44 @@ const getPublicCompanyProfile = async (companyId) => {
   return company;
 };
 
+const getPublicCompanies = async (page = 1, limit = 20, q = '') => {
+  const skip = (page - 1) * limit;
+  const where = q
+    ? {
+        OR: [
+          { user: { name: { contains: q, mode: 'insensitive' } } },
+          { city: { contains: q, mode: 'insensitive' } },
+          { industry: { contains: q, mode: 'insensitive' } },
+        ],
+      }
+    : {};
+
+  const [companies, total] = await Promise.all([
+    prisma.company.findMany({
+      where,
+      include: {
+        user: { select: { id: true, name: true, avatarUrl: true } },
+        _count: { select: { offers: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.company.count({ where }),
+  ]);
+
+  return {
+    items: companies.map((company) => ({
+      ...company,
+      openRoles: company._count.offers,
+    })),
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
+};
+
 module.exports = {
   getCompanyProfile,
   updateCompanyProfile,
@@ -179,4 +222,5 @@ module.exports = {
   getOffers,
   getApplicants,
   getPublicCompanyProfile,
+  getPublicCompanies,
 };

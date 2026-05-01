@@ -1,8 +1,10 @@
 const axios = require('axios');
 
 // Configurable AI provider
-const AI_PROVIDER = process.env.AI_PROVIDER || 'openai'; // 'openai', 'gemini', 'huggingface'
+const AI_PROVIDER = process.env.AI_PROVIDER || 'openai'; // 'openai', 'groq', 'gemini', 'huggingface'
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
 
@@ -38,6 +40,8 @@ Provide suggestions in a structured format with sections.`;
     switch (AI_PROVIDER) {
       case 'openai':
         return this.callOpenAI(prompt);
+      case 'groq':
+        return this.callGroq(prompt);
       case 'gemini':
         return this.callGemini(prompt);
       case 'huggingface':
@@ -58,6 +62,24 @@ Provide suggestions in a structured format with sections.`;
     }, {
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return response.data.choices[0].message.content;
+  }
+
+  async callGroq(prompt) {
+    if (!GROQ_API_KEY) throw new Error('Groq API key not configured');
+
+    const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
+      model: GROQ_MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 1000,
+      temperature: 0.7
+    }, {
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json'
       }
     });

@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NextLink from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
-import { getOffers, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
+import { fetchInternshipOffers, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
 import { MOCK_INTERNSHIPS } from "@/lib/data";
 import type { Internship } from "@/types";
 
@@ -51,13 +51,19 @@ export default function BrowseInternships() {
     let mounted = true;
     (async () => {
       try {
-        const offers = await getOffers();
+        const offers = await fetchInternshipOffers();
         if (!mounted) return;
         const mapped = offers.map(mapOfferToInternship);
-        setInternships(mapped.length ? mapped : MOCK_INTERNSHIPS);
+        // Pad with mock data if API results are sparse for better visualization
+        if (mapped.length > 0) {
+          setInternships([...mapped, ...MOCK_INTERNSHIPS.slice(0, Math.max(0, 12 - mapped.length))]);
+        } else {
+          setInternships(MOCK_INTERNSHIPS);
+        }
       } catch (err) {
         if (!mounted) return;
         setApiError(getUserFriendlyError(err));
+        setInternships(MOCK_INTERNSHIPS);
       } finally {
         if (mounted) setLoading(false);
       }
