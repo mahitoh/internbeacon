@@ -1,19 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { MOCK_INTERNSHIPS } from "@/lib/data";
-import { getOfferById, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { FiClock, FiDollarSign, FiCalendar, FiArrowLeft, FiShare2, FiHeart, FiShield, FiGlobe } from "react-icons/fi";
-import Link from "next/link";
+import { MOCK_INTERNSHIPS } from "@/lib/data";
+import { getOfferById, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
 import type { Internship } from "@/types";
 
 export default function InternshipDetailPage() {
   const params = useParams();
   const id = useMemo(() => params.id as string, [params.id]);
-
   const [internship, setInternship] = useState<Internship | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,13 +28,9 @@ export default function InternshipDetailPage() {
         setInternship(mapOfferToInternship(offer));
       } catch (err) {
         if (!mounted) return;
-        const fallback = MOCK_INTERNSHIPS.find((i) => i.id === id) || null;
+        const fallback = MOCK_INTERNSHIPS.find((item) => item.id === id) || null;
         setInternship(fallback);
-        if (!fallback) {
-          setError(getUserFriendlyError(err, "Could not load offer"));
-        } else {
-          setError(null);
-        }
+        setError(fallback ? null : getUserFriendlyError(err, "Could not load offer"));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -50,10 +44,10 @@ export default function InternshipDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-surface text-on-surface">
+      <div className="min-h-screen bg-[#f8fafc] text-slate-900">
         <Navbar />
-        <main className="flex-grow pt-48 pb-40">
-          <div className="max-w-7xl mx-auto px-10 text-sm font-semibold text-on-surface/60">Loading internship details...</div>
+        <main className="mx-auto max-w-7xl px-6 pb-24 pt-40">
+          <p className="text-sm font-medium text-slate-500">Loading role details...</p>
         </main>
         <Footer />
       </div>
@@ -62,152 +56,177 @@ export default function InternshipDetailPage() {
 
   if (!internship) {
     return (
-      <div className="min-h-screen flex flex-col bg-surface text-on-surface">
+      <div className="min-h-screen bg-[#f8fafc] text-slate-900">
         <Navbar />
-        <main className="flex-grow pt-48 pb-40">
-          <div className="max-w-7xl mx-auto px-10 space-y-4">
-            <p className="text-lg font-bold">Internship not found.</p>
-            <Link href="/listings" className="text-primary font-bold underline">Go back to listings</Link>
-          </div>
+        <main className="mx-auto max-w-7xl px-6 pb-24 pt-40">
+          <p className="text-lg font-bold">Internship not found.</p>
+          <Link href="/dashboard/browse" className="mt-4 inline-block text-sm font-bold text-slate-900 underline">
+            Return to opportunities
+          </Link>
         </main>
         <Footer />
       </div>
     );
   }
 
+  const requirements = internship.requirements.length
+    ? internship.requirements
+    : ["Clear communication", "Relevant technical foundation", "Collaborative working style"];
+
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-on-surface overflow-x-hidden">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.10),_transparent_18%),linear-gradient(180deg,#fbfcfe_0%,#f3f6fb_100%)] text-slate-900">
       <Navbar />
 
-      <main className="flex-grow pt-48 pb-40">
-        <div className="max-w-7xl mx-auto px-10">
-          {error ? <p className="mb-6 text-sm font-semibold text-amber-700">Live API unavailable ({error}). Showing fallback data when available.</p> : null}
+      <main className="mx-auto max-w-7xl px-6 pb-24 pt-36">
+        {error ? (
+          <div className="mb-6 rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+            Live role data is unavailable, so you may be seeing fallback content.
+          </div>
+        ) : null}
 
-          <Link
-            href="/listings"
-            className="group inline-flex items-center gap-4 text-[11px] font-black uppercase tracking-[0.3em] text-on-surface/40 hover:text-primary transition-all mb-20"
-          >
-            <FiArrowLeft className="group-hover:-translate-x-2 transition-transform" />
-            Return to Index
-          </Link>
+        <Link
+          href="/dashboard/browse"
+          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700"
+        >
+          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          Back to opportunities
+        </Link>
 
-          <header className="mb-32">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-20 items-end">
-              <div className="lg:col-span-2 space-y-10">
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
-                  <div className="w-20 h-20 bg-primary/5 border border-primary/10 flex items-center justify-center font-display font-black text-3xl text-primary rounded-sm">
-                    {internship.company[0]}
-                  </div>
-                  <div className="space-y-1">
-                    <div className="text-secondary font-black uppercase tracking-[0.4em] text-[10px]">{internship.company}</div>
-                    <h1 className="font-display font-black text-5xl lg:text-7xl tracking-tighter leading-none uppercase">
-                      {internship.title}
-                    </h1>
-                  </div>
+        <section className="mt-6 rounded-[32px] border border-slate-200/80 bg-white/90 p-8 shadow-[0_24px_80px_-36px_rgba(15,23,42,0.35)] lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+            <div>
+              <div className="flex items-center gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-[22px] bg-slate-950 text-2xl font-black text-white">
+                  {internship.company.charAt(0)}
                 </div>
-
-                <p className="text-lg font-medium text-on-surface/50 leading-relaxed max-w-2xl border-l-[3px] border-on-surface/10 pl-10 py-2">
-                  {internship.description}
-                </p>
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-slate-400">
+                    {internship.company}
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-slate-500">{internship.location}</p>
+                </div>
               </div>
 
-              <div className="flex flex-col items-end gap-10">
-                <div className="flex gap-4">
-                  <button className="w-16 h-16 border border-on-surface/5 flex items-center justify-center text-xl hover:bg-surface-container transition-all">
-                    <FiHeart />
-                  </button>
-                  <button className="w-16 h-16 border border-on-surface/5 flex items-center justify-center text-xl hover:bg-surface-container transition-all">
-                    <FiShare2 />
-                  </button>
-                </div>
-                <div className="text-right">
-                  <div className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface/30 mb-2">Institutional Verification</div>
-                  <div className="flex items-center gap-3 text-secondary font-black uppercase tracking-[0.1em] text-xs justify-end">
-                    <FiShield className="text-lg" />
-                    Vetted Partner
-                  </div>
-                </div>
+              <h1 className="mt-8 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
+                {internship.title}
+              </h1>
+              <p className="mt-5 max-w-3xl text-sm leading-8 text-slate-600 sm:text-[15px]">
+                {internship.description}
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-2">
+                {internship.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600"
+                  >
+                    {tag}
+                  </span>
+                ))}
               </div>
             </div>
-          </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-20">
-            <aside className="lg:col-span-1 space-y-20">
-              <section className="space-y-12">
-                <div className="text-[11px] font-black uppercase tracking-[0.3em] text-on-surface/40 border-b border-on-surface/5 pb-6">Core Statistics</div>
-                <div className="space-y-10">
-                  {[
-                    { icon: <FiDollarSign />, label: "STIPEND", value: internship.stipend },
-                    { icon: <FiClock />, label: "DURATION", value: internship.duration },
-                    { icon: <FiCalendar />, label: "LODGED ON", value: internship.postedAt },
-                    { icon: <FiGlobe />, label: "LOCATION", value: internship.location },
-                  ].map((meta, i) => (
-                    <div key={i} className="flex flex-col gap-2">
-                      <div className="flex items-center gap-3 text-secondary text-sm">
-                        {meta.icon}
-                        <span className="text-[10px] font-black uppercase tracking-widest">{meta.label}</span>
-                      </div>
-                      <div className="font-display font-black text-xl tracking-tight">{meta.value}</div>
-                    </div>
-                  ))}
+            <div className="rounded-[28px] bg-slate-950 p-6 text-white">
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                Snapshot
+              </p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Compensation</p>
+                  <p className="mt-2 text-base font-bold text-white">{internship.stipend}</p>
                 </div>
-              </section>
+                <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Duration</p>
+                  <p className="mt-2 text-base font-bold text-white">{internship.duration}</p>
+                </div>
+                <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Posted</p>
+                  <p className="mt-2 text-base font-bold text-white">{internship.postedAt}</p>
+                </div>
+                <div className="rounded-[20px] border border-white/10 bg-white/5 p-4">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Work mode</p>
+                  <p className="mt-2 text-base font-bold text-white">{internship.location}</p>
+                </div>
+              </div>
 
-              <section className="bg-surface-container-low p-10 space-y-6 border border-on-surface/5">
-                <div className="text-[10px] font-black uppercase tracking-[0.3em] text-on-surface/30">Candidate Type</div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-xs font-bold">
-                    <span className="w-2 h-2 bg-primary rounded-full"></span>
-                    Graduating Class
-                  </div>
-                  <div className="flex items-center gap-3 text-xs font-bold text-on-surface/40">
-                    <span className="w-2 h-2 bg-on-surface/10 rounded-full"></span>
-                    Post-Graduate
-                  </div>
-                </div>
-              </section>
-            </aside>
-
-            <div className="lg:col-span-3 space-y-32">
-              <section className="space-y-12">
-                <h2 className="font-display font-black text-4xl tracking-tighter uppercase">THE ARCHITECTURAL <br /><span className="text-secondary">CHALLENGE.</span></h2>
-                <div className="bg-surface-container-lowest p-16 border-l-8 border-secondary shadow-sm">
-                  <p className="text-xl font-medium leading-[2] text-on-surface">
-                    {internship.description}
-                  </p>
-                </div>
-              </section>
-
-              <section className="space-y-16">
-                <div className="flex items-center gap-6">
-                  <h2 className="font-display font-black text-3xl tracking-tight uppercase">QUALIFICATIONS</h2>
-                  <div className="flex-grow h-px bg-on-surface/10"></div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  {(internship.requirements.length ? internship.requirements : ["Strong communication", "Collaborative mindset", "Relevant technical skills"]).map((req, i) => (
-                    <div key={i} className="flex gap-6 p-10 bg-surface-container-low border border-on-surface/5 hover:border-primary/20 transition-all group">
-                      <div className="text-primary font-black text-xs transition-transform group-hover:scale-125">0{i + 1}</div>
-                      <p className="text-sm font-bold leading-relaxed">{req}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              <section className="space-y-16">
-                <div className="flex items-center gap-6">
-                  <h2 className="font-display font-black text-3xl tracking-tight uppercase">THE STACK</h2>
-                  <div className="flex-grow h-px bg-on-surface/10"></div>
-                </div>
-                <div className="flex flex-wrap gap-px bg-on-surface/10 border border-on-surface/10">
-                  {internship.tags.map((tag) => (
-                    <div key={tag} className="bg-surface px-10 py-6 text-[10px] font-black uppercase tracking-[0.3em] hover:text-primary transition-colors cursor-default">
-                      {tag}
-                    </div>
-                  ))}
-                </div>
-              </section>
+              <div className="mt-6 flex flex-col gap-3">
+                <Link
+                  href={`/internships/${id}/apply`}
+                  className="rounded-full bg-amber-400 px-5 py-3 text-center text-sm font-bold text-slate-950"
+                >
+                  Apply now
+                </Link>
+                <Link
+                  href="/dashboard/saved"
+                  className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-bold text-white"
+                >
+                  Save for later
+                </Link>
+                <Link
+                  href={`/dashboard/messages?company=${encodeURIComponent(internship.company)}&role=${encodeURIComponent(internship.title)}`}
+                  className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-bold text-white"
+                >
+                  Message employer
+                </Link>
+                <Link
+                  href="/dashboard/resume"
+                  className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-bold text-white"
+                >
+                  Tailor resume first
+                </Link>
+              </div>
             </div>
           </div>
+        </section>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_0.75fr]">
+          <section className="rounded-[32px] border border-slate-200/80 bg-white/95 p-8 shadow-[0_24px_80px_-36px_rgba(15,23,42,0.35)]">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              What you will do
+            </p>
+            <div className="mt-5 space-y-4">
+              {requirements.map((item, index) => (
+                <div key={item} className="rounded-[22px] bg-slate-50 px-5 py-5">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-700">
+                    Focus {index + 1}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold leading-7 text-slate-700">{item}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="space-y-6">
+            <div className="rounded-[32px] border border-slate-200/80 bg-white/95 p-8 shadow-[0_24px_80px_-36px_rgba(15,23,42,0.35)]">
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                Match advice
+              </p>
+              <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-950">
+                Best results come from tailoring before you submit.
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600">
+                Mirror the role language in your summary and highlight projects that directly
+                support the skills listed here.
+              </p>
+            </div>
+
+            <div className="rounded-[32px] border border-slate-200/80 bg-white/95 p-8 shadow-[0_24px_80px_-36px_rgba(15,23,42,0.35)]">
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                Next steps
+              </p>
+              <div className="mt-5 space-y-3">
+                <Link href="/dashboard/profile" className="block rounded-[20px] bg-slate-50 px-4 py-4 text-sm font-bold text-slate-950">
+                  Tighten your profile headline
+                </Link>
+                <Link href="/dashboard/resume" className="block rounded-[20px] bg-slate-50 px-4 py-4 text-sm font-bold text-slate-950">
+                  Tailor your resume for this role
+                </Link>
+                <Link href="/dashboard/applications" className="block rounded-[20px] bg-slate-50 px-4 py-4 text-sm font-bold text-slate-950">
+                  Track the application after submission
+                </Link>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
 

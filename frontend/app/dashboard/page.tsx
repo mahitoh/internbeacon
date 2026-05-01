@@ -1,18 +1,27 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import {
-  getUserFriendlyError,
   getStudentApplications,
   getStudentProfile,
   getStudentRecommendations,
   getStudentStats,
+  getUserFriendlyError,
 } from "@/lib/api";
+import { StudentPageHeader } from "@/components/student/StudentPageHeader";
+import { StudentPanel } from "@/components/student/StudentPanel";
+import { studentNotificationFeed, studentQuickLinks, studentSupportLinks } from "@/lib/student-portal";
 
 export default function Dashboard() {
-  const [name, setName] = useState("Jean-Luc");
-  const [profileStrength, setProfileStrength] = useState(0);
-  const [stats, setStats] = useState({ applications: 0, shortlisted: 0, pending: 0, saved: 0 });
+  const [name, setName] = useState("Student");
+  const [profileStrength, setProfileStrength] = useState(84);
+  const [stats, setStats] = useState({
+    applications: 0,
+    shortlisted: 0,
+    pending: 0,
+    saved: 8,
+  });
   const [applicationCount, setApplicationCount] = useState(0);
   const [recommendationCount, setRecommendationCount] = useState(0);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -23,7 +32,6 @@ export default function Dashboard() {
     const load = async () => {
       try {
         setApiError(null);
-
         const [profile, studentStats, applications, recommendations] = await Promise.all([
           getStudentProfile(),
           getStudentStats(),
@@ -32,11 +40,11 @@ export default function Dashboard() {
         ]);
 
         if (!mounted) return;
-        setName(profile.user?.name || "Jean-Luc");
-        setProfileStrength(profile.profileStrength || 92);
-        setStats(studentStats || { applications: 12, shortlisted: 2, pending: 5, saved: 8 });
-        setApplicationCount(Array.isArray(applications) ? applications.length : 12);
-        setRecommendationCount(Array.isArray(recommendations) ? recommendations.length : 3);
+        setName(profile.user?.name || "Student");
+        setProfileStrength(profile.profileStrength || 84);
+        setStats(studentStats || { applications: 0, shortlisted: 0, pending: 0, saved: 8 });
+        setApplicationCount(Array.isArray(applications) ? applications.length : 0);
+        setRecommendationCount(Array.isArray(recommendations) ? recommendations.length : 0);
       } catch (error) {
         if (!mounted) return;
         setApiError(getUserFriendlyError(error, "Failed to load dashboard data"));
@@ -49,164 +57,256 @@ export default function Dashboard() {
     };
   }, []);
 
+  const metrics = useMemo(
+    () => [
+      {
+        label: "Applications sent",
+        value: stats.applications || applicationCount || 0,
+        helper: "Active search volume",
+      },
+      {
+        label: "Interview stages",
+        value: stats.shortlisted || 0,
+        helper: "Employers currently engaging",
+      },
+      {
+        label: "Pending reviews",
+        value: stats.pending || 0,
+        helper: "Awaiting recruiter action",
+      },
+      {
+        label: "Fresh matches",
+        value: recommendationCount || 0,
+        helper: "Recommended for you today",
+      },
+    ],
+    [applicationCount, recommendationCount, stats]
+  );
+
   return (
     <div className="w-full">
-      {/* Header Section */}
-      <header className="flex justify-between items-end mb-12">
-        <div>
-          <span className="text-xs uppercase tracking-[0.2em] font-bold text-secondary mb-2 block">Student Console</span>
-          <h1 className="text-4xl font-extrabold tracking-tight text-on-background">Good morning, {name}</h1>
-        </div>
-        <div className="bg-surface-container-low p-4 rounded-lg flex items-center gap-6">
-          <div className="flex flex-col items-end">
-            <span className="text-[10px] uppercase tracking-widest font-bold text-outline">Profile Strength</span>
-            <span className="text-xl font-black text-on-surface">{profileStrength}%</span>
-          </div>
-          <div className="w-16 h-1 bg-surface-container-high rounded-full overflow-hidden relative">
-            <div className="absolute left-0 top-0 h-full bg-secondary-container transition-all duration-1000" style={{ width: `${Math.min(Math.max(profileStrength, 0), 100)}%` }}></div>
-          </div>
-        </div>
-      </header>
+      <StudentPageHeader
+        eyebrow="Student HQ"
+        title={`Good to see you, ${name}`}
+        description="This is your command center for applications, profile readiness, interview momentum, and the next best actions to take this week."
+        actions={
+          <>
+            <Link
+              href="/dashboard/browse"
+              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+            >
+              Discover internships
+            </Link>
+            <Link
+              href="/dashboard/profile"
+              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700"
+            >
+              Refine profile
+            </Link>
+          </>
+        }
+      />
 
       {apiError ? (
-        <div className="mb-8 p-4 bg-error-container text-on-error-container rounded-2xl text-xs font-bold flex items-center gap-3">
-          <span className="material-symbols-outlined text-lg">error</span>
-          Live API unavailable ({apiError}). Showing any available cached values.
+        <div className="mb-8 rounded-[24px] border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-medium text-amber-900">
+          Live data is partially unavailable right now. The dashboard is still showing any data we could safely recover.
         </div>
       ) : null}
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-4 gap-6 mb-12">
-        <div className="bg-surface-container-lowest p-6 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] border border-outline-variant/10">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-outline mb-1">Applications</p>
-          <h3 className="text-3xl font-black text-on-background">{stats.applications || 12}</h3>
-        </div>
-        <div className="bg-surface-container-lowest p-6 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] border border-outline-variant/10">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-secondary mb-1">Shortlisted</p>
-          <h3 className="text-3xl font-black text-on-background">{stats.shortlisted || 2}</h3>
-        </div>
-        <div className="bg-surface-container-lowest p-6 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] border border-outline-variant/10">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-outline mb-1">Pending</p>
-          <h3 className="text-3xl font-black text-on-background">{stats.pending || 5}</h3>
-        </div>
-        <div className="bg-surface-container-lowest p-6 rounded-lg shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] border border-outline-variant/10">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-outline mb-1">Saved</p>
-          <h3 className="text-3xl font-black text-on-background">{stats.saved || 8}</h3>
-        </div>
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        {metrics.map((metric) => (
+          <StudentPanel key={metric.label} className="p-5">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              {metric.label}
+            </p>
+            <div className="mt-3 flex items-end justify-between">
+              <span className="text-4xl font-black tracking-tight text-slate-950">
+                {metric.value}
+              </span>
+            </div>
+            <p className="mt-3 text-sm text-slate-500">{metric.helper}</p>
+          </StudentPanel>
+        ))}
       </div>
 
-      {/* Featured Insight & Hero Section */}
-      <div className="grid grid-cols-12 gap-8 mb-12">
-        <div className="col-span-8 bg-primary-container rounded-lg overflow-hidden relative min-h-[300px] flex items-center p-12">
-          <div className="absolute inset-0 opacity-40">
-            <img className="w-full h-full object-cover" alt="modern tech office meeting room with blurred people and warm sunlight filtering through architectural windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJEUkizAH8r1bsso910CYma7qCpq9EfYbAMJt5gSoS2Ia7TVZ9uyrWIfaU4oAYV0IeYepjCnHN43fqfePvqK7sMEHnfOumLeky1w9aEX7MkKGc8H5-Jtbj7d94AY2isNbcH7QQtuXAdyTNPD-atXgcJX94IRcNjc9QDQPDahZRBhPsAyaSLILee6cpJS9Pia7VJgDG8jRFv8h03F33jQTm60ZinIRm-uX2ALsImSook4v2RqbSqxtZpceR_fA0O3N88_Q5AZqAHXM"/>
-          </div>
-          <div className="relative z-10 max-w-md">
-            <div className="inline-flex items-center gap-2 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter mb-4">
-              <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
-              Smart Match Optimization
-            </div>
-            <h2 className="text-3xl font-bold text-white mb-4 leading-tight">Unlock your {Math.max(85, Math.round(profileStrength * 0.9))}% affinity matching.</h2>
-            <p className="text-primary-fixed-dim text-sm mb-6 leading-relaxed">Our AI has analyzed 1,200 data points to find roles that perfectly align with your aesthetic and skill set.</p>
-            <a href="/dashboard/feed" className="inline-block bg-white text-primary-container px-6 py-3 rounded-lg font-bold text-sm transition-all hover:bg-slate-100">Review Insights</a>
-          </div>
-        </div>
-        
-        {/* Profile Chip Column */}
-        <div className="col-span-4 bg-surface-container-low rounded-lg p-8 flex flex-col justify-between">
-          <div>
-            <h3 className="text-lg font-bold text-on-background mb-2">Architectural Portfolio</h3>
-            <p className="text-xs text-outline leading-relaxed mb-6">Your visual narrative is outperforming 85% of other elite candidates.</p>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-on-surface-variant font-medium">Visual Design</span>
-                <span className="font-bold">98%</span>
-              </div>
-              <div className="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
-                <div className="h-full bg-secondary-container w-[98%] transition-all duration-1000"></div>
-              </div>
-              <div className="flex justify-between items-center text-xs pt-2">
-                <span className="text-on-surface-variant font-medium">Strategic Logic</span>
-                <span className="font-bold">82%</span>
-              </div>
-              <div className="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
-                <div className="h-full bg-secondary-container w-[82%] transition-all duration-1000"></div>
+      <div className="mt-6 grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
+        <StudentPanel className="overflow-hidden border-slate-900/5 bg-[linear-gradient(135deg,#0f172a_0%,#1f2937_48%,#111827_100%)] p-0 text-white">
+          <div className="grid gap-8 p-7 lg:grid-cols-[1.2fr_0.8fr]">
+            <div>
+              <span className="inline-flex rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-amber-300">
+                Momentum score
+              </span>
+              <h2 className="mt-4 max-w-xl text-3xl font-black tracking-tight">
+                Your profile is {profileStrength}% ready for top internship pipelines.
+              </h2>
+              <p className="mt-4 max-w-xl text-sm leading-7 text-slate-300">
+                Strong momentum comes from a complete headline, measurable project outcomes,
+                and tailored applications. Keep tightening your story before your next wave.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/dashboard/resume"
+                  className="rounded-full bg-amber-400 px-5 py-3 text-sm font-bold text-slate-950"
+                >
+                  Open resume lab
+                </Link>
+                <Link
+                  href="/dashboard/applications"
+                  className="rounded-full border border-white/15 px-5 py-3 text-sm font-bold text-white"
+                >
+                  Review pipeline
+                </Link>
               </div>
             </div>
+
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 backdrop-blur">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-bold text-white">Profile strength</p>
+                <span className="text-sm font-black text-amber-300">{profileStrength}%</span>
+              </div>
+              <div className="mt-4 h-3 rounded-full bg-white/10">
+                <div
+                  className="h-3 rounded-full bg-amber-400"
+                  style={{ width: `${Math.min(Math.max(profileStrength, 0), 100)}%` }}
+                />
+              </div>
+              <div className="mt-6 space-y-4 text-sm text-slate-300">
+                <div className="flex items-center justify-between">
+                  <span>Story clarity</span>
+                  <span className="font-bold text-white">High</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Skill alignment</span>
+                  <span className="font-bold text-white">Growing</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Recruiter readiness</span>
+                  <span className="font-bold text-white">Strong</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <a href="/dashboard/profile" className="inline-flex text-secondary font-bold text-xs uppercase tracking-widest items-center gap-2 hover:translate-x-1 transition-transform mt-4">
-            Edit Profile <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-          </a>
-        </div>
+        </StudentPanel>
+
+        <StudentPanel>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                Priority queue
+              </p>
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+                Best next moves
+              </h2>
+            </div>
+            <Link href="/dashboard/notifications" className="text-sm font-bold text-slate-600">
+              Inbox
+            </Link>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            {studentQuickLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-start gap-4 rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4 transition-colors hover:bg-white"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-white">
+                  <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-950">{item.title}</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">{item.copy}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </StudentPanel>
       </div>
 
-      {/* AI Recommendations Grid */}
-      <section className="mb-12">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold tracking-tight">Recommended for your Aesthetic</h2>
-          <div className="flex gap-2">
-            <button className="w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant hover:bg-surface-container-low transition-colors">
-              <span className="material-symbols-outlined">chevron_left</span>
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-full border border-outline-variant hover:bg-surface-container-low transition-colors">
-              <span className="material-symbols-outlined">chevron_right</span>
-            </button>
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <StudentPanel>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                Activity stream
+              </p>
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+                What needs your attention
+              </h2>
+            </div>
+            <Link href="/dashboard/notifications" className="text-sm font-bold text-slate-600">
+              See all
+            </Link>
           </div>
+
+          <div className="mt-6 space-y-4">
+            {studentNotificationFeed.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-[24px] border border-slate-200 bg-slate-50 px-5 py-5"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm font-bold text-slate-950">{item.title}</p>
+                  <span className="shrink-0 text-xs font-semibold text-slate-400">
+                    {item.time}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{item.detail}</p>
+                <Link
+                  href={item.ctaHref}
+                  className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-slate-900"
+                >
+                  {item.ctaLabel}
+                  <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </StudentPanel>
+
+        <div className="space-y-6">
+          <StudentPanel>
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              Navigation map
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {[
+                { href: "/dashboard/applications", label: "Applications", helper: "Track every stage" },
+                { href: "/dashboard/recommendations", label: "Matches", helper: "Browse recommended roles" },
+                { href: "/dashboard/analytics", label: "Analytics", helper: "See search traction" },
+                { href: "/dashboard/settings", label: "Settings", helper: "Control alerts and privacy" },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-[22px] border border-slate-200 bg-white px-4 py-4 transition-colors hover:bg-slate-50"
+                >
+                  <p className="text-sm font-bold text-slate-950">{item.label}</p>
+                  <p className="mt-1 text-sm text-slate-500">{item.helper}</p>
+                </Link>
+              ))}
+            </div>
+          </StudentPanel>
+
+          <StudentPanel className="bg-slate-950 text-white">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              Support
+            </p>
+            <div className="mt-5 space-y-4">
+              {studentSupportLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="block rounded-[22px] border border-white/10 bg-white/5 px-4 py-4"
+                >
+                  <p className="text-sm font-bold">{item.title}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-300">{item.copy}</p>
+                </Link>
+              ))}
+            </div>
+          </StudentPanel>
         </div>
-        <div className="grid grid-cols-3 gap-6">
-          {/* Card 1 */}
-          <div className="group bg-surface-container-lowest rounded-lg overflow-hidden shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] hover:shadow-lg transition-all duration-300">
-            <div className="h-40 overflow-hidden relative">
-              <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="minimalist architectural office interior with large windows and clean white desks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-ybPU5cN2zRqgB3dyCl15_H69Cm05oHjq-_ikyhCKt0OnZ1bYp0bZ5zlClawyTJCmUQGpY4Gk-jXhIGlppNilg6GVQCEaVrDAXhqEA9mi9DgsuTd9rIiNXubFvkeCYqV5hfN-hRTM4fPM_wx3aklDqO9cPeMZUIYfaV6ozxfvAy65lk0ZlrSUEtYul64w6e-vLM1_ZckF0uAI4A-cNeKwD_eb0tnI4EBnMrZebGt2TlD12YEy4aydy-xz5coEfcwJSyIN9nifIGA"/>
-              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-black">98% MATCH</div>
-            </div>
-            <div className="p-6">
-              <p className="text-[10px] font-bold text-secondary uppercase tracking-[0.15em] mb-2">Architecture &amp; Design</p>
-              <h4 className="text-lg font-bold text-on-background mb-1">Junior Creative Strategist</h4>
-              <p className="text-sm text-outline mb-6">Maison Curated | London</p>
-              <div className="flex justify-between items-center pt-4 border-t border-surface-container-low">
-                <span className="text-[13px] font-semibold">$3,200 / mo</span>
-                <button className="bg-primary text-white px-4 py-2 rounded-md text-xs font-bold hover:bg-slate-800">Apply</button>
-              </div>
-            </div>
-          </div>
-          
-          {/* Card 2 */}
-          <div className="group bg-surface-container-lowest rounded-lg overflow-hidden shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] hover:shadow-lg transition-all duration-300">
-            <div className="h-40 overflow-hidden relative">
-              <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="top view of a sleek modern laptop on a wooden desk with a coffee mug and notebook" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzpydUTMAoglUBW-KkLeF4Y2KyOpY8QqKmvcrZFV7OtIUOKs0fpBmsbsbJg3cur-Voa0gSJLyEYHPCYFKGNgceWL21zO3mxBVo87GCnx9uBCj6Rl83YewAOkwn4eB8K8SV13KhgLd3vWLQl9bQtOsYQizMp1Y_FF0mE_lwp9C3RqfKDj4cVNmOiZOpOGj0mbfH5g1iabVgvsEMjYVQ4CjifYSlHHJZXcSS_n5TB_7Ei1uOSWEC4G8SEFXrUiOX_qd2y0nys1ARmaM"/>
-              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-black">94% MATCH</div>
-            </div>
-            <div className="p-6">
-              <p className="text-[10px] font-bold text-secondary uppercase tracking-[0.15em] mb-2">Digital Product</p>
-              <h4 className="text-lg font-bold text-on-background mb-1">UX/UI Design Intern</h4>
-              <p className="text-sm text-outline mb-6">Prisma Studio | Berlin</p>
-              <div className="flex justify-between items-center pt-4 border-t border-surface-container-low">
-                <span className="text-[13px] font-semibold">$2,800 / mo</span>
-                <button className="bg-primary text-white px-4 py-2 rounded-md text-xs font-bold hover:bg-slate-800">Apply</button>
-              </div>
-            </div>
-          </div>
-          
-          {/* Card 3 */}
-          <div className="group bg-surface-container-lowest rounded-lg overflow-hidden shadow-[0_32px_64px_-4px_rgba(25,28,30,0.04)] hover:shadow-lg transition-all duration-300">
-            <div className="h-40 overflow-hidden relative">
-              <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="boutique retail store interior with aesthetic shelving and high-end fashion items" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRNJE2XB0gKsAuEfGSYSihDD8UflM5YQq9UqC5IEOyLL75pgUuC0fX-CpFV8zRChydInVT9wJVPWvrOMuQuiUgD6eLWvRdz6gpsbl4JCuBtk39dxMrGvS-S1Xz5Nms3bi6aAkRoYkgeuyRXNF6qOeEF8MfWimQsoDz-En3Xo9DckGlleA6I0zyO9vvjnpGJUfJrMAmGiQCoTQU4LHUDenCKw-cxfnhNI7d2o2_h0fDE1nM2rrl9I1rAsg8IsfK9PaPJh77lPVmcjI"/>
-              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-2 py-1 rounded-md text-[10px] font-black">89% MATCH</div>
-            </div>
-            <div className="p-6">
-              <p className="text-[10px] font-bold text-secondary uppercase tracking-[0.15em] mb-2">Editorial</p>
-              <h4 className="text-lg font-bold text-on-background mb-1">Visual Content Curator</h4>
-              <p className="text-sm text-outline mb-6">Vogue Elite | Paris</p>
-              <div className="flex justify-between items-center pt-4 border-t border-surface-container-low">
-                <span className="text-[13px] font-semibold">$4,000 / mo</span>
-                <button className="bg-primary text-white px-4 py-2 rounded-md text-xs font-bold hover:bg-slate-800">Apply</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
-

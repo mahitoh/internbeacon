@@ -1,7 +1,7 @@
 "use client";
 
 import { Internship } from "@/types";
-import Link from "next/link";
+import NextLink from "next/link";
 
 interface InternshipCardProps {
   internship: Internship;
@@ -57,12 +57,12 @@ export default function InternshipCard({ internship }: InternshipCardProps) {
         ))}
       </div>
 
-      <Link
+      <NextLink
         href={`/internships/${internship.id}`}
         className="block w-full text-center py-4 bg-black text-white font-black text-xs uppercase tracking-[0.2em] rounded-2xl transition-all hover:bg-secondary hover:shadow-editorial active:scale-95 shadow-editorial"
       >
         Access Index
-      </Link>
+      </NextLink>
     </div>
 
   );

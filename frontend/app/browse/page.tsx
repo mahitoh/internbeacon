@@ -2,7 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Link from "next/link";
+import NextLink from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 import { getOffers, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
 import { MOCK_INTERNSHIPS } from "@/lib/data";
@@ -263,12 +263,12 @@ export default function BrowseInternships() {
               <p className="text-slate-400 text-xs leading-relaxed mb-5">
                 Let our AI find roles that match your exact skill profile. Sign up for personalised recommendations.
               </p>
-              <Link
+              <NextLink
                 href="/signup"
                 className="block text-center bg-secondary-container text-white py-2.5 rounded-xl text-xs font-bold hover:opacity-90 transition-all"
               >
                 Get matched for free
-              </Link>
+              </NextLink>
             </div>
           </div>
         </aside>
@@ -416,13 +416,13 @@ export default function BrowseInternships() {
                         <span className="material-symbols-outlined text-[13px]">schedule</span>
                         Posted recently
                       </p>
-                      <Link
+                      <NextLink
                         href={`/internships/${item.id}`}
                         className="flex items-center gap-1.5 text-sm font-bold text-slate-900 hover:text-secondary-container transition-colors group/btn"
                       >
                         View details
                         <span className="material-symbols-outlined text-[16px] transition-transform group-hover/btn:translate-x-0.5">arrow_forward</span>
-                      </Link>
+                      </NextLink>
                     </div>
                   </article>
                 );
@@ -471,12 +471,12 @@ export default function BrowseInternships() {
                       {item.stipend && item.stipend !== "Not specified" && (
                         <p className="text-xs font-bold text-slate-700">{item.stipend}</p>
                       )}
-                      <Link
+                      <NextLink
                         href={`/internships/${item.id}`}
                         className="bg-slate-900 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-slate-700 transition-all"
                       >
                         View
-                      </Link>
+                      </NextLink>
                     </div>
                   </article>
                 );

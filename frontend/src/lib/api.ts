@@ -42,6 +42,13 @@ export type OfferApiModel = {
   };
 };
 
+export const getOffers = async () => {
+  console.log("[API] getOffers called");
+  const data = await request<OfferApiModel[] | PaginatedResponse<OfferApiModel>>("/offers");
+  if (Array.isArray(data)) return data;
+  return data.items ?? [];
+};
+
 export type StudentProfile = {
   id: string;
   userId: string;
@@ -266,11 +273,6 @@ export async function registerUser(params: {
   });
 }
 
-export async function getOffers() {
-  const data = await request<OfferApiModel[] | PaginatedResponse<OfferApiModel>>("/offers");
-  if (Array.isArray(data)) return data;
-  return data.items ?? [];
-}
 
 export async function getOfferById(id: string) {
   return request<OfferApiModel>(`/offers/${id}`);

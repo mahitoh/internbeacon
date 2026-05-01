@@ -1,117 +1,116 @@
-import React from "react";
+import Link from "next/link";
+import { StudentPageHeader } from "@/components/student/StudentPageHeader";
+import { StudentPanel } from "@/components/student/StudentPanel";
+
+const chart = [36, 52, 48, 64, 70, 58, 82, 75, 88, 67, 92, 79];
 
 export default function AnalyticsPage() {
   return (
-    <div className="w-full max-w-6xl">
-      <div className="mb-10">
-        <span className="text-[10px] uppercase tracking-[0.3em] font-black text-secondary mb-1.5 block">
-          Insights
-        </span>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 font-headline">
-          Analytics
-        </h1>
-        <p className="text-slate-500 text-sm mt-1 max-w-md">
-          Track your application performance and profile views over time.
-        </p>
+    <div className="w-full">
+      <StudentPageHeader
+        eyebrow="Insights"
+        title="Search and application analytics"
+        description="Read how employers are discovering you, where your profile is converting well, and which pages you should improve next."
+        actions={
+          <>
+            <Link
+              href="/dashboard/profile"
+              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700"
+            >
+              Improve profile
+            </Link>
+            <Link
+              href="/dashboard/applications"
+              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-bold text-white"
+            >
+              View pipeline
+            </Link>
+          </>
+        }
+      />
+
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          { label: "Profile views", value: "142", helper: "+24% month over month" },
+          { label: "Search appearances", value: "85", helper: "Recruiter search visibility" },
+          { label: "Apply conversion", value: "18%", helper: "From profile view to application" },
+          { label: "Response rate", value: "41%", helper: "Replies from submitted roles" },
+        ].map((item) => (
+          <StudentPanel key={item.label} className="p-5">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              {item.label}
+            </p>
+            <p className="mt-3 text-4xl font-black tracking-tight text-slate-950">{item.value}</p>
+            <p className="mt-2 text-sm text-slate-500">{item.helper}</p>
+          </StudentPanel>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Stat Cards */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] uppercase tracking-widest font-black text-slate-400">Profile Views</span>
-            <span className="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md">+24%</span>
+      <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <StudentPanel>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+                Trend
+              </p>
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+                Visibility over the last 12 weeks
+              </h2>
+            </div>
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+              Momentum up
+            </span>
           </div>
-          <span className="text-4xl font-extrabold text-slate-900 font-headline">142</span>
-          <span className="text-xs text-slate-500 mt-2">In the last 30 days</span>
-        </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] uppercase tracking-widest font-black text-slate-400">Search Appearances</span>
-            <span className="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-md">+12%</span>
-          </div>
-          <span className="text-4xl font-extrabold text-slate-900 font-headline">85</span>
-          <span className="text-xs text-slate-500 mt-2">In the last 30 days</span>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[10px] uppercase tracking-widest font-black text-slate-400">App Conversion</span>
-            <span className="bg-slate-50 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-md">-2%</span>
-          </div>
-          <span className="text-4xl font-extrabold text-slate-900 font-headline">18%</span>
-          <span className="text-xs text-slate-500 mt-2">From profile view to apply</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 p-8 shadow-sm">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="font-bold text-slate-900 font-headline">Views over time</h3>
-            <select className="text-xs border-none bg-slate-50 rounded-lg px-3 py-1.5 font-bold text-slate-600 outline-none cursor-pointer">
-              <option>Last 30 Days</option>
-              <option>Last 90 Days</option>
-            </select>
-          </div>
-          
-          {/* Mock Chart */}
-          <div className="h-64 flex items-end gap-2 px-4 border-b border-slate-100 pb-2 relative">
-            <div className="absolute top-0 w-full border-t border-dashed border-slate-100 h-0"></div>
-            <div className="absolute top-1/2 w-full border-t border-dashed border-slate-100 h-0"></div>
-            {[40, 60, 45, 80, 50, 95, 75, 40, 55, 85, 60, 100].map((val, i) => (
-              <div key={i} className="flex-1 bg-amber-500/20 hover:bg-amber-500 transition-colors rounded-t-md relative group cursor-pointer" style={{ height: `${val}%` }}>
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
-                  {val * 2}
+          <div className="mt-8 flex h-72 items-end gap-3">
+            {chart.map((value, index) => (
+              <div key={index} className="flex flex-1 flex-col items-center gap-3">
+                <div className="flex h-full w-full items-end">
+                  <div
+                    className="w-full rounded-t-[18px] bg-gradient-to-t from-slate-950 via-slate-800 to-amber-400"
+                    style={{ height: `${value}%` }}
+                  />
                 </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
+                  W{index + 1}
+                </span>
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-4 text-[10px] font-bold text-slate-400 uppercase">
-            <span>Week 1</span>
-            <span>Week 2</span>
-            <span>Week 3</span>
-            <span>Week 4</span>
-          </div>
-        </div>
+        </StudentPanel>
 
-        <div className="bg-white rounded-2xl border border-slate-100 p-8 shadow-sm">
-          <h3 className="font-bold text-slate-900 font-headline mb-6">Recent Profile Viewers</h3>
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">G</div>
-              <div>
-                <p className="text-sm font-bold text-slate-900">Recruiter at Google</p>
-                <p className="text-xs text-slate-500">2 hours ago</p>
-              </div>
+        <div className="space-y-6">
+          <StudentPanel>
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              Who is viewing
+            </p>
+            <div className="mt-5 space-y-4">
+              {[
+                "Recruiter at Google",
+                "Engineering manager at Stripe",
+                "Anonymous employer",
+                "Talent team at Airbnb",
+              ].map((item) => (
+                <div key={item} className="rounded-[20px] bg-slate-50 px-4 py-4">
+                  <p className="text-sm font-bold text-slate-950">{item}</p>
+                  <p className="mt-1 text-sm text-slate-500">Viewed your profile in the past 7 days.</p>
+                </div>
+              ))}
             </div>
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">S</div>
-              <div>
-                <p className="text-sm font-bold text-slate-900">Engineering Manager at Stripe</p>
-                <p className="text-xs text-slate-500">Yesterday</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-slate-200 text-slate-600 flex items-center justify-center font-bold">
-                <span className="material-symbols-outlined text-lg">visibility_off</span>
-              </div>
-              <div>
-                <p className="text-sm font-bold text-slate-900">Anonymous Employer</p>
-                <p className="text-xs text-slate-500">3 days ago</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center font-bold">A</div>
-              <div>
-                <p className="text-sm font-bold text-slate-900">Talent Team at Airbnb</p>
-                <p className="text-xs text-slate-500">Last week</p>
-              </div>
-            </div>
-          </div>
-          <button className="w-full mt-6 text-sm font-bold text-amber-600 hover:text-amber-700 bg-amber-50 py-2.5 rounded-xl transition-colors">
-            View All Viewers
-          </button>
+          </StudentPanel>
+
+          <StudentPanel className="bg-slate-950 text-white">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              Recommendation
+            </p>
+            <h2 className="mt-3 text-2xl font-black tracking-tight">
+              Add sharper project outcomes to increase recruiter response.
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-slate-300">
+              Profiles with measurable impact statements are outperforming generic summaries
+              across the same job families.
+            </p>
+          </StudentPanel>
         </div>
       </div>
     </div>

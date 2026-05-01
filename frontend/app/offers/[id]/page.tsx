@@ -2,7 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import React from "react";
-import Link from "next/link";
+import NextLink from "next/link";
 import Footer from "@/components/Footer";
 
 export default function OfferDetails() {
@@ -211,9 +211,9 @@ export default function OfferDetails() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
           <span className="text-xl font-bold tracking-tighter text-primary-container font-headline">InternBeacon</span>
           <div className="flex flex-wrap justify-center gap-8 text-sm font-medium text-on-surface-variant">
-            <Link href="/" className="hover:text-primary-container transition-colors">Privacy Policy</Link>
-            <Link href="/" className="hover:text-primary-container transition-colors">Terms of Service</Link>
-            <Link href="/" className="hover:text-primary-container transition-colors">Cookie Settings</Link>
+            <NextLink href="/" className="hover:text-primary-container transition-colors">Privacy Policy</NextLink>
+            <NextLink href="/" className="hover:text-primary-container transition-colors">Terms of Service</NextLink>
+            <NextLink href="/" className="hover:text-primary-container transition-colors">Cookie Settings</NextLink>
           </div>
           <p className="text-xs text-outline font-medium">© 2023 InternBeacon. Part of the Curator Network.</p>
         </div>
