@@ -133,8 +133,8 @@ export default function Sidebar() {
               : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isSettings ? "'FILL' 1" : "'FILL' 0" }}>settings</span>
-          <span className="text-[13px] font-semibold">Settings</span>
+          <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: isSettings ? "'FILL' 1" : "'FILL' 0" }}>account_circle</span>
+          <span className="text-[13px] font-semibold">Profile / CV</span>
         </Link>
         
         <Link 

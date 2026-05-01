@@ -13,6 +13,24 @@ export interface Internship {
 }
 
 export type UserRole = 'student' | 'company' | 'admin';
+export type ApplicationStatus = 'PENDING' | 'SHORTLISTED' | 'ACCEPTED' | 'REJECTED';
+
+export interface Application {
+  id: string;
+  status: ApplicationStatus;
+  createdAt: string;
+  updatedAt: string;
+  offer: {
+    id: string;
+    title: string;
+    location: string;
+    company: {
+      user: {
+        name: string;
+      };
+    };
+  };
+}
 
 export interface User {
   id: string;

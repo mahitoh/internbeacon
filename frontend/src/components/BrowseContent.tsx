@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getOffers, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
+import { fetchInternshipOffers, getUserFriendlyError, mapOfferToInternship } from "@/lib/api";
 import { MOCK_INTERNSHIPS } from "@/lib/data";
 import type { Internship } from "@/types";
 
@@ -13,7 +13,7 @@ export default function BrowseContent() {
   const [internships, setInternships] = useState<Internship[]>(MOCK_INTERNSHIPS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("All locations");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Technology"]);
@@ -23,7 +23,7 @@ export default function BrowseContent() {
     (async () => {
       try {
         setLoading(true);
-        const offers = await getOffers();
+        const offers = await fetchInternshipOffers();
         if (!mounted) return;
         const mapped = offers.map(mapOfferToInternship);
         setInternships(mapped.length ? mapped : MOCK_INTERNSHIPS);
@@ -39,7 +39,7 @@ export default function BrowseContent() {
   }, []);
 
   const toggleCategory = (cat: string) => {
-    setSelectedCategories(prev => 
+    setSelectedCategories(prev =>
       prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
     );
   };
@@ -52,7 +52,7 @@ export default function BrowseContent() {
         i.title.toLowerCase().includes(q) ||
         i.company.toLowerCase().includes(q) ||
         i.tags.some((t) => t.toLowerCase().includes(q));
-      
+
       const matchesCat = selectedCategories.length === 0 || i.tags.some(t => selectedCategories.includes(t));
       const matchesLoc =
         location === "All locations" ||
@@ -76,9 +76,9 @@ export default function BrowseContent() {
         <div className="bg-surface-container-lowest p-2 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col md:flex-row items-center gap-2">
           <div className="flex items-center flex-1 px-4 w-full">
             <span className="material-symbols-outlined text-outline">search</span>
-            <input 
-              className="w-full border-none focus:ring-0 bg-transparent text-on-surface placeholder:text-outline py-4 font-medium outline-none" 
-              placeholder="Search by role, company or keyword..." 
+            <input
+              className="w-full border-none focus:ring-0 bg-transparent text-on-surface placeholder:text-outline py-4 font-medium outline-none"
+              placeholder="Search by role, company or keyword..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               type="text"
@@ -87,9 +87,9 @@ export default function BrowseContent() {
           <div className="h-8 w-[1px] bg-outline-variant/20 hidden md:block"></div>
           <div className="flex items-center px-4 w-full md:w-auto">
             <span className="material-symbols-outlined text-outline">location_on</span>
-            <input 
-              className="w-full md:w-40 border-none focus:ring-0 bg-transparent text-on-surface placeholder:text-outline py-4 font-medium outline-none" 
-              placeholder="City or Remote" 
+            <input
+              className="w-full md:w-40 border-none focus:ring-0 bg-transparent text-on-surface placeholder:text-outline py-4 font-medium outline-none"
+              placeholder="City or Remote"
               value={location === "All locations" ? "" : location}
               onChange={(e) => setLocation(e.target.value || "All locations")}
               type="text"
@@ -113,10 +113,10 @@ export default function BrowseContent() {
                     <div className={`w-5 h-5 rounded border-2 transition-colors flex items-center justify-center ${selectedCategories.includes(cat) ? 'border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
                       <div className={`w-2.5 h-2.5 bg-primary rounded-sm transition-opacity ${selectedCategories.includes(cat) ? 'opacity-100' : 'opacity-0 group-hover:opacity-20'}`}></div>
                     </div>
-                    <input 
-                      checked={selectedCategories.includes(cat)} 
+                    <input
+                      checked={selectedCategories.includes(cat)}
                       onChange={() => toggleCategory(cat)}
-                      className="hidden" 
+                      className="hidden"
                       type="checkbox"
                     />
                     <span className="text-on-surface font-medium">{cat}</span>
@@ -147,7 +147,7 @@ export default function BrowseContent() {
           </div>
 
           <div className="relative overflow-hidden rounded-lg group aspect-[4/5] flex items-end p-6">
-            <img alt="Premium support" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdx2zABCR8UzjsglDKd6nkoGPqm5zjOFxG4ZSgKBWLsYMs0VmDc-JGuKoXo6ilJ-7KGx-4XwEpCQ3BlJsnJji7xfs-J0o5O_24I7490yyaHxjmG6qXKzyxQ48kJmi2UqUCHqLcm3VZrbmR-o2XEAuo-fdY8IQS7r_woz3T64LT0J2W3nWikLwLqILNOZsLORFZTjnQRF-jG_Y7mo1tJ0fwY3upkOano8U_TeioaSPz59QCkMPvv7pbqRFK0OTlyfqLinNOwFzwoYg"/>
+            <img alt="Premium support" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdx2zABCR8UzjsglDKd6nkoGPqm5zjOFxG4ZSgKBWLsYMs0VmDc-JGuKoXo6ilJ-7KGx-4XwEpCQ3BlJsnJji7xfs-J0o5O_24I7490yyaHxjmG6qXKzyxQ48kJmi2UqUCHqLcm3VZrbmR-o2XEAuo-fdY8IQS7r_woz3T64LT0J2W3nWikLwLqILNOZsLORFZTjnQRF-jG_Y7mo1tJ0fwY3upkOano8U_TeioaSPz59QCkMPvv7pbqRFK0OTlyfqLinNOwFzwoYg" />
             <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
             <div className="relative z-10">
               <p className="text-amber-500 font-bold text-xs uppercase tracking-widest mb-2">Exclusive Access</p>
@@ -201,14 +201,14 @@ export default function BrowseContent() {
                       <span className="bg-amber-500/10 text-amber-600 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">Urgent</span>
                     )}
                   </div>
-                  
+
                   <h3 className="text-xl font-bold text-primary mb-2 group-hover:text-secondary-container transition-colors">
                     {item.title}
                   </h3>
                   <p className="text-on-surface-variant font-medium mb-6">
                     {item.company} • {item.location}
                   </p>
-                  
+
                   <div className="flex flex-wrap gap-2 mb-8">
                     {item.duration && (
                       <span className="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-semibold rounded-full">
@@ -222,7 +222,7 @@ export default function BrowseContent() {
                     )}
                     {!item.stipend && <span className="px-3 py-1 bg-surface-container text-on-surface-variant text-xs font-semibold rounded-full">Hybrid</span>}
                   </div>
-                  
+
                   <div className="flex items-center justify-between pt-6 border-t border-outline-variant/10">
                     <div className="flex items-center text-outline text-xs font-medium">
                       <span className="material-symbols-outlined text-sm mr-1">schedule</span>

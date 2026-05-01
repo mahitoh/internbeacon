@@ -17,6 +17,7 @@ export type AuthUser = {
   email: string;
   name: string;
   role: "STUDENT" | "COMPANY" | "ADMIN";
+  avatar?: string;
 };
 
 type AuthPayload = {
@@ -34,6 +35,7 @@ export type OfferApiModel = {
   category?: string | null;
   languages?: string[];
   createdAt: string;
+  updatedAt: string;
   applications?: Array<{ id: string; status: "PENDING" | "SHORTLISTED" | "ACCEPTED" | "REJECTED" }>;
   company?: {
     user?: {
@@ -70,12 +72,15 @@ export type ApplicationModel = {
   id: string;
   status: "PENDING" | "SHORTLISTED" | "ACCEPTED" | "REJECTED";
   createdAt: string;
+  updatedAt: string;
   offer: OfferApiModel;
 };
 
 export type ApplicantModel = {
   id: string;
   status: "PENDING" | "SHORTLISTED" | "ACCEPTED" | "REJECTED";
+  createdAt: string;
+  updatedAt: string;
   student: {
     id: string;
     user: { id: string; name: string; email: string };
@@ -266,11 +271,11 @@ export async function registerUser(params: {
   });
 }
 
-export async function getOffers() {
+export const fetchInternshipOffers = async () => {
   const data = await request<OfferApiModel[] | PaginatedResponse<OfferApiModel>>("/offers");
   if (Array.isArray(data)) return data;
   return data.items ?? [];
-}
+};
 
 export async function getOfferById(id: string) {
   return request<OfferApiModel>(`/offers/${id}`);

@@ -136,3 +136,11 @@ const deleteOffer = async (offerId, userId) => {
   await prisma.offer.delete({ where: { id: offerId } });
   return { id: offerId, deleted: true };
 };
+
+module.exports = {
+  getOffers,
+  getOfferById,
+  applyToOffer,
+  createOffer,
+  deleteOffer,
+};
