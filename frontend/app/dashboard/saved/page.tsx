@@ -1,169 +1,113 @@
+import React from "react";
 import Link from "next/link";
-import { StudentPageHeader } from "@/components/student/StudentPageHeader";
-import { StudentPanel } from "@/components/student/StudentPanel";
 
-const savedInternships = [
+const SAVED_INTERNSHIPS = [
   {
     id: "1",
     company: "Google",
     initials: "G",
+    color: "bg-slate-900 text-white",
     role: "Product Management Intern",
     location: "Mountain View, CA",
     stipend: "$8,500/mo",
     duration: "12 Weeks",
     tags: ["Product", "Strategy", "UX"],
     savedAgo: "2 hours ago",
-    deadline: "Nov 15",
-    fit: "High fit",
+    deadline: "Nov 15"
   },
   {
     id: "2",
     company: "Stripe",
     initials: "S",
+    color: "bg-slate-100 text-slate-900 border border-slate-200",
     role: "Software Engineering Intern",
     location: "Remote",
     stipend: "$9,000/mo",
     duration: "16 Weeks",
     tags: ["React", "Go", "Payments"],
     savedAgo: "1 day ago",
-    deadline: "Dec 1",
-    fit: "Fast-moving",
+    deadline: "Dec 1"
   },
   {
     id: "3",
     company: "Spotify",
     initials: "S",
+    color: "bg-slate-900 text-white",
     role: "Data Science Intern",
     location: "New York, NY",
     stipend: "$7,200/mo",
     duration: "10 Weeks",
     tags: ["Python", "SQL", "Machine Learning"],
     savedAgo: "3 days ago",
-    deadline: "Oct 30",
-    fit: "Good match",
+    deadline: "Oct 30"
   },
+  {
+    id: "4",
+    company: "Airbnb",
+    initials: "A",
+    color: "bg-slate-100 text-slate-900 border border-slate-200",
+    role: "UX Design Intern",
+    location: "San Francisco, CA",
+    stipend: "$7,500/mo",
+    duration: "12 Weeks",
+    tags: ["Figma", "Research", "Prototyping"],
+    savedAgo: "1 week ago",
+    deadline: "Nov 5"
+  }
 ];
 
 export default function SavedPage() {
   return (
     <div className="w-full">
-      <StudentPageHeader
-        eyebrow="Saved"
-        title="Your shortlist"
-        description="These are the opportunities worth coming back to. Review deadlines, compare fit, and move the strongest ones into your active application pipeline."
-        actions={
-          <>
-            <Link
-              href="/dashboard/browse"
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-bold text-white"
-            >
-              Browse more roles
-            </Link>
-            <Link
-              href="/dashboard/applications"
-              className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700"
-            >
-              Open applications
-            </Link>
-          </>
-        }
-      />
-
-      <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-        <StudentPanel>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {[
-              { label: "Saved roles", value: "12", helper: "Ready to review" },
-              { label: "Closing soon", value: "3", helper: "Deadlines within 7 days" },
-              { label: "Best fit", value: "5", helper: "Strong profile alignment" },
-            ].map((item) => (
-              <div key={item.label} className="rounded-[20px] bg-slate-50 p-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-                  {item.label}
-                </p>
-                <p className="mt-2 text-3xl font-black tracking-tight text-slate-950">{item.value}</p>
-                <p className="mt-1 text-sm text-slate-500">{item.helper}</p>
-              </div>
-            ))}
-          </div>
-        </StudentPanel>
-
-        <StudentPanel className="bg-slate-950 text-white">
-          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
-            Shortlist strategy
-          </p>
-          <h2 className="mt-3 text-2xl font-black tracking-tight">
-            Save less, act faster on the top three.
-          </h2>
-          <p className="mt-3 text-sm leading-7 text-slate-300">
-            The shortlist works best when you quickly move high-fit roles into tailored
-            applications instead of keeping too many maybes around.
-          </p>
-        </StudentPanel>
+      <div className="mb-10">
+        <span className="text-[10px] uppercase tracking-[0.3em] font-black text-secondary mb-1.5 block">
+          Favorites
+        </span>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 font-headline">
+          Saved Internships
+        </h1>
+        <p className="text-slate-500 text-sm mt-1 max-w-md">
+          Opportunities you've bookmarked to review or apply for later.
+        </p>
       </div>
 
-      <div className="mt-6 grid gap-5 xl:grid-cols-3">
-        {savedInternships.map((item) => (
-          <StudentPanel key={item.id} className="flex h-full flex-col">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-lg font-black text-white">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {SAVED_INTERNSHIPS.map((item) => (
+          <div key={item.id} className="bg-surface-container-lowest p-6 rounded-2xl group hover:shadow-xl hover:shadow-slate-200/60 transition-all border border-slate-100 flex flex-col h-full">
+            <div className="flex justify-between items-start mb-6">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold text-white shadow-sm ${item.color}`}>
                 {item.initials}
               </div>
-              <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
-                {item.fit}
-              </span>
+              <button className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors">
+                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>bookmark</span>
+              </button>
             </div>
-
-            <h2 className="mt-6 text-xl font-black tracking-tight text-slate-950">{item.role}</h2>
-            <p className="mt-2 text-sm font-medium text-slate-500">
+            
+            <h3 className="text-lg font-bold text-slate-900 mb-1 group-hover:text-amber-600 transition-colors font-headline">
+              {item.role}
+            </h3>
+            <p className="text-slate-500 text-sm font-medium mb-4">
               {item.company} • {item.location}
             </p>
-
-            <div className="mt-5 flex flex-wrap gap-2">
-              {item.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600"
-                >
-                  {tag}
+            
+            <div className="flex flex-wrap gap-2 mb-6 flex-1">
+              {item.tags.map((t) => (
+                <span key={t} className="px-2.5 py-1 bg-slate-50 text-slate-600 text-[11px] font-semibold rounded-lg border border-slate-100">
+                  {t}
                 </span>
               ))}
             </div>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[18px] bg-slate-50 p-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">
-                  Deadline
-                </p>
-                <p className="mt-1 text-sm font-bold text-slate-950">{item.deadline}</p>
+            
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase tracking-widest font-black text-slate-400">Deadline</span>
+                <span className="text-xs font-bold text-slate-700">{item.deadline}</span>
               </div>
-              <div className="rounded-[18px] bg-slate-50 p-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">
-                  Compensation
-                </p>
-                <p className="mt-1 text-sm font-bold text-slate-950">{item.stipend}</p>
-              </div>
-            </div>
-
-            <p className="mt-4 text-sm text-slate-500">
-              Saved {item.savedAgo} • {item.duration}
-            </p>
-
-            <div className="mt-6 flex gap-3">
-              <Link
-                href={`/internships/${item.id}`}
-                className="rounded-full bg-slate-950 px-4 py-2.5 text-sm font-bold text-white"
-              >
-                View role
-              </Link>
-              <Link
-                href="/dashboard/resume"
-                className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700"
-              >
-                Tailor resume
+              <Link href={`/internships/${item.id}`} className="bg-slate-900 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-amber-500 transition-colors shadow-sm">
+                Apply
               </Link>
             </div>
-          </StudentPanel>
+          </div>
         ))}
       </div>
     </div>
