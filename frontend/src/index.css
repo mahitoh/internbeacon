@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #faf9f5;
+  color: #1f2937;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bg-grid {
+  background-size: 44px 44px;
+  background-image: 
+    linear-gradient(to right, rgba(15, 45, 32, 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 45, 32, 0.045) 1px, transparent 1px);
+}
+
+.dashboard-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.dashboard-scroll::-webkit-scrollbar-track {
+  background: #092218;
+}
+.dashboard-scroll::-webkit-scrollbar-thumb {
+  background: #1e3f32;
+  border-radius: 2px;
+}
+.dashboard-scroll::-webkit-scrollbar-thumb:hover {
+  background: #2a5a48;
+}
+
+/* ═══════════════════════════════════════════
+   LIGHT MODE — applied when <html class="light">
+   ═══════════════════════════════════════════ */
+html.light {
+  color-scheme: light;
+}
+
+html.light body {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+/* ── Dark surface backgrounds → white/light ── */
+html.light .bg-\[\#0f0f0f\],
+html.light .bg-\[\#0d0d0d\] {
+  background-color: #f3f4f6;
+}
+html.light .bg-\[\#111\],
+html.light .bg-\[\#111111\] {
+  background-color: #ffffff;
+}
+html.light .bg-\[\#1a1a1a\] {
+  background-color: #ffffff;
+}
+html.light .bg-\[\#141414\] {
+  background-color: #f9fafb;
+}
+
+/* ── White alpha backgrounds → black alpha ── */
+html.light .bg-white\/2  { background-color: rgba(0,0,0,0.02); }
+html.light .bg-white\/3  { background-color: rgba(0,0,0,0.03); }
+html.light .bg-white\/4  { background-color: rgba(0,0,0,0.04); }
+html.light .bg-white\/5  { background-color: rgba(0,0,0,0.04); }
+html.light .bg-white\/8  { background-color: rgba(0,0,0,0.05); }
+html.light .bg-white\/10 { background-color: rgba(0,0,0,0.06); }
+html.light .bg-white\/15 { background-color: rgba(0,0,0,0.08); }
+html.light .bg-white\/20 { background-color: rgba(0,0,0,0.10); }
+
+/* ── White alpha borders → black alpha ── */
+html.light .border-white\/5  { border-color: rgba(0,0,0,0.07); }
+html.light .border-white\/8  { border-color: rgba(0,0,0,0.08); }
+html.light .border-white\/10 { border-color: rgba(0,0,0,0.10); }
+html.light .border-white\/15 { border-color: rgba(0,0,0,0.12); }
+html.light .border-white\/20 { border-color: rgba(0,0,0,0.15); }
+html.light .border-white\/25 { border-color: rgba(0,0,0,0.18); }
+
+/* ── Divide utilities ── */
+html.light .divide-white\/5 > * + * { border-color: rgba(0,0,0,0.07); }
+
+/* ── Text white → dark ── */
+html.light .text-white    { color: #111827; }
+html.light .text-white\/80 { color: rgba(17,24,39,0.85); }
+html.light .text-white\/70 { color: rgba(17,24,39,0.75); }
+html.light .text-white\/60 { color: rgba(17,24,39,0.70); }
+html.light .text-white\/50 { color: rgba(17,24,39,0.60); }
+html.light .text-white\/40 { color: rgba(17,24,39,0.55); }
+html.light .text-white\/30 { color: rgba(17,24,39,0.45); }
+html.light .text-white\/25 { color: rgba(17,24,39,0.40); }
+html.light .text-white\/20 { color: rgba(17,24,39,0.35); }
+
+/* ── Hover states ── */
+html.light .hover\:bg-white\/2:hover  { background-color: rgba(0,0,0,0.02); }
+html.light .hover\:bg-white\/5:hover  { background-color: rgba(0,0,0,0.04); }
+html.light .hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.06); }
+html.light .hover\:text-white:hover   { color: #111827; }
+html.light .hover\:border-white\/10:hover { border-color: rgba(0,0,0,0.10); }
+
+/* ── Placeholder text ── */
+html.light .placeholder\:text-white\/30::placeholder { color: rgba(17,24,39,0.40); }
+html.light .placeholder\:text-white\/40::placeholder { color: rgba(17,24,39,0.50); }
+
+/* ── Form inputs/selects/textareas ── */
+html.light input,
+html.light select,
+html.light textarea {
+  color: #111827;
+  caret-color: #111827;
+}
+html.light option,
+html.light option.bg-\[\#1a1a1a\] {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+/* ── Scrollbar (light) ── */
+html.light .dashboard-scroll::-webkit-scrollbar-track { background: #e5e7eb; }
+html.light .dashboard-scroll::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 2px; }
+html.light .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+/* ── Ring utilities ── */
+html.light .ring-white\/10 { --tw-ring-color: rgba(0,0,0,0.10); }
+
+/* ── bg-grid (public landing page) ── */
+html.light .bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+}
