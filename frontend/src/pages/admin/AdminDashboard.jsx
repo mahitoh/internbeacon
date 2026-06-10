@@ -111,20 +111,37 @@ export default function AdminDashboard() {
             <h3 className="font-semibold text-white text-sm">Recent Signups</h3>
           </div>
           <div className="divide-y divide-white/5">
-            {(s?.recentUsers || []).map(u => (
-              <div key={u.id} className="px-5 py-3 flex items-center justify-between">
-                <span className="text-xs text-white/70 font-mono truncate">{u.id.slice(0, 12)}…</span>
-                <div className="flex items-center gap-3">
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize
-                    ${u.role === 'student' ? 'bg-blue-500/10 text-blue-400' :
-                      u.role === 'company' ? 'bg-purple-500/10 text-purple-400' :
-                      'bg-lime-500/10 text-lime-400'}`}>
-                    {u.role}
-                  </span>
-                  <span className="text-xs text-white/30">{formatRelativeTime(u.created_at)}</span>
+            {(s?.recentUsers || []).map(u => {
+              const displayName =
+                u.role === 'company'
+                  ? (u.company_profiles?.company_name ?? 'Unnamed Company')
+                  : u.student_profiles
+                    ? `${u.student_profiles.first_name ?? ''} ${u.student_profiles.last_name ?? ''}`.trim() || 'Unnamed Student'
+                    : 'New User';
+              const initial = displayName[0]?.toUpperCase() ?? '?';
+              return (
+                <div key={u.id} className="px-5 py-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0
+                      ${u.role === 'student' ? 'bg-blue-500/15 text-blue-400' :
+                        u.role === 'company' ? 'bg-purple-500/15 text-purple-400' :
+                        'bg-lime-500/15 text-lime-400'}`}>
+                      {initial}
+                    </div>
+                    <span className="text-sm text-white/80 font-medium truncate">{displayName}</span>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize
+                      ${u.role === 'student' ? 'bg-blue-500/10 text-blue-400' :
+                        u.role === 'company' ? 'bg-purple-500/10 text-purple-400' :
+                        'bg-lime-500/10 text-lime-400'}`}>
+                      {u.role}
+                    </span>
+                    <span className="text-xs text-white/30">{formatRelativeTime(u.created_at)}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

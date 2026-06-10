@@ -32,7 +32,7 @@ exports.stats = async (req, res, next) => {
       supabaseAdmin.from('applications').select('id', { count: 'exact', head: true }),
       supabaseAdmin.from('messages').select('id', { count: 'exact', head: true }),
       supabaseAdmin.from('profiles')
-        .select('id, role, created_at')
+        .select('id, role, created_at, student_profiles(first_name, last_name), company_profiles(company_name)')
         .order('created_at', { ascending: false })
         .limit(5),
     ]);
