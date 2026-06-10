@@ -1,0 +1,52 @@
+name: Deploy
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NOT ACTIVE YET — uncomment everything below when you are ready to deploy.
+#
+# How to activate:
+#   1. Choose your hosting (recommendation: Render for backend, Vercel for frontend)
+#   2. Add these secrets to the repo (Settings → Secrets and variables → Actions):
+#        RENDER_BACKEND_DEPLOY_HOOK_URL   — Render service → Settings → Deploy hook
+#        RENDER_FRONTEND_DEPLOY_HOOK_URL  — Render static site → Settings → Deploy hook
+#   3. Uncomment the block below (select all, Ctrl+/ in VS Code)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# on:
+#   workflow_run:
+#     workflows: [CI]
+#     types: [completed]
+#     branches: [main]
+
+# jobs:
+#   # Guard — skip deploy if the triggering CI run failed
+#   check-ci:
+#     name: Check CI result
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#     steps:
+#       - run: echo "CI passed — proceeding with deploy"
+
+#   # ── Backend (Render) ────────────────────────────────────────────────────────
+#   # Render: service → Settings → Deploy hook → copy URL into the secret above
+#   deploy-backend:
+#     name: Deploy backend
+#     runs-on: ubuntu-latest
+#     needs: check-ci
+#     steps:
+#       - name: Trigger Render backend deploy
+#         run: |
+#           curl --silent --show-error --fail \
+#             -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK_URL }}"
+
+#   # ── Frontend (Render static site) ──────────────────────────────────────────
+#   # If you use Vercel instead, replace this job with the Vercel deploy action:
+#   # https://github.com/amondnet/vercel-action
+#   deploy-frontend:
+#     name: Deploy frontend
+#     runs-on: ubuntu-latest
+#     needs: check-ci
+#     steps:
+#       - name: Trigger Render frontend deploy
+#         run: |
+#           curl --silent --show-error --fail \
+#             -X POST "${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK_URL }}"
