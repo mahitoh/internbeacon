@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, X, Briefcase, Diamond } from 'lucide-react';
 import { offersApi } from '../../api/offers';
@@ -11,7 +12,8 @@ const LOCATIONS  = ['Yaounde', 'Douala', 'Bafoussam', 'Garoua', 'Remote'];
 const DURATIONS  = [{ label: 'Any', value: '' }, { label: '4–8 weeks', value: '4' }, { label: '8–12 weeks', value: '8' }, { label: '3+ months', value: '12' }];
 
 export default function OffersPage() {
-  const [search,   setSearch]   = useState('');
+  const [searchParams] = useSearchParams();
+  const [search,   setSearch]   = useState(() => searchParams.get('search') || '');
   const [domain,   setDomain]   = useState('');
   const [location, setLocation] = useState('');
   const [paid,     setPaid]     = useState('');

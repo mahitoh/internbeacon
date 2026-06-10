@@ -46,6 +46,7 @@ Built as a final-year engineering project, InternBeacon goes beyond a simple job
 
 ### For Students
 - **Browse & Discover** — Search and filter internship offers by domain, location, and type
+- **Recommended Offers** — Personalised offer feed ranked by algorithmic compatibility with your profile
 - **Smart Apply** — Submit applications with CV upload; CV is auto-populated from your profile if none is attached
 - **Real-Time Status Tracking** — Follow your application through an 8-stage pipeline with a visual timeline
 - **Accept or Decline Offers** — Close the loop when a company accepts you
@@ -147,11 +148,11 @@ Built as a final-year engineering project, InternBeacon goes beyond a simple job
                ▼                      ▼
 ┌─────────────────────┐  ┌────────────────────────────────────┐
 │   Supabase           │  │  AI Fallback Chain                 │
-│   ├── PostgreSQL 16  │  │  1. Anthropic Claude (primary)     │
-│   ├── Auth (JWT)     │  │  2. OpenAI GPT                     │
-│   └── Storage        │  │  3. Google Gemini                  │
-│       ├── cvs        │  │  4. Groq                           │
-│       ├── avatars    │  │  5. xAI Grok                       │
+│   ├── PostgreSQL 16  │  │  1. Google Gemini (primary)        │
+│   ├── Auth (JWT)     │  │  2. Groq                           │
+│   └── Storage        │  │  3. xAI Grok                       │
+│       ├── cvs        │  │  4. Algorithmic fallback (local)   │
+│       ├── avatars    │  │     (Jaccard + domain + level)     │
 │       └── logos      │  └────────────────────────────────────┘
 └─────────────────────┘
 ```
@@ -161,7 +162,7 @@ Built as a final-year engineering project, InternBeacon goes beyond a simple job
 - **Auth via Supabase only** — No custom JWT signing. Every request verifies the token live via `supabaseAdmin.auth.getUser()`, ensuring tokens cannot be forged or replayed after invalidation.
 - **RLS bypassed server-side** — The backend uses the service role key, so all authorization is enforced in Express middleware rather than database policies.
 - **Socket rooms** — Two room types: `user:{userId}` for private notifications, `thread:{appId}` for shared application messaging between student and company.
-- **AI fallback chain** — If the primary provider (Anthropic) is unavailable or rate-limited, the system automatically falls back through OpenAI → Gemini → Groq → Grok.
+- **AI fallback chain** — Active priority is Gemini → Groq → Grok. If all AI providers are unavailable, the algorithmic fallback (`fallbackMatcher.js`) computes scores locally with no external calls.
 - **Uniform response shape** — All API responses follow `{ success: true, data: {...} }` or `{ success: false, message: '...' }`.
 - **snake_case ↔ camelCase** — Database uses snake_case; frontend uses camelCase. Controllers normalize all outgoing data.
 
@@ -299,9 +300,16 @@ VITE_SUPABASE_ANON_KEY=your_anon_key
 | POST | `/api/offers` | ✓ | Company | Create a new internship offer |
 | PATCH | `/api/offers/:id` | ✓ | Company | Update an offer |
 | DELETE | `/api/offers/:id` | ✓ | Company | Delete an offer |
+| GET | `/api/offers/recommended` | ✓ | Student | Get algorithmically ranked recommended offers |
 | GET | `/api/offers/bookmarks` | ✓ | Student | Get bookmarked offers |
 | POST | `/api/offers/:id/bookmark` | ✓ | Student | Bookmark an offer |
 | DELETE | `/api/offers/:id/bookmark` | ✓ | Student | Remove bookmark |
+
+### Companies
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/companies/:id` | — | Get public company profile (no auth required) |
 
 ### Applications
 
@@ -420,10 +428,10 @@ const socket = io('http://localhost:5000', {
 
 ## AI Features
 
-InternBeacon integrates a **multi-provider AI fallback chain**. If the primary provider fails or is rate-limited, the system automatically cascades to the next available one.
+InternBeacon integrates a **multi-provider AI fallback chain**. If the active provider fails or is rate-limited, the system automatically cascades to the next available one. If all external providers are unavailable, the local algorithmic engine takes over with no service interruption.
 
 ```
-Anthropic Claude  →  OpenAI GPT  →  Google Gemini  →  Groq  →  xAI Grok
+Google Gemini  →  Groq  →  xAI Grok  →  Algorithmic Fallback (local)
 ```
 
 ### CV Parser
@@ -433,7 +441,10 @@ Extracts text from a student's uploaded PDF CV using `pdf-parse`, then sends the
 Compares a student's full profile (skills, education, experience) against an offer's requirements and returns a **compatibility score from 0–100** with a brief explanation. Students see this score on every offer card.
 
 ### Applicant Ranking
-Given an offer ID, fetches all applicants and their profiles, sends the full set to Claude in a single batch prompt, and returns a ranked list with scores and reasoning. Companies use this to prioritize which candidates to review first.
+Given an offer ID, fetches all applicants and their profiles, sends the full set to the active AI provider in a single batch prompt, and returns a ranked list with scores and reasoning. Companies use this to prioritize which candidates to review first.
+
+### Algorithmic Fallback
+When all AI providers are unavailable, `fallbackMatcher.js` computes a compatibility score locally using a weighted formula: **40% skills** (Jaccard similarity) + **25% domain/programme** (taxonomy matching) + **20% study level** + **15% language**. The output shape is identical to the AI response, so the frontend requires no changes.
 
 ---
 
@@ -478,12 +489,13 @@ internbeacon/
 │   │   │   ├── authenticate.js    # JWT verification via Supabase
 │   │   │   ├── authorize.js       # Role-based access control
 │   │   │   └── validate.js        # express-validator integration
-│   │   ├── routes/                # Route modules (11 files)
+│   │   ├── routes/                # Route modules (12 files, incl. companies.js)
 │   │   ├── controllers/           # Business logic (11 controllers)
 │   │   ├── socket/
 │   │   │   └── index.js           # Socket.IO server, rooms, events
 │   │   └── utils/
 │   │       ├── aiProvider.js      # Multi-provider AI fallback chain
+│   │       ├── fallbackMatcher.js # Algorithmic match engine (Jaccard + domain)
 │   │       ├── expiry.js          # Hourly offer expiry job
 │   │       ├── mailer.js          # Email notifications
 │   │       ├── notifier.js        # DB insert + Socket emit helper
@@ -506,7 +518,7 @@ internbeacon/
     │   │   ├── dashboard/         # StatCard, analytics widgets
     │   │   └── offers/            # OfferCard
     │   └── pages/
-    │       ├── public/            # Landing, About, Browse, Pricing
+    │       ├── public/            # Landing, About, Browse, Pricing, CompanyPublicProfile
     │       ├── auth/              # Login, Register, Onboarding
     │       ├── student/           # Dashboard, Applications, Messages, Profile
     │       ├── company/           # Dashboard, Offers, Applications, Messaging

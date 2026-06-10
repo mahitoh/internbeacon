@@ -1,9 +1,9 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, MapPin, Clock, Banknote, Users, Calendar } from 'lucide-react';
+import { Briefcase, MapPin, Banknote, X } from 'lucide-react';
 import { offersApi } from '../../api/offers';
 import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
 import toast from 'react-hot-toast';
 
 const DOMAINS    = ['Information Technology', 'Finance & Banking', 'Telecommunications', 'Marketing & Sales', 'Engineering', 'Human Resources', 'Legal', 'Healthcare', 'Agriculture', 'Other'];
@@ -16,10 +16,34 @@ export default function PostOffer() {
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: { isPaid: false, openings: 1, stipendCurrency: 'XAF' }
   });
+  const [skills,      setSkills]      = useState([]);
+  const [skillInput,  setSkillInput]  = useState('');
 
   const isPaid = watch('isPaid');
 
+  const addSkill = (raw) => {
+    const trimmed = raw.trim();
+    if (trimmed && !skills.includes(trimmed)) setSkills(prev => [...prev, trimmed]);
+    setSkillInput('');
+  };
+
+  const handleSkillKey = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addSkill(skillInput);
+    } else if (e.key === 'Backspace' && !skillInput && skills.length) {
+      setSkills(prev => prev.slice(0, -1));
+    }
+  };
+
+  const removeSkill = (skill) => setSkills(prev => prev.filter(s => s !== skill));
+
   const onSubmit = async (data) => {
+    // Flush any partially-typed skill before submitting
+    const allSkills = skillInput.trim()
+      ? [...skills, ...skillInput.split(',').map(s => s.trim()).filter(Boolean)]
+      : skills;
+
     const paid = data.isPaid === true || data.isPaid === 'true';
     const amount = paid && data.stipendAmount ? Number(data.stipendAmount) : undefined;
     if (paid && (!amount || isNaN(amount))) {
@@ -28,20 +52,20 @@ export default function PostOffer() {
     }
     try {
       await offersApi.create({
-        title:         data.title,
-        domain:        data.domain,
-        description:   data.description,
+        title:            data.title,
+        domain:           data.domain,
+        description:      data.description,
         responsibilities: data.responsibilities || undefined,
-        requirements:  data.requirements || undefined,
-        location:      data.location,
-        durationWeeks: Number(data.durationWeeks),
-        openings:      data.openings ? Number(data.openings) : undefined,
-        deadline:      data.deadline,
-        startDate:     data.startDate || undefined,
-        isPaid:        paid,
-        stipendAmount: amount,
-        stipendCurrency: paid ? (data.stipendCurrency || 'XAF') : undefined,
-        requiredSkills: data.requiredSkills ? data.requiredSkills.split(',').map(s => s.trim()).filter(Boolean) : [],
+        requirements:     data.requirements || undefined,
+        location:         data.location,
+        durationWeeks:    Number(data.durationWeeks),
+        openings:         data.openings ? Number(data.openings) : undefined,
+        deadline:         data.deadline,
+        startDate:        data.startDate || undefined,
+        isPaid:           paid,
+        stipendAmount:    amount,
+        stipendCurrency:  paid ? (data.stipendCurrency || 'XAF') : undefined,
+        requiredSkills:   allSkills,
       });
       toast.success('Internship offer posted!');
       navigate('/company/offers');
@@ -96,9 +120,29 @@ export default function PostOffer() {
               {...register('requirements')} />
           </div>
 
-          <DarkField label="Required Skills (comma-separated)"
-            {...register('requiredSkills')}
-            placeholder="JavaScript, React, SQL, Python" />
+          {/* Tag input for required skills */}
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-white/60">Required Skills</label>
+            <div className="min-h-[46px] flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 focus-within:border-lime-500/50 transition-colors">
+              {skills.map(skill => (
+                <span key={skill} className="flex items-center gap-1 px-2.5 py-1 bg-lime-500/15 border border-lime-500/25 text-lime-300 text-xs rounded-lg font-medium">
+                  {skill}
+                  <button type="button" onClick={() => removeSkill(skill)} className="text-lime-400/60 hover:text-lime-300 transition-colors ml-0.5">
+                    <X size={11} />
+                  </button>
+                </span>
+              ))}
+              <input
+                value={skillInput}
+                onChange={e => setSkillInput(e.target.value)}
+                onKeyDown={handleSkillKey}
+                onBlur={() => skillInput.trim() && addSkill(skillInput)}
+                placeholder={skills.length ? '' : 'JavaScript, React, SQL… (Enter or comma to add)'}
+                className="flex-1 min-w-[140px] bg-transparent text-sm text-white placeholder:text-white/25 focus:outline-none py-0.5"
+              />
+            </div>
+            <p className="text-[11px] text-white/25">Press Enter or comma to add each skill</p>
+          </div>
         </FormSection>
 
         {/* Logistics */}

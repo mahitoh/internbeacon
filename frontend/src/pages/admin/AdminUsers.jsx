@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { Search, UserCheck, UserX, Trash2, Users, ShieldCheck, Shield } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import Spinner from '../../components/ui/Spinner';
@@ -10,7 +11,8 @@ const ROLES = ['', 'student', 'company', 'admin'];
 
 export default function AdminUsers() {
   const qc = useQueryClient();
-  const [search, setSearch] = useState('');
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
   const [role,   setRole]   = useState('');
   const [page,   setPage]   = useState(1);
 

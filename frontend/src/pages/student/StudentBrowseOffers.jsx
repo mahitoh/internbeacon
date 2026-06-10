@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, MapPin, Clock, Building2, SlidersHorizontal, X, Sparkles, Loader2, HelpCircle } from 'lucide-react';
 import { offersApi } from '../../api/offers';
 import { aiApi } from '../../api/ai';
@@ -12,18 +12,25 @@ const DOMAINS    = ['Information Technology', 'Finance & Banking', 'Telecommunic
 const LOCATIONS  = ['Yaoundé', 'Douala', 'Bafoussam', 'Garoua', 'Bamenda', 'Remote'];
 
 export default function StudentBrowseOffers() {
-  const navigate   = useNavigate();
-  const matchCache = useRef({});           // persists match results across re-renders
-  const [search,   setSearch]   = useState('');
-  const [domain,   setDomain]   = useState('');
-  const [location, setLocation] = useState('');
-  const [page,     setPage]     = useState(1);
+  const navigate        = useNavigate();
+  const [searchParams]  = useSearchParams();
+  const matchCache      = useRef({});
+  const [search,         setSearch]         = useState(() => searchParams.get('search') || '');
+  const [debouncedSearch, setDebouncedSearch] = useState(() => searchParams.get('search') || '');
+  const [domain,         setDomain]         = useState('');
+  const [location,       setLocation]       = useState('');
+  const [page,           setPage]           = useState(1);
   const LIMIT = 12;
 
+  useEffect(() => {
+    const t = setTimeout(() => { setDebouncedSearch(search); setPage(1); }, 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
   const { data, isLoading } = useQuery({
-    queryKey: ['offers-browse', search, domain, location, page],
+    queryKey: ['offers-browse', debouncedSearch, domain, location, page],
     queryFn:  () => offersApi.list({
-      ...(search   ? { search }   : {}),
+      ...(debouncedSearch ? { search: debouncedSearch } : {}),
       ...(domain   ? { domain }   : {}),
       ...(location ? { location } : {}),
       page, limit: LIMIT,
@@ -36,7 +43,7 @@ export default function StudentBrowseOffers() {
   const pages     = Math.ceil(total / LIMIT);
   const hasFilter = search || domain || location;
 
-  const clearFilters = () => { setSearch(''); setDomain(''); setLocation(''); setPage(1); };
+  const clearFilters = () => { setSearch(''); setDebouncedSearch(''); setDomain(''); setLocation(''); setPage(1); };
 
   return (
     <div className="space-y-5">

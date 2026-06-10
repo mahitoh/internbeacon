@@ -1,14 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FileText, MessageSquare, Briefcase, ChevronRight, ChevronDown, Trash2, Calendar, CheckCircle2, XCircle } from 'lucide-react';
 import { applicationsApi } from '../../api/applications';
+import { messagesApi } from '../../api/messages';
 import { StatusBadge } from '../../components/ui/Badge';
 import ApplicationTimeline from '../../components/ui/ApplicationTimeline';
 import Spinner from '../../components/ui/Spinner';
 import { formatDate, formatRelativeTime } from '../../lib/utils';
 import toast from 'react-hot-toast';
+
+const TYPE_LABELS = {
+  in_person:   'In Person',
+  google_meet: 'Google Meet',
+  zoom:        'Zoom',
+  teams:       'Microsoft Teams',
+  phone:       'Phone Call',
+};
 
 const ACTIVE_STATUSES    = ['submitted', 'under_review', 'final_review'];
 const INTERVIEW_STATUSES = ['interview_scheduled', 'interview_completed'];
@@ -34,6 +43,16 @@ export default function StudentApplications() {
     queryKey: ['my-apps'],
     queryFn:  () => applicationsApi.my().then(r => r.data.data),
   });
+
+  const { data: threadsData } = useQuery({
+    queryKey: ['message-threads'],
+    queryFn:  () => messagesApi.threads().then(r => r.data.data),
+  });
+
+  const threadUnreadMap = (threadsData || []).reduce((map, t) => {
+    map[t.appId] = t.unreadCount;
+    return map;
+  }, {});
 
   const handleOfferResponse = async (appId, response, e) => {
     e.stopPropagation();
@@ -65,6 +84,13 @@ export default function StudentApplications() {
   const apps     = data || [];
   const activeTab = TABS.find(t => t.key === tab);
   const filtered  = apps.filter(activeTab.filter);
+
+  // Auto-expand the most recent non-terminal application on first load
+  useEffect(() => {
+    if (expanded !== null || !apps.length) return;
+    const first = apps.find(a => !TERMINAL_STATUSES.includes(a.status)) ?? apps[0];
+    if (first) setExpanded(first.id);
+  }, [apps]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const tabCount = (t) => apps.filter(t.filter).length;
 
@@ -190,8 +216,8 @@ export default function StudentApplications() {
                         className="flex items-center gap-1.5 text-xs text-white/50 hover:text-lime-400 transition-colors">
                         <MessageSquare size={13} />
                         Chat
-                        {app.unreadMessages > 0 && (
-                          <span className="bg-lime-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{app.unreadMessages}</span>
+                        {(threadUnreadMap[app.id] ?? 0) > 0 && (
+                          <span className="bg-lime-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{threadUnreadMap[app.id]}</span>
                         )}
                       </Link>
                       <Link
@@ -224,6 +250,44 @@ export default function StudentApplications() {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden">
                       <div className="px-5 pb-5 pt-1 border-t border-white/5">
+                        {['interview_scheduled', 'interview_completed'].includes(app.status) && app.interview?.date && (
+                          <div className="mb-4 p-4 bg-indigo-500/8 border border-indigo-500/20 rounded-xl">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Calendar size={13} className="text-indigo-400" />
+                              <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wide">
+                                {app.status === 'interview_completed' ? 'Interview — Completed' : 'Interview Details'}
+                              </p>
+                            </div>
+                            <div className="space-y-1 text-sm">
+                              <p className="text-white/70">
+                                <span className="text-white/30">When: </span>
+                                {new Date(app.interview.date).toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short' })}
+                              </p>
+                              {app.interview.type && (
+                                <p className="text-white/70">
+                                  <span className="text-white/30">Format: </span>
+                                  {TYPE_LABELS[app.interview.type] ?? app.interview.type}
+                                </p>
+                              )}
+                              {app.interview.location && (
+                                <p className="text-white/70">
+                                  <span className="text-white/30">Location: </span>{app.interview.location}
+                                </p>
+                              )}
+                              {app.interview.link && (
+                                <p>
+                                  <a href={app.interview.link} target="_blank" rel="noopener noreferrer"
+                                    className="text-indigo-400 hover:underline break-all text-sm">
+                                    {app.interview.link}
+                                  </a>
+                                </p>
+                              )}
+                              {app.interview.notes && (
+                                <p className="text-white/50 italic mt-1 text-xs">"{app.interview.notes}"</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                         <p className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-4">Application Timeline</p>
                         <ApplicationTimeline
                           applicationId={app.id}

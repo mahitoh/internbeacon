@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
-import { Plus, Eye, Users, Edit2, X, Briefcase, Trash2 } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Plus, Eye, Users, Edit2, X, Briefcase, Trash2, Search } from 'lucide-react';
 import { offersApi } from '../../api/offers';
 import { StatusBadge } from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
@@ -9,6 +10,8 @@ import toast from 'react-hot-toast';
 
 export default function CompanyOffers() {
   const qc = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
   const { data, isLoading } = useQuery({
     queryKey: ['my-offers'],
     queryFn:  () => offersApi.myOffers({ limit: 100 }).then(r => r.data.data),
@@ -31,19 +34,42 @@ export default function CompanyOffers() {
     deleteMutation.mutate(id);
   };
 
-  const offers = data || [];
+  const allOffers = data || [];
+  const offers = search
+    ? allOffers.filter(o =>
+        o.title?.toLowerCase().includes(search.toLowerCase()) ||
+        o.domain?.toLowerCase().includes(search.toLowerCase()) ||
+        o.location?.toLowerCase().includes(search.toLowerCase())
+      )
+    : allOffers;
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-black text-white">My Internship Posts</h2>
-          <p className="text-white/40 text-sm mt-0.5">{offers.length} offer{offers.length !== 1 ? 's' : ''} posted</p>
+          <p className="text-white/40 text-sm mt-0.5">{allOffers.length} offer{allOffers.length !== 1 ? 's' : ''} posted</p>
         </div>
-        <Link to="/company/offers/post"
-          className="flex items-center gap-2 px-4 py-2.5 bg-lime-500 hover:bg-lime-600 text-white text-sm font-semibold rounded-xl transition-colors">
-          <Plus size={16} /> Post Internship
-        </Link>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-[#1a1a1a] border border-white/10 rounded-xl px-3 py-2 focus-within:border-lime-500/50 transition-colors">
+            <Search size={14} className="text-white/30 flex-shrink-0" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Filter offers…"
+              className="bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none w-36"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} className="text-white/20 hover:text-white transition-colors">
+                <X size={13} />
+              </button>
+            )}
+          </div>
+          <Link to="/company/offers/post"
+            className="flex items-center gap-2 px-4 py-2.5 bg-lime-500 hover:bg-lime-600 text-white text-sm font-semibold rounded-xl transition-colors whitespace-nowrap">
+            <Plus size={16} /> Post Internship
+          </Link>
+        </div>
       </div>
 
       {isLoading ? (

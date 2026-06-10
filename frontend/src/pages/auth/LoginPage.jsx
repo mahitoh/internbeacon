@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Compass, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Compass, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { DarkInput } from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -18,11 +19,13 @@ const signInWithGoogle = async (preferredRole) => {
 };
 
 export default function LoginPage() {
-  const { login } = useAuth();
-  const navigate  = useNavigate();
+  const { login }   = useAuth();
+  const navigate    = useNavigate();
+  const [authError, setAuthError] = useState('');
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
   const onSubmit = async ({ email, password }) => {
+    setAuthError('');
     try {
       const role = await login(email, password);
       toast.success('Welcome back!');
@@ -32,7 +35,8 @@ export default function LoginPage() {
         role === 'admin'   ? '/admin/dashboard'   : '/'
       );
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Invalid credentials');
+      const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
+      setAuthError(msg);
     }
   };
 
@@ -105,7 +109,10 @@ export default function LoginPage() {
               icon={Mail}
               placeholder="you@example.com"
               error={errors.email?.message}
-              {...register('email', { required: 'Email is required' })}
+              {...register('email', {
+                required: 'Email is required',
+                onChange: () => setAuthError(''),
+              })}
             />
             <DarkInput
               label="Password"
@@ -113,8 +120,18 @@ export default function LoginPage() {
               icon={Lock}
               placeholder="••••••••"
               error={errors.password?.message}
-              {...register('password', { required: 'Password is required' })}
+              {...register('password', {
+                required: 'Password is required',
+                onChange: () => setAuthError(''),
+              })}
             />
+
+            {authError && (
+              <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-300 leading-snug">{authError}</p>
+              </div>
+            )}
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm text-white/50 cursor-pointer">

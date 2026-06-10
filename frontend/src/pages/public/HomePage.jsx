@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, Search, ChevronRight, Diamond,
@@ -18,6 +19,11 @@ const UNIVERSITIES = [
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [heroSearch, setHeroSearch] = useState('');
+  const handleHeroSearch = () => {
+    const q = heroSearch.trim();
+    navigate(q ? `/offers?search=${encodeURIComponent(q)}` : '/offers');
+  };
 
   return (
     <div className="overflow-hidden" style={{ backgroundColor: '#faf9f5' }}>
@@ -65,13 +71,15 @@ export default function HomePage() {
             <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-2xl p-2.5 shadow-sm">
               <Search size={18} className="ml-3 flex-shrink-0" style={{ color: 'rgba(9,34,24,0.3)' }} />
               <input
+                value={heroSearch}
+                onChange={e => setHeroSearch(e.target.value)}
                 placeholder="Search internship title, domain, or company..."
                 className="flex-1 bg-transparent py-2 px-2 text-sm focus:outline-none"
                 style={{ color: '#092218' }}
-                onKeyDown={e => e.key === 'Enter' && navigate('/offers')}
+                onKeyDown={e => e.key === 'Enter' && handleHeroSearch()}
               />
               <button
-                onClick={() => navigate('/offers')}
+                onClick={handleHeroSearch}
                 className="font-bold text-sm px-6 py-2.5 rounded-xl text-white transition-all shadow-sm"
                 style={{ backgroundColor: '#092218' }}
                 onMouseOver={e => e.currentTarget.style.backgroundColor = '#0f2d20'}

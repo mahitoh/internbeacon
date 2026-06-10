@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Send, Briefcase } from 'lucide-react';
+import { Send, Briefcase, ArrowLeft } from 'lucide-react';
 import { applicationsApi } from '../../api/applications';
 import { messagesApi } from '../../api/messages';
 import { useAuth } from '../../context/AuthContext';
@@ -16,6 +16,7 @@ export default function StudentMessages() {
   const socket              = useSocket();
   const qc                  = useQueryClient();
   const [activeAppId,  setActiveAppId]  = useState(urlAppId ? String(urlAppId) : null);
+  const [showList,     setShowList]     = useState(!urlAppId);
   const [messages,     setMessages]     = useState([]);
   const [msgLoading,   setMsgLoading]   = useState(false);
   const [input,        setInput]        = useState('');
@@ -84,6 +85,7 @@ export default function StudentMessages() {
 
   const switchThread = (id) => {
     setActiveAppId(String(id));
+    setShowList(false);
     setInput('');
     setPeerTyping(false);
   };
@@ -120,8 +122,8 @@ export default function StudentMessages() {
 
   return (
     <div className="flex h-[calc(100vh-9rem)] bg-[#1a1a1a] rounded-2xl border border-white/5 overflow-hidden">
-      {/* Conversation list */}
-      <div className="w-64 flex-shrink-0 border-r border-white/5 flex flex-col">
+      {/* Conversation list — full screen on mobile, fixed sidebar on sm+ */}
+      <div className={`${showList ? 'flex' : 'hidden'} sm:flex w-full sm:w-64 flex-shrink-0 border-r border-white/5 flex-col`}>
         <div className="px-4 py-4 border-b border-white/5">
           <h3 className="font-semibold text-white text-sm">Messages</h3>
         </div>
@@ -158,19 +160,25 @@ export default function StudentMessages() {
         </div>
       </div>
 
-      {/* Chat area */}
+      {/* Chat area — hidden on mobile when thread list is shown */}
       {!activeAppId ? (
-        <div className="flex-1 flex items-center justify-center text-white/20">
+        <div className="hidden sm:flex flex-1 items-center justify-center text-white/20">
           <div className="text-center">
             <Briefcase size={40} className="mx-auto mb-3" />
             <p className="text-sm">Select a conversation</p>
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col">
-          <div className="px-5 py-4 border-b border-white/5">
-            <p className="text-white font-medium text-sm">{headerTitle}</p>
-            <p className="text-white/40 text-xs">{headerSubtitle}</p>
+        <div className={`${showList ? 'hidden' : 'flex'} sm:flex flex-1 flex-col`}>
+          <div className="px-5 py-4 border-b border-white/5 flex items-center gap-3">
+            <button onClick={() => setShowList(true)}
+              className="sm:hidden text-white/40 hover:text-white transition-colors flex-shrink-0">
+              <ArrowLeft size={18} />
+            </button>
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-medium text-sm truncate">{headerTitle}</p>
+              <p className="text-white/40 text-xs truncate">{headerSubtitle}</p>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 dashboard-scroll">

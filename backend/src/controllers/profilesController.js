@@ -179,6 +179,67 @@ exports.getCompanyPublic = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// ── GET /api/companies (public — paginated company directory) ─────────────────
+exports.listCompanies = async (req, res, next) => {
+  try {
+    const search   = (req.query.search   || '').trim();
+    const sector   = (req.query.sector   || '').trim();
+    const city     = (req.query.city     || '').trim();
+    const page     = Math.max(1, parseInt(req.query.page) || 1);
+    const limit    = Math.min(24, Math.max(1, parseInt(req.query.limit) || 12));
+    const from     = (page - 1) * limit;
+
+    let query = supabaseAdmin
+      .from('company_profiles')
+      .select('id, user_id, company_name, sector, city, description, logo_url, website_url, is_verified', { count: 'exact' })
+      .range(from, from + limit - 1)
+      .order('company_name', { ascending: true });
+
+    if (search)  query = query.ilike('company_name', `%${search}%`);
+    if (sector)  query = query.eq('sector', sector);
+    if (city)    query = query.eq('city', city);
+    if (req.query.verified === 'true') query = query.eq('is_verified', true);
+
+    const { data: companies, error, count } = await query;
+    if (error) throw error;
+
+    // Batch fetch open offer counts
+    const ids = (companies || []).map(c => c.id);
+    let openCountMap = {};
+    if (ids.length) {
+      const { data: offerCounts } = await supabaseAdmin
+        .from('internship_offers')
+        .select('company_id')
+        .in('company_id', ids)
+        .eq('status', 'open');
+      for (const row of (offerCounts || [])) {
+        openCountMap[row.company_id] = (openCountMap[row.company_id] || 0) + 1;
+      }
+    }
+
+    res.json({
+      success: true,
+      data: {
+        companies: (companies || []).map(c => ({
+          id:          c.id,
+          userId:      c.user_id,
+          companyName: c.company_name,
+          sector:      c.sector,
+          city:        c.city,
+          description: c.description,
+          logoUrl:     c.logo_url,
+          websiteUrl:  c.website_url,
+          isVerified:  c.is_verified ?? false,
+          openOffers:  openCountMap[c.id] || 0,
+        })),
+        total: count || 0,
+        page,
+        pages: Math.ceil((count || 0) / limit),
+      },
+    });
+  } catch (err) { next(err); }
+};
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function computeProfileCompletion(p) {
   let score = 0;

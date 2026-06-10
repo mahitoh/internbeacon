@@ -30,7 +30,7 @@ export default function StudentSavedOffers() {
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {saved.map(offer => <OfferCard key={offer.id} offer={offer} dark basePath="/student/offers" />)}
+          {saved.map(offer => <OfferCard key={offer.id} offer={offer} dark basePath="/student/offers" companyBasePath="/student/companies" />)}
         </div>
       )}
     </div>

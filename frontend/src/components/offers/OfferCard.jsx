@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Banknote, Building2, ExternalLink, ShieldCheck } from 'lucide-react';
 import { formatDate } from '../../lib/utils';
 
-export default function OfferCard({ offer, dark = false, basePath = '/offers' }) {
+export default function OfferCard({ offer, dark = false, basePath = '/offers', companyBasePath = '/companies' }) {
   const navigate = useNavigate();
   const bg = dark
     ? 'bg-forest-950/60 border-white/5 hover:border-lime-500/20 text-white'
@@ -33,7 +33,7 @@ export default function OfferCard({ offer, dark = false, basePath = '/offers' })
             {offer.company?.id ? (
               <button
                 type="button"
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/companies/${offer.company.id}`); }}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`${companyBasePath}/${offer.company.id}`); }}
                 className={`text-xs font-bold ${sub} hover:text-lime-400 transition-colors cursor-pointer`}
               >
                 {offer.company.companyName}

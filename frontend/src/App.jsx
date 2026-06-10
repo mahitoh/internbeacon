@@ -34,7 +34,10 @@ import StudentMessages       from './pages/student/StudentMessages';
 import StudentSavedOffers    from './pages/student/StudentSavedOffers';
 import StudentBrowseOffers   from './pages/student/StudentBrowseOffers';
 import StudentOfferDetail    from './pages/student/StudentOfferDetail';
-import StudentAnalytics      from './pages/student/StudentAnalytics';
+import StudentAnalytics          from './pages/student/StudentAnalytics';
+import StudentInterviewCenter   from './pages/student/StudentInterviewCenter';
+import StudentCompanies         from './pages/student/StudentCompanies';
+import StudentCompanyProfile    from './pages/student/StudentCompanyProfile';
 
 // Company pages
 import CompanyDashboard    from './pages/company/CompanyDashboard';
@@ -100,6 +103,9 @@ export default function App() {
               <Route path="messages"          element={<StudentMessages />} />
               <Route path="messages/:appId"   element={<StudentMessages />} />
               <Route path="analytics"         element={<StudentAnalytics />} />
+              <Route path="interviews"        element={<StudentInterviewCenter />} />
+              <Route path="companies"         element={<StudentCompanies />} />
+              <Route path="companies/:id"     element={<StudentCompanyProfile />} />
               <Route path="saved"             element={<StudentSavedOffers />} />
               <Route path="notifications"     element={<NotificationsPage />} />
             </Route>

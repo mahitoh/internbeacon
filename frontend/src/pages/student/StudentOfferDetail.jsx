@@ -65,9 +65,9 @@ export default function StudentOfferDetail() {
       let cvSnapshotUrl;
       if (newCvFile) {
         setCvUploading(true);
-        await uploadApi.cv(newCvFile);
+        const r = await uploadApi.cvSnapshot(newCvFile);
         setCvUploading(false);
-        cvSnapshotUrl = `${user.id}.pdf`;
+        cvSnapshotUrl = r.data.data.path;
       } else if (hasProfileCv) {
         cvSnapshotUrl = user.studentProfile.cvUrl;
       }
@@ -140,7 +140,7 @@ export default function StudentOfferDetail() {
                 <h1 className="text-xl font-black text-white leading-snug">{offer.title}</h1>
                 <div className="flex items-center gap-2 mt-0.5">
                   {offer.company?.id
-                    ? <Link to={`/companies/${offer.company.id}`} className="text-white/50 text-sm hover:text-lime-400 transition-colors">{offer.company?.companyName}</Link>
+                    ? <Link to={`/student/companies/${offer.company.id}`} className="text-white/50 text-sm hover:text-lime-400 transition-colors">{offer.company?.companyName}</Link>
                     : <p className="text-white/50 text-sm">{offer.company?.companyName}</p>
                   }
                   {offer.company?.isVerified && (

@@ -4,6 +4,7 @@ import { FileText, Clock, CheckCircle2, XCircle, Briefcase, ArrowRight, Trending
 import { Link } from 'react-router-dom';
 import { applicationsApi } from '../../api/applications';
 import { offersApi } from '../../api/offers';
+import { messagesApi } from '../../api/messages';
 import { useAuth } from '../../context/AuthContext';
 import StatCard from '../../components/dashboard/StatCard';
 import OfferCard from '../../components/offers/OfferCard';
@@ -23,11 +24,17 @@ export default function StudentDashboard() {
   const { user } = useAuth();
   const name = user?.studentProfile?.firstName || 'Student';
 
-  const { data: appsData }   = useQuery({ queryKey: ['my-apps'],    queryFn: () => applicationsApi.my().then(r => r.data.data) });
-  const { data: recData }    = useQuery({ queryKey: ['offers-rec'], queryFn: () => offersApi.recommended(4).then(r => r.data.data) });
+  const { data: appsData }    = useQuery({ queryKey: ['my-apps'],          queryFn: () => applicationsApi.my().then(r => r.data.data) });
+  const { data: recData }     = useQuery({ queryKey: ['offers-rec'],       queryFn: () => offersApi.recommended(4).then(r => r.data.data) });
+  const { data: threadsData } = useQuery({ queryKey: ['message-threads'],  queryFn: () => messagesApi.threads().then(r => r.data.data) });
 
   const apps      = appsData || [];
   const recOffers = recData  || [];
+
+  const threadUnreadMap = (threadsData || []).reduce((map, t) => {
+    map[t.appId] = t.unreadCount;
+    return map;
+  }, {});
 
   const counts = {
     total:       apps.length,
@@ -134,9 +141,9 @@ export default function StudentDashboard() {
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-sm font-medium truncate">{app.offer?.title}</p>
                     <p className="text-white/40 text-xs">{app.offer?.company?.companyName} · {formatRelativeTime(app.appliedAt)}</p>
-                    {app.unreadMessages > 0 && (
+                    {(threadUnreadMap[app.id] ?? 0) > 0 && (
                       <span className="inline-flex items-center gap-1 text-xs text-lime-400 mt-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-lime-400" /> {app.unreadMessages} new message{app.unreadMessages > 1 ? 's' : ''}
+                        <span className="w-1.5 h-1.5 rounded-full bg-lime-400" /> {threadUnreadMap[app.id]} new message{threadUnreadMap[app.id] > 1 ? 's' : ''}
                       </span>
                     )}
                   </div>
@@ -196,7 +203,7 @@ export default function StudentDashboard() {
           <div className="grid sm:grid-cols-2 gap-4">
             {recOffers.map(offer => (
               <div key={offer.id} className="relative">
-                <OfferCard offer={offer} dark basePath="/student/offers" />
+                <OfferCard offer={offer} dark basePath="/student/offers" companyBasePath="/student/companies" />
                 {offer.matchReasons?.length > 0 && (
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {offer.matchReasons.slice(0, 2).map((r, i) => (

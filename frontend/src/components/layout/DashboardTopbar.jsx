@@ -17,6 +17,7 @@ export default function DashboardTopbar({ title, role, onMenuToggle }) {
   const [notifCount, setNotifCount]       = useState(0);
   const [notifOpen,  setNotifOpen]        = useState(false);
   const [notifs,     setNotifs]           = useState([]);
+  const [search,     setSearch]           = useState('');
 
   useEffect(() => {
     notificationsApi.unreadCount().then(r => setNotifCount(r.data.data.unreadCount ?? 0)).catch(() => {});
@@ -44,6 +45,20 @@ export default function DashboardTopbar({ title, role, onMenuToggle }) {
     } catch {}
   };
 
+  const SEARCH_ROUTES = {
+    student: '/student/offers',
+    company: '/company/offers',
+    admin:   '/admin/users',
+  };
+
+  const handleSearch = (e) => {
+    if (e.key !== 'Enter') return;
+    const q = search.trim();
+    const base = SEARCH_ROUTES[role] || '/offers';
+    navigate(q ? `${base}?search=${encodeURIComponent(q)}` : base);
+    setSearch('');
+  };
+
   const today = new Date().toLocaleDateString('en-CM', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
   return (
@@ -68,7 +83,10 @@ export default function DashboardTopbar({ title, role, onMenuToggle }) {
         <div className="relative hidden md:block">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
           <input
-            placeholder="Search…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyDown={handleSearch}
+            placeholder="Search… (Enter)"
             className="w-52 bg-white/5 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white/70 placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 transition-colors"
           />
         </div>

@@ -60,6 +60,29 @@ exports.uploadCv = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// ── POST /api/upload/cv-snapshot ─────────────────────────────────────────────
+// Stores a PDF at applications/{userId}/{timestamp}.pdf WITHOUT touching the
+// student's profile CV. Used when a student attaches an application-specific CV.
+exports.uploadCvSnapshot = async (req, res, next) => {
+  try {
+    if (!req.file) return res.status(400).json({ success: false, message: 'No file provided' });
+
+    const detected = await detectMime(req.file.buffer);
+    if (!detected || !ALLOWED_PDF.has(detected.mime)) {
+      return res.status(400).json({ success: false, message: 'Only PDF files are allowed' });
+    }
+
+    const storagePath = `applications/${req.user.userId}/${Date.now()}.pdf`;
+    const { error } = await supabaseAdmin.storage
+      .from('cvs')
+      .upload(storagePath, req.file.buffer, { contentType: 'application/pdf', upsert: false });
+
+    if (error) throw error;
+
+    res.json({ success: true, data: { path: storagePath } });
+  } catch (err) { next(err); }
+};
+
 // ── POST /api/upload/avatar ───────────────────────────────────────────────────
 exports.uploadAvatar = async (req, res, next) => {
   try {
@@ -157,9 +180,13 @@ exports.getCvSignedUrl = async (req, res, next) => {
       if (!apps?.length) return res.status(403).json({ success: false, message: 'No shared application found' });
     }
 
+    // Support both profile CV (userId.pdf) and snapshot paths (applications/userId/ts.pdf).
+    // The caller can pass ?path=... to request a specific snapshot; otherwise defaults to profile CV.
+    const cvPath = req.query.path || `${studentUserId}.pdf`;
+
     const { data, error } = await supabaseAdmin.storage
       .from('cvs')
-      .createSignedUrl(`${studentUserId}.pdf`, 3600);
+      .createSignedUrl(cvPath, 3600);
 
     if (error) return res.status(404).json({ success: false, message: 'CV not found' });
 

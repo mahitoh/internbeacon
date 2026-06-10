@@ -27,9 +27,31 @@ exports.register = async (req, res, next) => {
         msg.includes('already been registered') ||
         msg.includes('already exists') ||
         authError.status === 422;
+
       if (isDuplicate) {
-        return res.status(409).json({ success: false, message: 'Email already registered' });
+        // Check if the existing account is Google-only (no password set).
+        try {
+          const { data: { user: existingUser } } = await supabaseAdmin.auth.admin.getUserByEmail(email);
+          if (existingUser) {
+            const identities = existingUser.identities || [];
+            const isGoogleOnly = identities.length > 0 && identities.every(i => i.provider === 'google');
+            if (isGoogleOnly) {
+              return res.status(409).json({
+                success: false,
+                message: 'This email is linked to a Google account. Use "Continue with Google" to sign in.',
+                code:    'GOOGLE_ACCOUNT_EXISTS',
+              });
+            }
+          }
+        } catch {}
+
+        return res.status(409).json({
+          success: false,
+          message: 'An account with this email already exists. Please sign in instead.',
+          code:    'EMAIL_EXISTS',
+        });
       }
+
       throw authError;
     }
 
@@ -86,7 +108,7 @@ exports.login = async (req, res, next) => {
 
     if (error) {
       const msg = error.message?.toLowerCase() || '';
-      // Supabase returns this when email confirmation is enabled and not yet done
+
       if (msg.includes('email not confirmed') || msg.includes('not confirmed')) {
         return res.status(403).json({
           success: false,
@@ -94,7 +116,26 @@ exports.login = async (req, res, next) => {
           code:    'EMAIL_NOT_VERIFIED',
         });
       }
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+
+      // Check whether this account exists but was created via Google OAuth (no password set).
+      // Supabase returns generic `invalid_credentials` for both wrong password and
+      // password-less OAuth accounts, so we need to look it up explicitly.
+      try {
+        const { data: { user: existingUser } } = await supabaseAdmin.auth.admin.getUserByEmail(email);
+        if (existingUser) {
+          const identities = existingUser.identities || [];
+          const isGoogleOnly = identities.length > 0 && identities.every(i => i.provider === 'google');
+          if (isGoogleOnly) {
+            return res.status(401).json({
+              success: false,
+              message: 'This account was created with Google. Please use the "Continue with Google" button to sign in.',
+              code:    'GOOGLE_ACCOUNT',
+            });
+          }
+        }
+      } catch {}
+
+      return res.status(401).json({ success: false, message: 'Incorrect email or password.' });
     }
 
     const { session, user } = data;

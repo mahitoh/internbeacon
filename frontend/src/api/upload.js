@@ -11,8 +11,9 @@ function formData(file) {
 }
 
 export const uploadApi = {
-  cv:       (file) => api.post('/upload/cv',     formData(file), multipart),
-  avatar:   (file) => api.post('/upload/avatar', formData(file), multipart),
-  logo:     (file) => api.post('/upload/logo',   formData(file), multipart),
-  getCvUrl: (studentUserId) => api.get(`/upload/cv-url/${studentUserId}`),
+  cv:           (file) => api.post('/upload/cv',          formData(file), multipart),
+  cvSnapshot:   (file) => api.post('/upload/cv-snapshot', formData(file), multipart),
+  avatar:       (file) => api.post('/upload/avatar',      formData(file), multipart),
+  logo:         (file) => api.post('/upload/logo',        formData(file), multipart),
+  getCvUrl:     (studentUserId, path) => api.get(`/upload/cv-url/${studentUserId}${path ? `?path=${encodeURIComponent(path)}` : ''}`),
 };

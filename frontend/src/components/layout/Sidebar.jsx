@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   Compass, LayoutDashboard, Briefcase, FileText, MessageSquare,
-  Bookmark, User, BarChart2, Plus, ChevronLeft, ChevronRight, LogOut, Users, ShieldCheck, Bell,
+  Bookmark, User, BarChart2, Plus, ChevronLeft, ChevronRight, LogOut, Users, ShieldCheck, Bell, Calendar, Building2,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -14,7 +14,9 @@ import toast from 'react-hot-toast';
 const STUDENT_NAV = [
   { label: 'Dashboard',       href: '/student/dashboard',      icon: LayoutDashboard },
   { label: 'Browse Offers',   href: '/student/offers',         icon: Briefcase },
+  { label: 'Companies',       href: '/student/companies',      icon: Building2 },
   { label: 'Applications',    href: '/student/applications',   icon: FileText },
+  { label: 'Interviews',      href: '/student/interviews',     icon: Calendar },
   { label: 'Messages',        href: '/student/messages',       icon: MessageSquare },
   { label: 'Analytics',       href: '/student/analytics',      icon: BarChart2 },
   { label: 'Saved Offers',    href: '/student/saved',          icon: Bookmark },

@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Building2, MapPin, Compass, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Building2, MapPin, Compass, ArrowRight, AlertCircle } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { DarkInput } from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -23,9 +24,11 @@ const SIZES    = ['1-10', '11-50', '51-200', '201-500', '500+'];
 
 export default function RegisterCompanyPage() {
   const navigate = useNavigate();
+  const [regError, setRegError] = useState('');
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
   const onSubmit = async (data) => {
+    setRegError('');
     try {
       await authApi.registerCompany({
         email:       data.email,
@@ -37,7 +40,7 @@ export default function RegisterCompanyPage() {
       toast.success('Company account created! Please log in.');
       navigate('/login');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+      setRegError(err.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
 
@@ -98,7 +101,11 @@ export default function RegisterCompanyPage() {
 
             <DarkInput label="Work Email" type="email" icon={Mail} placeholder="hr@company.cm"
               error={errors.email?.message}
-              {...register('email', { required: 'Required', pattern: { value: /\S+@\S+\.\S+/, message: 'Invalid email' } })} />
+              {...register('email', {
+                required: 'Required',
+                pattern: { value: /\S+@\S+\.\S+/, message: 'Invalid email' },
+                onChange: () => setRegError(''),
+              })} />
 
             <DarkInput label="Password" type="password" icon={Lock} placeholder="Min. 8 characters"
               error={errors.password?.message}
@@ -123,6 +130,20 @@ export default function RegisterCompanyPage() {
               </select>
               {errors.city && <p className="text-xs text-red-400">{errors.city.message}</p>}
             </div>
+
+            {regError && (
+              <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-red-300 leading-snug">{regError}</p>
+                  {regError.toLowerCase().includes('already exists') && (
+                    <Link to="/login" className="text-xs text-lime-400 hover:text-lime-300 mt-1 inline-block">
+                      Go to sign in →
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
 
             <p className="text-white/30 text-xs">
               By registering you agree to our{' '}

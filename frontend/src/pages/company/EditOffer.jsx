@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Briefcase, MapPin, Banknote } from 'lucide-react';
+import { Briefcase, MapPin, Banknote, X } from 'lucide-react';
 import { offersApi } from '../../api/offers';
 import Spinner from '../../components/ui/Spinner';
 import Button from '../../components/ui/Button';
@@ -23,30 +23,52 @@ export default function EditOffer() {
   });
 
   const { register, handleSubmit, watch, reset, formState: { errors, isSubmitting } } = useForm();
+  const [skills,     setSkills]     = useState([]);
+  const [skillInput, setSkillInput] = useState('');
   const isPaid = watch('isPaid');
 
-  // Pre-fill form once offer data loads
   useEffect(() => {
     if (!offer) return;
+    setSkills(offer.requiredSkills || []);
     reset({
-      title:           offer.title          || '',
-      domain:          offer.domain         || '',
-      description:     offer.description    || '',
+      title:           offer.title           || '',
+      domain:          offer.domain          || '',
+      description:     offer.description     || '',
       responsibilities:offer.responsibilities || '',
-      requirements:    offer.requirements   || '',
-      requiredSkills:  offer.requiredSkills?.join(', ') || '',
-      location:        offer.location       || '',
-      durationWeeks:   offer.durationWeeks  || '',
-      openings:        offer.openings       || 1,
-      deadline:        offer.deadline       ? offer.deadline.slice(0, 10) : '',
-      startDate:       offer.startDate      ? offer.startDate.slice(0, 10) : '',
-      isPaid:          offer.isPaid         || false,
-      stipendAmount:   offer.stipendAmount  || '',
+      requirements:    offer.requirements    || '',
+      location:        offer.location        || '',
+      durationWeeks:   offer.durationWeeks   || '',
+      openings:        offer.openings        || 1,
+      deadline:        offer.deadline        ? offer.deadline.slice(0, 10) : '',
+      startDate:       offer.startDate       ? offer.startDate.slice(0, 10) : '',
+      isPaid:          offer.isPaid          || false,
+      stipendAmount:   offer.stipendAmount   || '',
       stipendCurrency: offer.stipendCurrency || 'XAF',
     });
   }, [offer, reset]);
 
+  const addSkill = (raw) => {
+    const trimmed = raw.trim();
+    if (trimmed && !skills.includes(trimmed)) setSkills(prev => [...prev, trimmed]);
+    setSkillInput('');
+  };
+
+  const handleSkillKey = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addSkill(skillInput);
+    } else if (e.key === 'Backspace' && !skillInput && skills.length) {
+      setSkills(prev => prev.slice(0, -1));
+    }
+  };
+
+  const removeSkill = (skill) => setSkills(prev => prev.filter(s => s !== skill));
+
   const onSubmit = async (data) => {
+    const allSkills = skillInput.trim()
+      ? [...skills, ...skillInput.split(',').map(s => s.trim()).filter(Boolean)]
+      : skills;
+
     const paid   = data.isPaid === true || data.isPaid === 'true';
     const amount = paid && data.stipendAmount ? Number(data.stipendAmount) : undefined;
     if (paid && (!amount || isNaN(amount))) {
@@ -55,20 +77,20 @@ export default function EditOffer() {
     }
     try {
       await offersApi.update(id, {
-        title:           data.title,
-        domain:          data.domain,
-        description:     data.description,
-        responsibilities:data.responsibilities || undefined,
-        requirements:    data.requirements    || undefined,
-        location:        data.location,
-        durationWeeks:   Number(data.durationWeeks),
-        openings:        data.openings ? Number(data.openings) : undefined,
-        deadline:        data.deadline,
-        startDate:       data.startDate || undefined,
-        isPaid:          paid,
-        stipendAmount:   amount,
-        stipendCurrency: paid ? (data.stipendCurrency || 'XAF') : undefined,
-        requiredSkills:  data.requiredSkills ? data.requiredSkills.split(',').map(s => s.trim()).filter(Boolean) : [],
+        title:            data.title,
+        domain:           data.domain,
+        description:      data.description,
+        responsibilities: data.responsibilities || undefined,
+        requirements:     data.requirements    || undefined,
+        location:         data.location,
+        durationWeeks:    Number(data.durationWeeks),
+        openings:         data.openings ? Number(data.openings) : undefined,
+        deadline:         data.deadline,
+        startDate:        data.startDate || undefined,
+        isPaid:           paid,
+        stipendAmount:    amount,
+        stipendCurrency:  paid ? (data.stipendCurrency || 'XAF') : undefined,
+        requiredSkills:   allSkills,
       });
       toast.success('Offer updated!');
       navigate('/company/offers');
@@ -126,9 +148,29 @@ export default function EditOffer() {
               {...register('requirements')} />
           </div>
 
-          <DarkField label="Required Skills (comma-separated)"
-            {...register('requiredSkills')}
-            placeholder="JavaScript, React, SQL" />
+          {/* Tag input for required skills */}
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-white/60">Required Skills</label>
+            <div className="min-h-[46px] flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 focus-within:border-lime-500/50 transition-colors">
+              {skills.map(skill => (
+                <span key={skill} className="flex items-center gap-1 px-2.5 py-1 bg-lime-500/15 border border-lime-500/25 text-lime-300 text-xs rounded-lg font-medium">
+                  {skill}
+                  <button type="button" onClick={() => removeSkill(skill)} className="text-lime-400/60 hover:text-lime-300 transition-colors ml-0.5">
+                    <X size={11} />
+                  </button>
+                </span>
+              ))}
+              <input
+                value={skillInput}
+                onChange={e => setSkillInput(e.target.value)}
+                onKeyDown={handleSkillKey}
+                onBlur={() => skillInput.trim() && addSkill(skillInput)}
+                placeholder={skills.length ? '' : 'JavaScript, React, SQL… (Enter or comma to add)'}
+                className="flex-1 min-w-[140px] bg-transparent text-sm text-white placeholder:text-white/25 focus:outline-none py-0.5"
+              />
+            </div>
+            <p className="text-[11px] text-white/25">Press Enter or comma to add each skill</p>
+          </div>
         </FormSection>
 
         {/* Logistics */}

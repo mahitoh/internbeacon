@@ -24,7 +24,10 @@ api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config;
-    if (err.response?.status === 401 && !original._retry) {
+    // Never attempt a token refresh when the failing request was itself an auth
+    // endpoint — a 401 from /auth/login means wrong credentials, not expired session.
+    const isAuthEndpoint = original?.url?.includes('/auth/');
+    if (err.response?.status === 401 && !original._retry && !isAuthEndpoint) {
       original._retry = true;
       if (isRefreshing) {
         return new Promise((resolve, reject) => {

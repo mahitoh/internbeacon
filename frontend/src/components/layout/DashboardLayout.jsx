@@ -11,6 +11,8 @@ const TITLES = {
   '/student/profile':      'My Profile',
   '/student/messages':     'Messages',
   '/student/analytics':    'My Analytics',
+  '/student/interviews':   'Interview Center',
+  '/student/companies':    'Companies',
   '/student/saved':        'Saved Offers',
   '/company/dashboard':    'Dashboard',
   '/company/offers':       'My Internship Posts',
@@ -33,6 +35,7 @@ export default function DashboardLayout({ role }) {
 
   const title = TITLES[pathname]
     ?? (pathname.startsWith('/student/offers/') ? 'Internship Details' : null)
+    ?? (pathname.startsWith('/student/companies/') ? 'Company Profile' : null)
     ?? (pathname.startsWith('/company/messages/') ? 'Messages' : null)
     ?? (pathname.startsWith('/student/messages/') ? 'Messages' : null)
     ?? (pathname.match(/^\/company\/offers\/.+\/edit$/) ? 'Edit Internship' : null)
