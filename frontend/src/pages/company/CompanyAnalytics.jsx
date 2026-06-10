@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import { useQuery } from '@tanstack/react-query';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { offersApi } from '../../api/offers';
@@ -22,6 +23,10 @@ const DATE_RANGES = [
 ];
 
 export default function CompanyAnalytics() {
+  const { isDark } = useTheme();
+  const tooltipStyle = isDark
+    ? { background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#fff' }
+    : { background: '#ffffff', border: '1px solid #e7e4d5', borderRadius: 8, fontSize: 12, color: '#0f2d20' };
   const [range, setRange] = useState('all');
 
   const { data: offersData, isLoading: offersLoading } = useQuery({
@@ -149,11 +154,11 @@ export default function CompanyAnalytics() {
             <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={appsByMonth} barSize={28}>
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(15,45,32,0.45)', fontSize: 11 }} />
                   <YAxis hide allowDecimals={false} />
                   <Tooltip
-                    cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                    contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }}
+                    cursor={{ fill: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(15,45,32,0.04)' }}
+                    contentStyle={tooltipStyle}
                     formatter={(v) => [v, 'Applications']}
                   />
                   <Bar dataKey="apps" fill="#84cc16" radius={[6, 6, 0, 0]} opacity={0.9} />
@@ -176,7 +181,7 @@ export default function CompanyAnalytics() {
                     <Pie data={statusPie} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                       {statusPie.map((d, i) => <Cell key={i} fill={d.color} />)}
                     </Pie>
-                    <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }} />
+                    <Tooltip contentStyle={tooltipStyle} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

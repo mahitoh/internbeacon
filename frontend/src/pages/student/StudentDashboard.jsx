@@ -6,6 +6,7 @@ import { applicationsApi } from '../../api/applications';
 import { offersApi } from '../../api/offers';
 import { messagesApi } from '../../api/messages';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import StatCard from '../../components/dashboard/StatCard';
 import OfferCard from '../../components/offers/OfferCard';
 import { StatusBadge } from '../../components/ui/Badge';
@@ -22,6 +23,7 @@ const STATUS_COLORS = {
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const name = user?.studentProfile?.firstName || 'Student';
 
   const { data: appsData }    = useQuery({ queryKey: ['my-apps'],          queryFn: () => applicationsApi.my().then(r => r.data.data) });
@@ -165,7 +167,10 @@ export default function StudentDashboard() {
                     <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={3} dataKey="value">
                       {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                     </Pie>
-                    <Tooltip contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }} />
+                    <Tooltip contentStyle={isDark
+                      ? { background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#fff' }
+                      : { background: '#ffffff', border: '1px solid #e7e4d5', borderRadius: 8, fontSize: 12, color: '#0f2d20' }
+                    } />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

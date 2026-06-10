@@ -5,13 +5,18 @@ import { Briefcase, FileText, CheckCircle2, Clock, Plus, Eye, Star, Calendar, XC
 import { offersApi } from '../../api/offers';
 import { applicationsApi } from '../../api/applications';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import StatCard from '../../components/dashboard/StatCard';
 import { StatusBadge } from '../../components/ui/Badge';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
 
 export default function CompanyDashboard() {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const name = user?.companyProfile?.companyName || 'Company';
+  const tooltipStyle = isDark
+    ? { background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#fff' }
+    : { background: '#ffffff', border: '1px solid #e7e4d5', borderRadius: 8, fontSize: 12, color: '#0f2d20' };
 
   const { data: offersData } = useQuery({
     queryKey: ['my-offers'],
@@ -91,16 +96,16 @@ export default function CompanyDashboard() {
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} barSize={20}>
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 11 }} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(15,45,32,0.45)', fontSize: 11 }} />
                 <YAxis hide />
                 <Tooltip
-                  cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                  contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }}
-                  labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
+                  cursor={{ fill: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(15,45,32,0.04)' }}
+                  contentStyle={tooltipStyle}
+                  labelStyle={{ color: isDark ? 'rgba(255,255,255,0.6)' : 'rgba(15,45,32,0.6)' }}
                 />
                 <Bar dataKey="apps" radius={[6, 6, 0, 0]}>
                   {chartData.map((_, i) => (
-                    <Cell key={i} fill={i === chartData.length - 1 ? '#84cc16' : 'rgba(255,255,255,0.08)'} />
+                    <Cell key={i} fill={i === chartData.length - 1 ? '#84cc16' : isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,45,32,0.08)'} />
                   ))}
                 </Bar>
               </BarChart>
