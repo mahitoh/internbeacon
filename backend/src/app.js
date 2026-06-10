@@ -62,6 +62,7 @@ app.use('/api/auth',          require('./routes/auth'));
 app.use('/api/offers',        require('./routes/offers'));
 app.use('/api/applications',  require('./routes/applications'));
 app.use('/api/profiles',      require('./routes/profiles'));
+app.use('/api/companies',     require('./routes/companies'));
 app.use('/api/messages',      require('./routes/messages'));
 app.use('/api/notifications', require('./routes/notifications'));
 

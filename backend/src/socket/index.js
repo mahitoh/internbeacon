@@ -73,6 +73,14 @@ function initSocket(httpServer) {
       if (isDev) console.log(`[WS] uid=${userId} left thread:${appId}`);
     });
 
+    // ── typing ────────────────────────────────────────────────────────────────
+    // Client: socket.emit('typing', { appId, isTyping })
+    // Broadcasts to everyone else in the thread (not back to sender)
+    socket.on('typing', ({ appId, isTyping }) => {
+      if (!appId) return;
+      socket.to(`thread:${appId}`).emit('user_typing', { userId, isTyping });
+    });
+
     socket.on('disconnect', () => {
       if (isDev) console.log(`[WS] disconnected uid=${userId}`);
     });

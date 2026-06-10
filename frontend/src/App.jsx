@@ -13,8 +13,9 @@ import AboutPage         from './pages/public/AboutPage';
 import ContactPage       from './pages/public/ContactPage';
 import OffersPage        from './pages/public/OffersPage';
 import OfferDetailPage   from './pages/public/OfferDetailPage';
-import ForCompaniesPage  from './pages/public/ForCompaniesPage';
-import PricingPage       from './pages/public/PricingPage';
+import ForCompaniesPage       from './pages/public/ForCompaniesPage';
+import PricingPage            from './pages/public/PricingPage';
+import CompanyPublicProfile   from './pages/public/CompanyPublicProfile';
 
 // Auth pages
 import LoginPage           from './pages/auth/LoginPage';
@@ -66,10 +67,11 @@ export default function App() {
               <Route path="/"          element={<HomePage />} />
               <Route path="/about"     element={<AboutPage />} />
               <Route path="/contact"   element={<ContactPage />} />
-              <Route path="/offers"         element={<OffersPage />} />
-              <Route path="/offers/:id"     element={<OfferDetailPage />} />
-              <Route path="/for-companies"  element={<ForCompaniesPage />} />
-              <Route path="/pricing"        element={<PricingPage />} />
+              <Route path="/offers"           element={<OffersPage />} />
+              <Route path="/offers/:id"       element={<OfferDetailPage />} />
+              <Route path="/companies/:id"    element={<CompanyPublicProfile />} />
+              <Route path="/for-companies"    element={<ForCompaniesPage />} />
+              <Route path="/pricing"          element={<PricingPage />} />
             </Route>
 
             {/* Auth */}

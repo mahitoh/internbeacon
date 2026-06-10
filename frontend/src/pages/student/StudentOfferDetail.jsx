@@ -4,8 +4,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft, MapPin, Clock, Banknote, Building2, Calendar,
   Users, Bookmark, Share2, CheckCircle2, Sparkles, Loader2,
-  TrendingUp, TrendingDown, Lightbulb, FileCheck, Upload, FileText, ShieldCheck,
+  TrendingUp, TrendingDown, Lightbulb, FileCheck, Upload, FileText, ShieldCheck, Cpu,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { offersApi } from '../../api/offers';
 import { applicationsApi } from '../../api/applications';
 import { uploadApi } from '../../api/upload';
@@ -138,7 +139,10 @@ export default function StudentOfferDetail() {
               <div className="flex-1 min-w-0">
                 <h1 className="text-xl font-black text-white leading-snug">{offer.title}</h1>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <p className="text-white/50 text-sm">{offer.company?.companyName}</p>
+                  {offer.company?.id
+                    ? <Link to={`/companies/${offer.company.id}`} className="text-white/50 text-sm hover:text-lime-400 transition-colors">{offer.company?.companyName}</Link>
+                    : <p className="text-white/50 text-sm">{offer.company?.companyName}</p>
+                  }
                   {offer.company?.isVerified && (
                     <span className="flex items-center gap-1 text-[10px] text-lime-400 bg-lime-500/10 px-1.5 py-0.5 rounded-full font-semibold border border-lime-500/20">
                       <ShieldCheck size={9} /> Verified
@@ -318,8 +322,17 @@ function AiMatchPanel({ match, onReset }) {
     <div className={`rounded-xl border p-4 space-y-3 ${SCORE_BG(match.score)}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles size={14} className={SCORE_COLOR(match.score)} />
-          <span className="text-xs font-semibold text-white/70">AI Match Score</span>
+          {match.method === 'algorithmic'
+            ? <Cpu size={13} className="text-yellow-400" />
+            : <Sparkles size={13} className={SCORE_COLOR(match.score)} />}
+          <span className="text-xs font-semibold text-white/70">
+            {match.method === 'algorithmic' ? 'Estimated Match' : 'AI Match Score'}
+          </span>
+          {match.method === 'algorithmic' && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 font-semibold">
+              ALGO
+            </span>
+          )}
         </div>
         <button onClick={onReset} className="text-white/20 hover:text-white/50 text-xs transition-colors">↻</button>
       </div>

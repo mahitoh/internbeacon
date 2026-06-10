@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft, FileText, MessageSquare, CheckCircle2, XCircle, Download,
+  ArrowLeft, FileText, MessageSquare, CheckCircle2, XCircle,
   Star, Calendar, Video, Phone, MapPin, ClipboardCheck, Eye, ChevronRight,
-  ChevronDown, Search,
+  ChevronDown, Search, Loader2,
 } from 'lucide-react';
 import { StatusBadge } from '../../components/ui/Badge';
 import Avatar from '../../components/ui/Avatar';
@@ -217,11 +217,24 @@ export default function ApplicationDetail() {
         {app.student?.bio && (
           <p className="mt-4 text-sm text-white/50 leading-relaxed">{app.student.bio}</p>
         )}
-        <div className="flex gap-3 mt-4 flex-wrap">
+        <div className="flex gap-3 mt-4 flex-wrap items-center">
           {app.student?.cvUrl && (
-            <Button variant="outline" size="sm" loading={cvLoading} onClick={viewCv}>
-              <Download size={14} /> View CV
-            </Button>
+            <button
+              onClick={viewCv}
+              disabled={cvLoading}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-white/8 bg-white/3 hover:bg-white/6 hover:border-white/15 transition-all group disabled:opacity-60"
+            >
+              <div className="w-9 h-10 rounded-lg bg-red-500/12 border border-red-500/20 flex items-center justify-center flex-shrink-0">
+                {cvLoading
+                  ? <Loader2 size={14} className="text-red-400 animate-spin" />
+                  : <FileText size={15} className="text-red-400" />}
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-semibold text-white leading-tight">{studentName} — CV</p>
+                <p className="text-[10px] text-white/30 mt-0.5">PDF · Click to preview</p>
+              </div>
+              <Eye size={12} className="text-white/20 group-hover:text-white/50 transition-colors ml-1" />
+            </button>
           )}
           {app.student?.linkedinUrl && (
             <a href={app.student.linkedinUrl} target="_blank" rel="noopener noreferrer"
@@ -386,30 +399,49 @@ export default function ApplicationDetail() {
 
           {/* Action buttons */}
           <div className="flex flex-wrap gap-2">
-            {availableActions.map(action => (
-              <button
-                key={action.status}
-                onClick={() => {
-                  if (showNoteFor === action.status) {
-                    handleAction(action);
-                  } else {
-                    setShowNoteFor(action.status);
-                    setCompanyNote('');
-                  }
-                }}
-                disabled={!!loading}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-all disabled:opacity-40 ${BTN_COLORS[action.color]}`}>
-                <action.icon size={14} />
-                {loading === action.status
-                  ? 'Updating…'
-                  : showNoteFor === action.status
-                  ? `Confirm ${action.label}`
-                  : action.label}
-              </button>
-            ))}
+            {availableActions.map(action => {
+              const isConfirming = showNoteFor === action.status;
+              const isLoading    = loading === action.status;
+              const isDestructive = action.status === 'rejected';
+              const isPrimary     = action.status === 'accepted';
+
+              let cls;
+              if (isDestructive) {
+                cls = isConfirming
+                  ? 'bg-red-500 hover:bg-red-600 border-red-500 text-white'
+                  : 'bg-red-500/15 hover:bg-red-500/30 border-red-500/40 text-red-300';
+              } else if (isPrimary) {
+                cls = isConfirming
+                  ? 'bg-lime-500 hover:bg-lime-600 border-lime-500 text-white'
+                  : 'bg-lime-500/15 hover:bg-lime-500/30 border-lime-500/40 text-lime-300';
+              } else {
+                cls = BTN_COLORS[action.color];
+              }
+
+              return (
+                <button
+                  key={action.status}
+                  onClick={() => {
+                    if (isConfirming) {
+                      handleAction(action);
+                    } else {
+                      setShowNoteFor(action.status);
+                      setCompanyNote('');
+                    }
+                  }}
+                  disabled={!!loading}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-all disabled:opacity-40 ${cls}`}
+                >
+                  <action.icon size={14} />
+                  {isLoading ? 'Updating…' : isConfirming ? `Confirm ${action.label}` : action.label}
+                </button>
+              );
+            })}
             {showNoteFor && (
-              <button onClick={() => { setShowNoteFor(null); setCompanyNote(''); }}
-                className="px-4 py-2 rounded-xl border border-white/10 text-sm text-white/40 hover:text-white transition-colors">
+              <button
+                onClick={() => { setShowNoteFor(null); setCompanyNote(''); setInternalNote(''); }}
+                className="px-4 py-2 rounded-xl border border-white/10 text-sm text-white/40 hover:text-white transition-colors"
+              >
                 Cancel
               </button>
             )}

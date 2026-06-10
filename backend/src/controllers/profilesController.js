@@ -120,6 +120,65 @@ exports.getCompany = async (req, res, next) => {
   }
 };
 
+// ── GET /api/companies/:id (public — by company_profiles row ID) ─────────────
+exports.getCompanyPublic = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const { data: cp, error } = await supabaseAdmin
+      .from('company_profiles')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !cp) return res.status(404).json({ success: false, message: 'Company not found' });
+
+    // Active open internships
+    const { data: offers } = await supabaseAdmin
+      .from('internship_offers')
+      .select('id, title, domain, location, duration_weeks, is_paid, stipend_amount, stipend_currency, openings, deadline, status, created_at')
+      .eq('company_id', id)
+      .eq('status', 'open')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    // Count all offers (for credibility)
+    const { count: totalOffers } = await supabaseAdmin
+      .from('internship_offers')
+      .select('id', { count: 'exact', head: true })
+      .eq('company_id', id);
+
+    const company = normaliseCompanyProfile(cp);
+
+    // Compute company profile completeness
+    const fields  = [cp.company_name, cp.description, cp.website_url, cp.logo_url, cp.sector, cp.city, cp.phone, cp.employee_size];
+    const filled  = fields.filter(Boolean).length;
+    const profileScore = Math.round((filled / fields.length) * 100);
+
+    res.json({
+      success: true,
+      data: {
+        ...company,
+        profileScore,
+        openOffers:  (offers || []).map(o => ({
+          id:            o.id,
+          title:         o.title,
+          domain:        o.domain,
+          location:      o.location,
+          durationWeeks: o.duration_weeks,
+          isPaid:        o.is_paid,
+          stipendAmount: o.stipend_amount,
+          stipendCurrency: o.stipend_currency,
+          openings:      o.openings,
+          deadline:      o.deadline,
+          createdAt:     o.created_at,
+        })),
+        totalOffersEver: totalOffers || 0,
+      },
+    });
+  } catch (err) { next(err); }
+};
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function computeProfileCompletion(p) {
   let score = 0;

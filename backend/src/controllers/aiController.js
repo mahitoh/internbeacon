@@ -1,6 +1,7 @@
 const pdfParse  = require('pdf-parse');
 const { supabaseAdmin } = require('../config/supabase');
 const { callAI, extractJSON, getActiveProviders } = require('../utils/aiProvider');
+const { computeFallbackMatch } = require('../utils/fallbackMatcher');
 
 // ── GET /api/ai/providers ─────────────────────────────────────────────────────
 exports.providers = (req, res) => {
@@ -147,13 +148,18 @@ Respond with ONLY valid JSON:
   "tip": "<one actionable tip to improve chances>"
 }`;
 
-    const { text } = await callAI(prompt, 512);
-
     let result;
     try {
+      const { text } = await callAI(prompt, 512);
       result = extractJSON(text);
-    } catch {
-      return res.status(500).json({ success: false, message: 'Failed to parse AI response' });
+      result.method = 'ai';
+    } catch (aiErr) {
+      if (aiErr.status === 503) {
+        console.log('[AI] All providers failed for matchOffer — using algorithmic fallback');
+        result = computeFallbackMatch(student, offer);
+      } else {
+        return res.status(500).json({ success: false, message: 'Failed to parse AI response' });
+      }
     }
 
     res.json({ success: true, data: result });
@@ -212,13 +218,27 @@ Respond with ONLY valid JSON array, ranked best to worst:
   ...
 ]`;
 
-    const { text } = await callAI(prompt, 1024);
-
     let rankings;
     try {
-      rankings = extractJSON(text, true);
-    } catch {
-      return res.status(500).json({ success: false, message: 'Failed to parse AI response' });
+      const { text } = await callAI(prompt, 1024);
+      rankings = extractJSON(text, true).map(r => ({ ...r, method: 'ai' }));
+    } catch (aiErr) {
+      if (aiErr.status === 503) {
+        console.log('[AI] All providers failed for rankApplicants — using algorithmic fallback');
+        rankings = apps.map(a => {
+          const sp = a.student_profiles || {};
+          const fallback = computeFallbackMatch(sp, offer);
+          return {
+            appId:   a.id,
+            score:   fallback.score,
+            verdict: fallback.verdict,
+            reason:  fallback.strengths[0] || 'Algorithmic estimate — AI unavailable',
+            method:  'algorithmic',
+          };
+        }).sort((a, b) => b.score - a.score);
+      } else {
+        return res.status(500).json({ success: false, message: 'Failed to parse AI response' });
+      }
     }
 
     res.json({ success: true, data: rankings });

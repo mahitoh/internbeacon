@@ -134,12 +134,33 @@ export default function StudentApplications() {
 
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2.5">
                       <span className="text-xs text-white/30">Applied {formatRelativeTime(app.appliedAt)}</span>
-                      {app.status === 'interview_scheduled' && app.interview?.date && (
-                        <span className="flex items-center gap-1 text-xs text-indigo-400">
-                          <Calendar size={11} />
-                          Interview {formatDate(app.interview.date)}
-                        </span>
-                      )}
+                      {app.status === 'interview_scheduled' && app.interview?.date && (() => {
+                        const interviewDate = new Date(app.interview.date);
+                        const daysUntil = Math.ceil((interviewDate - Date.now()) / 86400000);
+                        let label, chipCls;
+                        if (daysUntil < 0) {
+                          label = 'Interview passed';
+                          chipCls = 'text-white/30 bg-white/5 border-white/10';
+                        } else if (daysUntil === 0) {
+                          label = 'Interview today!';
+                          chipCls = 'text-lime-300 bg-lime-500/15 border-lime-500/30';
+                        } else if (daysUntil === 1) {
+                          label = 'Interview tomorrow';
+                          chipCls = 'text-amber-300 bg-amber-500/12 border-amber-500/25';
+                        } else if (daysUntil <= 7) {
+                          label = `Interview in ${daysUntil} days`;
+                          chipCls = 'text-indigo-300 bg-indigo-500/12 border-indigo-500/25';
+                        } else {
+                          label = `Interview ${formatDate(app.interview.date)}`;
+                          chipCls = 'text-indigo-400/70 bg-indigo-500/8 border-indigo-500/15';
+                        }
+                        return (
+                          <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md border ${chipCls}`}>
+                            <Calendar size={10} />
+                            {label}
+                          </span>
+                        );
+                      })()}
                     </div>
 
                     {/* Offer response CTA — only shown when accepted */}

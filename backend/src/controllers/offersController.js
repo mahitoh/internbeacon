@@ -1,4 +1,5 @@
 const { supabaseAdmin } = require('../config/supabase');
+const { computeRecommendationReasons } = require('../utils/fallbackMatcher');
 
 // ── GET /api/offers ────────────────────────────────────────────────────────────
 exports.list = async (req, res, next) => {
@@ -17,7 +18,19 @@ exports.list = async (req, res, next) => {
 
     if (domain)   query = query.eq('domain', domain);
     if (location) query = query.ilike('location', `%${location}%`);
-    if (search)   query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+    if (req.query.paid === 'true') query = query.eq('is_paid', true);
+    if (search) {
+      // Find matching company IDs first, then merge into the OR filter
+      const { data: matchingCompanies } = await supabaseAdmin
+        .from('company_profiles')
+        .select('id')
+        .ilike('company_name', `%${search}%`);
+      const companyIds = (matchingCompanies || []).map(c => c.id);
+
+      let filter = `title.ilike.%${search}%,description.ilike.%${search}%`;
+      if (companyIds.length > 0) filter += `,company_id.in.(${companyIds.join(',')})`;
+      query = query.or(filter);
+    }
 
     const offset = (Number(page) - 1) * Number(limit);
     query = query.range(offset, offset + Number(limit) - 1);
@@ -340,6 +353,59 @@ exports.myOffers = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+// ── GET /api/offers/recommended ───────────────────────────────────────────────
+exports.recommended = async (req, res, next) => {
+  try {
+    const { limit = 6 } = req.query;
+
+    const { data: sp } = await supabaseAdmin
+      .from('student_profiles')
+      .select('id, skills, programme, faculty, study_year, languages, ai_summary')
+      .eq('user_id', req.user.userId)
+      .single();
+
+    if (!sp) return res.status(400).json({ success: false, message: 'Student profile not found' });
+
+    // Get already-applied offer IDs so we don't recommend those
+    const { data: applied } = await supabaseAdmin
+      .from('applications')
+      .select('offer_id, internship_offers(domain)')
+      .eq('student_id', sp.id);
+    const appliedIds     = (applied || []).map(a => a.offer_id);
+    const appliedDomains = [...new Set((applied || []).map(a => a.internship_offers?.domain).filter(Boolean))];
+
+    // Build candidate pool: open offers, excluding already applied, domain-biased
+    let query = supabaseAdmin
+      .from('internship_offers')
+      .select(`
+        id, title, domain, location, duration_weeks, is_paid, stipend_amount,
+        stipend_currency, openings, deadline, start_date, status, views_count,
+        required_skills, requirements, description, created_at,
+        company_profiles ( id, company_name, sector, city, logo_url, is_verified )
+      `)
+      .eq('status', 'open')
+      .order('created_at', { ascending: false })
+      .limit(60); // candidate pool
+
+    if (appliedIds.length > 0) query = query.not('id', 'in', `(${appliedIds.join(',')})`);
+
+    const { data: pool } = await query;
+    if (!pool?.length) return res.json({ success: true, data: [] });
+
+    // Score every candidate and attach reasons
+    const scored = pool.map(offer => {
+      const match = computeRecommendationReasons(sp, offer);
+      return { ...normaliseOffer(offer), matchScore: match.score, matchReasons: match.reasons, matchVerdict: match.verdict };
+    });
+
+    // Sort by score desc, take top N
+    scored.sort((a, b) => b.matchScore - a.matchScore);
+    const top = scored.slice(0, Number(limit));
+
+    res.json({ success: true, data: top });
+  } catch (err) { next(err); }
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

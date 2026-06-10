@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../context/AuthContext';
-import { User, GraduationCap, Code2, Upload, Globe, Github, Linkedin, Save, FileCheck, Loader2, Sparkles, Eye } from 'lucide-react';
+import { User, GraduationCap, Code2, Upload, Globe, Github, Linkedin, Save, FileText, Loader2, Sparkles, Eye } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Avatar from '../../components/ui/Avatar';
 import CropModal from '../../components/ui/CropModal';
@@ -236,19 +236,39 @@ export default function StudentProfile() {
 
         {/* CV Upload */}
         <Section title="CV / Resume" icon={Upload}>
-          <div
-            onClick={() => cvInputRef.current?.click()}
-            className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center hover:border-lime-500/30 transition-colors cursor-pointer">
-            {uploadingCv
-              ? <Loader2 size={24} className="text-lime-400 mx-auto mb-2 animate-spin" />
-              : cvUploaded
-              ? <FileCheck size={24} className="text-lime-400 mx-auto mb-2" />
-              : <Upload size={24} className="text-white/30 mx-auto mb-2" />}
-            <p className="text-white/50 text-sm">
-              {uploadingCv ? 'Uploading…' : cvUploaded ? 'CV uploaded — click to replace' : 'Click to upload your CV'}
-            </p>
-            <p className="text-white/30 text-xs mt-1">PDF only, max 5 MB</p>
-          </div>
+          {cvUploaded ? (
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-white/8 bg-white/3">
+              <div className="w-10 h-12 rounded-lg bg-red-500/12 border border-red-500/20 flex items-center justify-center flex-shrink-0">
+                {uploadingCv
+                  ? <Loader2 size={16} className="text-red-400 animate-spin" />
+                  : <FileText size={18} className="text-red-400" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white truncate">
+                  {displayName ? `${displayName} — CV.pdf` : 'Resume.pdf'}
+                </p>
+                <p className="text-xs text-white/30 mt-0.5">PDF document · uploaded</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => cvInputRef.current?.click()}
+                className="text-xs text-white/40 hover:text-white/70 transition-colors px-2.5 py-1.5 rounded-lg border border-white/10 hover:border-white/20 flex-shrink-0">
+                Replace
+              </button>
+            </div>
+          ) : (
+            <div
+              onClick={() => cvInputRef.current?.click()}
+              className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center hover:border-lime-500/30 transition-colors cursor-pointer">
+              {uploadingCv
+                ? <Loader2 size={24} className="text-lime-400 mx-auto mb-2 animate-spin" />
+                : <Upload size={24} className="text-white/30 mx-auto mb-2" />}
+              <p className="text-white/50 text-sm">
+                {uploadingCv ? 'Uploading…' : 'Click to upload your CV'}
+              </p>
+              <p className="text-white/30 text-xs mt-1">PDF only, max 5 MB</p>
+            </div>
+          )}
           {cvUploaded && (
             <div className="flex gap-2">
               <button

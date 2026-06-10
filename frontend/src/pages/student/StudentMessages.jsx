@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Send, Briefcase } from 'lucide-react';
@@ -20,7 +20,9 @@ export default function StudentMessages() {
   const [msgLoading,   setMsgLoading]   = useState(false);
   const [input,        setInput]        = useState('');
   const [sending,      setSending]      = useState(false);
-  const bottomRef = useRef(null);
+  const [peerTyping,   setPeerTyping]   = useState(false);
+  const bottomRef    = useRef(null);
+  const typingTimer  = useRef(null);
 
   const { data: threads } = useQuery({
     queryKey: ['message-threads-student'],
@@ -67,19 +69,34 @@ export default function StudentMessages() {
     const onRead = ({ messageIds }) => {
       setMessages(prev => prev.map(m => messageIds.includes(m.id) ? { ...m, isRead: true } : m));
     };
+    const onTyping = ({ isTyping }) => setPeerTyping(isTyping);
     socket.on('new_message', onMessage);
     socket.on('messages_read', onRead);
+    socket.on('user_typing', onTyping);
     return () => {
       socket.off('new_message', onMessage);
       socket.off('messages_read', onRead);
+      socket.off('user_typing', onTyping);
       socket.emit('leave_thread', activeAppId);
+      setPeerTyping(false);
     };
   }, [socket, activeAppId, qc]);
 
   const switchThread = (id) => {
     setActiveAppId(String(id));
     setInput('');
+    setPeerTyping(false);
   };
+
+  const handleInputChange = useCallback((e) => {
+    setInput(e.target.value);
+    if (!socket || !activeAppId) return;
+    socket.emit('typing', { appId: activeAppId, isTyping: true });
+    clearTimeout(typingTimer.current);
+    typingTimer.current = setTimeout(() => {
+      socket.emit('typing', { appId: activeAppId, isTyping: false });
+    }, 2000);
+  }, [socket, activeAppId]);
 
   const sendMessage = async () => {
     if (!input.trim() || !activeAppId || sending) return;
@@ -175,6 +192,16 @@ export default function StudentMessages() {
                 </div>
               );
             })}
+            {peerTyping && (
+              <div className="flex gap-3">
+                <Avatar name={headerSubtitle} size="xs" />
+                <div className="bg-white/5 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            )}
             <div ref={bottomRef} />
           </div>
 
@@ -182,7 +209,7 @@ export default function StudentMessages() {
             <div className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-2.5">
               <input
                 value={input}
-                onChange={e => setInput(e.target.value)}
+                onChange={handleInputChange}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                 placeholder="Type a message…"
                 className="flex-1 bg-transparent text-white text-sm placeholder:text-white/30 focus:outline-none"

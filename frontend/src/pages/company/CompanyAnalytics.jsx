@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { offersApi } from '../../api/offers';
@@ -15,7 +15,15 @@ const PIE_GROUPS = [
   { key: 'Rejected',    statuses: ['rejected', 'withdrawn', 'offer_declined'],            color: '#ef4444' },
 ];
 
+const DATE_RANGES = [
+  { key: '30d',  label: '30 days',  days: 30  },
+  { key: '90d',  label: '3 months', days: 90  },
+  { key: 'all',  label: 'All time', days: null },
+];
+
 export default function CompanyAnalytics() {
+  const [range, setRange] = useState('all');
+
   const { data: offersData, isLoading: offersLoading } = useQuery({
     queryKey: ['my-offers'],
     queryFn:  () => offersApi.myOffers({ limit: 200 }).then(r => r.data.data || []),
@@ -26,8 +34,16 @@ export default function CompanyAnalytics() {
     queryFn:  () => applicationsApi.companyAll({ limit: 500 }).then(r => r.data.data || []),
   });
 
-  const offers = offersData || [];
-  const apps   = appsData   || [];
+  const offers  = offersData || [];
+  const allApps = appsData   || [];
+
+  const apps = useMemo(() => {
+    const selectedRange = DATE_RANGES.find(r => r.key === range);
+    if (!selectedRange?.days) return allApps;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - selectedRange.days);
+    return allApps.filter(a => a.appliedAt && new Date(a.appliedAt) >= cutoff);
+  }, [allApps, range]);
 
   const stats = useMemo(() => {
     const total        = apps.length;
@@ -97,9 +113,19 @@ export default function CompanyAnalytics() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-black text-white">Recruitment Analytics</h2>
-        <p className="text-white/40 text-sm mt-0.5">Track your internship hiring performance</p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="text-2xl font-black text-white">Recruitment Analytics</h2>
+          <p className="text-white/40 text-sm mt-0.5">Track your internship hiring performance</p>
+        </div>
+        <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-xl p-1 border border-white/5">
+          {DATE_RANGES.map(r => (
+            <button key={r.key} onClick={() => setRange(r.key)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${r.key === range ? 'bg-lime-500 text-white' : 'text-white/40 hover:text-white'}`}>
+              {r.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Stats grid */}

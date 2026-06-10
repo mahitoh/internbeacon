@@ -38,7 +38,7 @@ function buildGeminiProvider() {
       let lastError;
       for (const model of GEMINI_MODELS) {
         try {
-          const res = await fetch(
+          const res = await fetchWithTimeout(
             `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
             {
               method:  'POST',
@@ -76,7 +76,7 @@ function buildGroqProvider() {
   return {
     name: 'groq',
     call: async (prompt, maxTokens) => {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const res = await fetchWithTimeout('https://api.groq.com/openai/v1/chat/completions', {
         method:  'POST',
         headers: {
           'Content-Type':  'application/json',
@@ -103,7 +103,7 @@ function buildGrokProvider() {
   return {
     name: 'grok',
     call: async (prompt, maxTokens) => {
-      const res = await fetch('https://api.x.ai/v1/chat/completions', {
+      const res = await fetchWithTimeout('https://api.x.ai/v1/chat/completions', {
         method:  'POST',
         headers: {
           'Content-Type':  'application/json',

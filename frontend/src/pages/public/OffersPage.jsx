@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, X, Briefcase, Diamond } from 'lucide-react';
@@ -18,32 +18,37 @@ export default function OffersPage() {
   const [page,     setPage]     = useState(1);
   const [showFilter, setShowFilter] = useState(false);
 
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce search so we don't fire on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => { setDebouncedSearch(search); setPage(1); }, 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['offers', { domain, location, paid, page }],
-    queryFn:  () => offersApi.list({ domain, location, paid, page, limit: 12 }).then(r => ({
+    queryKey: ['offers', { domain, location, paid, page, search: debouncedSearch }],
+    queryFn:  () => offersApi.list({
+      ...(debouncedSearch ? { search: debouncedSearch } : {}),
+      ...(domain ? { domain } : {}),
+      ...(location ? { location } : {}),
+      ...(paid ? { paid } : {}),
+      page, limit: 12,
+    }).then(r => ({
       offers: r.data.data || [],
       total:  r.data.meta?.total  || 0,
       pages:  Math.ceil((r.data.meta?.total || 0) / 12) || 1,
     })),
+    keepPreviousData: true,
   });
 
   const offers = data?.offers || [];
   const total  = data?.total  || 0;
   const pages  = data?.pages  || 1;
+  const filteredOffers = offers; // server handles filtering now
 
-  const clearFilters = () => { setDomain(''); setLocation(''); setPaid(''); setPage(1); };
-  const hasFilters = domain || location || paid;
-
-  const filteredOffers = offers.filter(o => {
-    if (!search) return true;
-    const term = search.toLowerCase();
-    return (
-      o.title.toLowerCase().includes(term) ||
-      o.domain.toLowerCase().includes(term) ||
-      o.company?.companyName?.toLowerCase().includes(term) ||
-      o.description.toLowerCase().includes(term)
-    );
-  });
+  const clearFilters = () => { setSearch(''); setDomain(''); setLocation(''); setPaid(''); setPage(1); };
+  const hasFilters = search || domain || location || paid;
 
   return (
     <div className="min-h-screen bg-sand-50">
@@ -140,7 +145,7 @@ export default function OffersPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-6">
               <p className="text-xs sm:text-sm font-semibold text-forest-800/60">
-                {isLoading ? 'Loading…' : `${filteredOffers.length} internships found`}
+                {isLoading ? 'Loading…' : `${total} internship${total !== 1 ? 's' : ''} found`}
               </p>
               {hasFilters && (
                 <button onClick={clearFilters} className="flex items-center gap-1.5 text-xs font-bold text-forest-850 hover:text-forest-950">

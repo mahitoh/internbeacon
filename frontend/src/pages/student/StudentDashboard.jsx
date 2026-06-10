@@ -24,10 +24,10 @@ export default function StudentDashboard() {
   const name = user?.studentProfile?.firstName || 'Student';
 
   const { data: appsData }   = useQuery({ queryKey: ['my-apps'],    queryFn: () => applicationsApi.my().then(r => r.data.data) });
-  const { data: offersData } = useQuery({ queryKey: ['offers-rec'], queryFn: () => offersApi.list({ limit: 4 }).then(r => r.data.data) });
+  const { data: recData }    = useQuery({ queryKey: ['offers-rec'], queryFn: () => offersApi.recommended(4).then(r => r.data.data) });
 
   const apps      = appsData || [];
-  const recOffers = offersData || [];
+  const recOffers = recData  || [];
 
   const counts = {
     total:       apps.length,
@@ -187,11 +187,36 @@ export default function StudentDashboard() {
       {recOffers.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-white">Recommended Internships</h3>
-            <Link to="/student/offers" className="text-xs text-lime-400 hover:text-lime-300">View all →</Link>
+            <div>
+              <h3 className="font-semibold text-white">Recommended For You</h3>
+              <p className="text-xs text-white/30 mt-0.5">Matched to your programme, skills, and academic level</p>
+            </div>
+            <Link to="/student/offers" className="text-xs text-lime-400 hover:text-lime-300">Browse all →</Link>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
-            {recOffers.map(offer => <OfferCard key={offer.id} offer={offer} dark basePath="/student/offers" />)}
+            {recOffers.map(offer => (
+              <div key={offer.id} className="relative">
+                <OfferCard offer={offer} dark basePath="/student/offers" />
+                {offer.matchReasons?.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {offer.matchReasons.slice(0, 2).map((r, i) => (
+                      <span key={i} className="text-[10px] text-lime-400/70 bg-lime-500/5 border border-lime-500/15 px-2 py-0.5 rounded-full">
+                        {r}
+                      </span>
+                    ))}
+                    {offer.matchScore > 0 && (
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        offer.matchScore >= 70 ? 'text-lime-400 bg-lime-500/8 border-lime-500/20'
+                        : offer.matchScore >= 45 ? 'text-yellow-400 bg-yellow-500/8 border-yellow-500/20'
+                        : 'text-white/30 bg-white/3 border-white/8'
+                      }`}>
+                        {offer.matchScore}% fit
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}

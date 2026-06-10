@@ -1,13 +1,21 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Banknote, Building2, ExternalLink, ShieldCheck } from 'lucide-react';
 import { formatDate } from '../../lib/utils';
 
 export default function OfferCard({ offer, dark = false, basePath = '/offers' }) {
-  const bg = dark 
-    ? 'bg-forest-950/60 border-white/5 hover:border-lime-500/20 text-white' 
+  const navigate = useNavigate();
+  const bg = dark
+    ? 'bg-forest-950/60 border-white/5 hover:border-lime-500/20 text-white'
     : 'bg-white border-gray-100 hover:border-forest-200 hover:shadow-md';
   const text = dark ? 'text-white' : 'text-forest-950';
   const sub  = dark ? 'text-white/40' : 'text-forest-800/50';
+
+  const deadline       = offer.deadline ? new Date(offer.deadline) : null;
+  const daysLeft       = deadline ? Math.ceil((deadline - Date.now()) / 86400000) : null;
+  const isExpiringSoon = daysLeft !== null && daysLeft <= 3 && daysLeft >= 0;
+  const companyInitial = offer.company?.companyName?.[0]?.toUpperCase() ?? '?';
+  const initBgColors   = ['bg-violet-500/20','bg-blue-500/20','bg-lime-500/20','bg-orange-500/20','bg-pink-500/20'];
+  const initBg         = initBgColors[(companyInitial.charCodeAt(0) || 0) % initBgColors.length];
 
   return (
     <Link to={`${basePath}/${offer.id}`}
@@ -16,13 +24,23 @@ export default function OfferCard({ offer, dark = false, basePath = '/offers' })
         <div className="flex-1 min-w-0">
           {/* Company */}
           <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-forest-900 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden ${offer.company?.logoUrl ? 'bg-forest-900' : initBg}`}>
               {offer.company?.logoUrl
                 ? <img src={offer.company.logoUrl} className="w-full h-full rounded-lg object-cover" alt="" />
-                : <Building2 size={14} className="text-lime-400" />
+                : <span className="text-xs font-black text-white/80">{companyInitial}</span>
               }
             </div>
-            <span className={`text-xs font-bold ${sub}`}>{offer.company?.companyName}</span>
+            {offer.company?.id ? (
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/companies/${offer.company.id}`); }}
+                className={`text-xs font-bold ${sub} hover:text-lime-400 transition-colors cursor-pointer`}
+              >
+                {offer.company.companyName}
+              </button>
+            ) : (
+              <span className={`text-xs font-bold ${sub}`}>{offer.company?.companyName}</span>
+            )}
             {offer.company?.isVerified && (
               <ShieldCheck size={11} className="text-lime-400 flex-shrink-0" title="Verified company" />
             )}
@@ -62,7 +80,16 @@ export default function OfferCard({ offer, dark = false, basePath = '/offers' })
 
       {/* Deadline */}
       <div className={`mt-3 pt-3 border-t flex items-center justify-between ${dark ? 'border-white/5' : 'border-gray-100'}`}>
-        <span className={`text-xs font-semibold ${sub}`}>Deadline: {formatDate(offer.deadline)}</span>
+        <div className="flex items-center gap-2">
+          <span className={`text-xs font-semibold ${isExpiringSoon ? 'text-amber-400' : sub}`}>
+            Deadline: {formatDate(offer.deadline)}
+          </span>
+          {isExpiringSoon && (
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25">
+              {daysLeft === 0 ? 'Today' : `${daysLeft}d`}
+            </span>
+          )}
+        </div>
         <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${dark ? 'bg-lime-500/10 text-lime-400 border border-lime-500/25' : 'bg-[#f2faf6] text-forest-700 font-bold border border-[#def2e8]'}`}>
           {offer.openings} opening{offer.openings !== 1 ? 's' : ''}
         </span>

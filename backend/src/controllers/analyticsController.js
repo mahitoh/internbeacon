@@ -4,12 +4,12 @@ const { supabaseAdmin } = require('../config/supabase');
 exports.studentAnalytics = async (req, res, next) => {
   try {
     const { data: sp } = await supabaseAdmin
-      .from('student_profiles').select('id').eq('user_id', req.user.userId).single();
+      .from('student_profiles').select('id, skills').eq('user_id', req.user.userId).single();
     if (!sp) return res.status(400).json({ success: false, message: 'Profile not found' });
 
     const { data: apps } = await supabaseAdmin
       .from('applications')
-      .select('status, applied_at, reviewed_at, decided_at')
+      .select('status, applied_at, reviewed_at, decided_at, internship_offers(domain, required_skills)')
       .eq('student_id', sp.id);
 
     const all = apps || [];
@@ -33,6 +33,32 @@ exports.studentAnalytics = async (req, res, next) => {
         )
       : null;
 
+    // Most applied domain
+    const domainCounts = {};
+    all.forEach(a => {
+      const d = a.internship_offers?.domain;
+      if (d) domainCounts[d] = (domainCounts[d] || 0) + 1;
+    });
+    const mostAppliedDomain = Object.entries(domainCounts).sort(([,a],[,b]) => b - a)[0]?.[0] || null;
+
+    // Missing skills — collect required skills from offers where student was rejected/not shortlisted
+    const studentSkills = new Set((sp.skills || []).map(s => s.toLowerCase().trim()));
+    const missingSkillCounts = {};
+    all.forEach(a => {
+      if (['rejected', 'withdrawn'].includes(a.status)) {
+        (a.internship_offers?.required_skills || []).forEach(s => {
+          const norm = s.toLowerCase().trim();
+          if (!studentSkills.has(norm)) {
+            missingSkillCounts[s] = (missingSkillCounts[s] || 0) + 1;
+          }
+        });
+      }
+    });
+    const missingSkills = Object.entries(missingSkillCounts)
+      .sort(([,a],[,b]) => b - a)
+      .slice(0, 6)
+      .map(([skill]) => skill);
+
     res.json({
       success: true,
       data: {
@@ -41,6 +67,8 @@ exports.studentAnalytics = async (req, res, next) => {
         interviewRate:     counts.total > 0 ? Math.round((counts.interviewed  / counts.total) * 100) : 0,
         acceptanceRate:    counts.total > 0 ? Math.round((counts.accepted     / counts.total) * 100) : 0,
         avgReviewTimeHours: avgReviewHours,
+        mostAppliedDomain,
+        missingSkills,
         statusBreakdown: {
           active:       counts.active,
           shortlisted:  all.filter(a => a.status === 'shortlisted').length,

@@ -9,10 +9,11 @@ const {
 } = require('../utils/validators');
 
 // ── Public ────────────────────────────────────────────────────────────────────
-router.get('/',           ctrl.list);
-router.get('/bookmarks',  authenticate, authorize('student'), ctrl.listBookmarks);
-router.get('/my',         authenticate, authorize('company'),  ctrl.myOffers);
-router.get('/:id',        ctrl.get);
+router.get('/',               ctrl.list);
+router.get('/bookmarks',      authenticate, authorize('student'), ctrl.listBookmarks);
+router.get('/recommended',    authenticate, authorize('student'), ctrl.recommended);
+router.get('/my',             authenticate, authorize('company'), ctrl.myOffers);
+router.get('/:id',            ctrl.get);
 
 // ── Company only ──────────────────────────────────────────────────────────────
 router.post('/',    authenticate, authorize('company'), createOfferRules, validate, ctrl.create);

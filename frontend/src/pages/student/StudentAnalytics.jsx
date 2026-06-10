@@ -1,19 +1,68 @@
 import { useQuery } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart2, TrendingUp, Calendar, CheckCircle2, XCircle, Clock, Briefcase, Star } from 'lucide-react';
+import { BarChart2, TrendingUp, Calendar, CheckCircle2, XCircle, Clock, Briefcase, Star, Tag, AlertTriangle } from 'lucide-react';
+import { applicationsApi } from '../../api/applications';
 import { analyticsApi } from '../../api/analytics';
 import Spinner from '../../components/ui/Spinner';
 import { Link } from 'react-router-dom';
 
+const DATE_RANGES = [
+  { key: '30d', label: '30 days', days: 30  },
+  { key: '90d', label: '3 months', days: 90  },
+  { key: 'all', label: 'All time', days: null },
+];
+
+function calcStats(apps) {
+  const total        = apps.length;
+  const shortlisted  = apps.filter(a => ['shortlisted','interview_scheduled','interview_completed','final_review','accepted','offer_accepted'].includes(a.status)).length;
+  const interviewed  = apps.filter(a => ['interview_scheduled','interview_completed','final_review','accepted','offer_accepted'].includes(a.status)).length;
+  const accepted     = apps.filter(a => ['accepted','offer_accepted'].includes(a.status)).length;
+  const shortlistRate  = total > 0 ? Math.round((shortlisted  / total) * 100) : 0;
+  const interviewRate  = total > 0 ? Math.round((interviewed  / total) * 100) : 0;
+  const acceptanceRate = total > 0 ? Math.round((accepted     / total) * 100) : 0;
+  const statusBreakdown = {
+    active:        apps.filter(a => ['submitted','under_review','final_review'].includes(a.status)).length,
+    shortlisted:   apps.filter(a => a.status === 'shortlisted').length,
+    interview:     apps.filter(a => ['interview_scheduled','interview_completed'].includes(a.status)).length,
+    accepted:      apps.filter(a => a.status === 'accepted').length,
+    offerAccepted: apps.filter(a => a.status === 'offer_accepted').length,
+    rejected:      apps.filter(a => ['rejected','withdrawn','offer_declined'].includes(a.status)).length,
+  };
+  return { totalApplications: total, shortlistRate, interviewRate, acceptanceRate, avgReviewTimeHours: null, statusBreakdown };
+}
+
 export default function StudentAnalytics() {
-  const { data, isLoading } = useQuery({
+  const [range, setRange] = useState('all');
+
+  const { data: rawApps, isLoading } = useQuery({
+    queryKey: ['my-apps'],
+    queryFn:  () => applicationsApi.my().then(r => r.data.data),
+  });
+
+  const { data: insightsData } = useQuery({
     queryKey: ['student-analytics'],
     queryFn:  () => analyticsApi.student().then(r => r.data.data),
+    staleTime: 5 * 60 * 1000,
   });
+
+  const mostAppliedDomain = insightsData?.mostAppliedDomain ?? null;
+  const missingSkills     = insightsData?.missingSkills     ?? [];
+
+  const apps = useMemo(() => {
+    if (!rawApps) return [];
+    const selectedRange = DATE_RANGES.find(r => r.key === range);
+    if (!selectedRange?.days) return rawApps;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - selectedRange.days);
+    return rawApps.filter(a => a.appliedAt && new Date(a.appliedAt) >= cutoff);
+  }, [rawApps, range]);
+
+  const data = useMemo(() => calcStats(apps), [apps]);
 
   if (isLoading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
-  if (!data || data.totalApplications === 0) {
+  if (!rawApps?.length) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-white/30">
         <BarChart2 size={40} className="mb-3" />
@@ -79,10 +128,26 @@ export default function StudentAnalytics() {
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Header */}
-      <div>
-        <h2 className="text-2xl font-black text-white">My Analytics</h2>
-        <p className="text-white/40 text-sm mt-0.5">Track your internship search performance</p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="text-2xl font-black text-white">My Analytics</h2>
+          <p className="text-white/40 text-sm mt-0.5">Track your internship search performance</p>
+        </div>
+        <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-xl p-1 border border-white/5">
+          {DATE_RANGES.map(r => (
+            <button key={r.key} onClick={() => setRange(r.key)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${r.key === range ? 'bg-lime-500 text-white' : 'text-white/40 hover:text-white'}`}>
+              {r.label}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {apps.length === 0 && rawApps?.length > 0 && (
+        <div className="p-4 bg-white/3 rounded-xl border border-white/8 text-sm text-white/40 text-center">
+          No applications in the last {DATE_RANGES.find(r => r.key === range)?.label}. Try "All time".
+        </div>
+      )}
 
       {/* Stat grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -134,6 +199,39 @@ export default function StudentAnalytics() {
           ))}
         </div>
       </div>
+
+      {/* Domain & Missing Skills */}
+      {(mostAppliedDomain || missingSkills.length > 0) && (
+        <div className="grid sm:grid-cols-2 gap-4">
+          {mostAppliedDomain && (
+            <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Tag size={14} className="text-indigo-400" />
+                <h3 className="font-semibold text-white text-sm">Most Applied Domain</h3>
+              </div>
+              <p className="text-2xl font-black text-indigo-400">{mostAppliedDomain}</p>
+              <p className="text-xs text-white/30 mt-1">Your most common target sector</p>
+            </div>
+          )}
+
+          {missingSkills.length > 0 && (
+            <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle size={14} className="text-orange-400" />
+                <h3 className="font-semibold text-white text-sm">Skills to Work On</h3>
+              </div>
+              <p className="text-xs text-white/35 mb-3">From offers where you weren't selected</p>
+              <div className="flex flex-wrap gap-1.5">
+                {missingSkills.map(skill => (
+                  <span key={skill} className="px-2 py-0.5 text-xs rounded-lg bg-orange-500/8 border border-orange-500/20 text-orange-300">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Tips */}
       <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6">

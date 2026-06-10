@@ -62,18 +62,32 @@ export default function CompanyApplications() {
 
       {/* AI Ranking bar */}
       {offerOptions.length > 0 && (
-        <div className="flex items-center gap-3 p-4 bg-violet-500/5 border border-violet-500/15 rounded-2xl">
-          <Sparkles size={16} className="text-violet-400 flex-shrink-0" />
-          <span className="text-sm text-white/60 font-medium flex-shrink-0">AI Rank Applicants:</span>
-          <select value={rankOfferId} onChange={e => { setRankOfferId(e.target.value); setRankings(null); }}
-            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-violet-500/50 appearance-none">
-            <option value="" className="bg-[#1a1a1a]">Select an offer…</option>
-            {offerOptions.map(o => <option key={o.id} value={o.id} className="bg-[#1a1a1a]">{o.title}</option>)}
-          </select>
-          <button onClick={handleRank} disabled={ranking || !rankOfferId}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 text-violet-300 text-sm font-semibold transition-all disabled:opacity-40">
-            {ranking ? <><Loader2 size={13} className="animate-spin" /> Ranking…</> : 'Rank'}
-          </button>
+        <div className="p-4 bg-violet-500/5 border border-violet-500/15 rounded-2xl space-y-3">
+          <div className="flex items-start gap-3">
+            <Sparkles size={16} className="text-violet-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white">AI Applicant Ranking</p>
+              <p className="text-xs text-white/40 mt-0.5 leading-relaxed">
+                Unlike keyword search, AI reads each candidate's full profile — programme, skills, cover letter, and experience — and scores their fit 0–100 against the offer requirements. Strengths and gaps are identified and candidates are ranked best to worst.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <select value={rankOfferId} onChange={e => { setRankOfferId(e.target.value); setRankings(null); }}
+              className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-violet-500/50 appearance-none">
+              <option value="" className="bg-[#1a1a1a]">Select an offer…</option>
+              {offerOptions.map(o => <option key={o.id} value={o.id} className="bg-[#1a1a1a]">{o.title}</option>)}
+            </select>
+            <button onClick={handleRank} disabled={ranking || !rankOfferId}
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 text-violet-300 text-sm font-semibold transition-all disabled:opacity-40 flex-shrink-0">
+              {ranking ? <><Loader2 size={13} className="animate-spin" /> Ranking…</> : <><Sparkles size={13} /> Rank</>}
+            </button>
+          </div>
+          {rankings && (
+            <p className="text-xs text-violet-400/70">
+              Ranked {rankings.length} candidate{rankings.length !== 1 ? 's' : ''} — scores shown in the table below.
+            </p>
+          )}
         </div>
       )}
 
@@ -132,13 +146,18 @@ export default function CompanyApplications() {
                         <StatusBadge status={app.status} />
                       </td>
                       {rankings && (
-                        <td className="px-5 py-4">
+                        <td className="px-5 py-4 max-w-[180px]">
                           {rankMap[app.id] ? (
-                            <div className="flex items-center gap-1.5">
-                              <span className={`text-sm font-black ${rankMap[app.id].score >= 70 ? 'text-lime-400' : rankMap[app.id].score >= 45 ? 'text-yellow-400' : 'text-red-400'}`}>
-                                {rankMap[app.id].score}%
-                              </span>
-                              <span className="text-xs text-white/30">{rankMap[app.id].verdict}</span>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span className={`text-sm font-black ${rankMap[app.id].score >= 70 ? 'text-lime-400' : rankMap[app.id].score >= 45 ? 'text-yellow-400' : 'text-red-400'}`}>
+                                  {rankMap[app.id].score}%
+                                </span>
+                                <span className="text-xs text-white/30">{rankMap[app.id].verdict}</span>
+                              </div>
+                              {rankMap[app.id].reason && (
+                                <p className="text-[10px] text-white/30 leading-tight mt-0.5 line-clamp-2">{rankMap[app.id].reason}</p>
+                              )}
                             </div>
                           ) : <span className="text-white/20 text-xs">—</span>}
                         </td>
