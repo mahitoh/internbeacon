@@ -8,7 +8,12 @@ import { ThemeProvider, useTheme } from './context/ThemeContext.jsx';
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: 1, staleTime: 30_000 },
+    queries: {
+      retry: 1,
+      staleTime: 2 * 60_000,        // 2 min — avoids hammering the API on every re-render
+      gcTime: 10 * 60_000,          // keep cache 10 min before GC
+      refetchOnWindowFocus: false,  // don't refetch when user alt-tabs back
+    },
   },
 });
 

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
@@ -31,6 +31,8 @@ export default function StudentProfile() {
   const [cropSrc,        setCropSrc]        = useState(null);
   const cvInputRef    = useRef(null);
   const photoInputRef = useRef(null);
+  const dragCounterRef = useRef(0);
+  const [isDraggingCv, setIsDraggingCv] = useState(false);
 
   const { data: prefs } = useQuery({
     queryKey: ['notification-prefs'],
@@ -90,9 +92,10 @@ export default function StudentProfile() {
     }
   };
 
-  const handleCvChange = async (e) => {
-    const file = e.target.files?.[0];
+  const handleCvFile = useCallback(async (file) => {
     if (!file) return;
+    if (file.type !== 'application/pdf') { toast.error('Only PDF files are accepted'); return; }
+    if (file.size > 5 * 1024 * 1024)    { toast.error('File too large — max 5 MB');   return; }
     setUploadingCv(true);
     try {
       await uploadApi.cv(file);
@@ -102,6 +105,26 @@ export default function StudentProfile() {
     } catch {
       toast.error('CV upload failed — max 5 MB PDF only');
     } finally { setUploadingCv(false); }
+  }, [refetchUser]);
+
+  const handleCvChange = (e) => handleCvFile(e.target.files?.[0]);
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    dragCounterRef.current++;
+    if (dragCounterRef.current === 1) setIsDraggingCv(true);
+  };
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    dragCounterRef.current--;
+    if (dragCounterRef.current === 0) setIsDraggingCv(false);
+  };
+  const handleDragOver  = (e) => { e.preventDefault(); };
+  const handleDrop = (e) => {
+    e.preventDefault();
+    dragCounterRef.current = 0;
+    setIsDraggingCv(false);
+    handleCvFile(e.dataTransfer.files?.[0]);
   };
 
   const handlePhotoChange = (e) => {
@@ -273,15 +296,35 @@ export default function StudentProfile() {
             </div>
           ) : (
             <div
-              onClick={() => cvInputRef.current?.click()}
-              className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center hover:border-lime-500/30 transition-colors cursor-pointer">
-              {uploadingCv
-                ? <Loader2 size={24} className="text-lime-400 mx-auto mb-2 animate-spin" />
-                : <Upload size={24} className="text-white/30 mx-auto mb-2" />}
-              <p className="text-white/50 text-sm">
-                {uploadingCv ? 'Uploading…' : 'Click to upload your CV'}
+              onClick={() => !uploadingCv && cvInputRef.current?.click()}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer select-none
+                ${isDraggingCv
+                  ? 'border-lime-400/60 bg-lime-500/8 scale-[1.01]'
+                  : 'border-white/10 hover:border-lime-500/30 hover:bg-white/2'
+                }`}>
+              {uploadingCv ? (
+                <Loader2 size={28} className="text-lime-400 mx-auto mb-3 animate-spin" />
+              ) : isDraggingCv ? (
+                <div className="w-12 h-12 rounded-2xl bg-lime-500/15 border border-lime-500/30 flex items-center justify-center mx-auto mb-3">
+                  <Upload size={22} className="text-lime-400" />
+                </div>
+              ) : (
+                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3">
+                  <Upload size={22} className="text-white/30" />
+                </div>
+              )}
+              <p className={`text-sm font-medium transition-colors ${isDraggingCv ? 'text-lime-400' : 'text-white/50'}`}>
+                {uploadingCv ? 'Uploading…' : isDraggingCv ? 'Drop your PDF here' : 'Drag & drop your CV here'}
               </p>
-              <p className="text-white/30 text-xs mt-1">PDF only, max 5 MB</p>
+              {!uploadingCv && (
+                <p className="text-white/30 text-xs mt-1">
+                  {isDraggingCv ? '' : 'or click to browse — '}PDF only, max 5 MB
+                </p>
+              )}
             </div>
           )}
           {cvUploaded && (

@@ -60,11 +60,23 @@ Rules:
 - languages: spoken languages only
 - summary: written in third person`;
 
-    const { text } = await callAI(prompt, 1024);
+    let aiText;
+    try {
+      const { text } = await callAI(prompt, 1024);
+      aiText = text;
+    } catch (aiErr) {
+      if (aiErr.status === 503) {
+        return res.status(503).json({
+          success: false,
+          message: 'AI analysis is currently unavailable. Please try again in a few minutes.',
+        });
+      }
+      throw aiErr;
+    }
 
     let extracted;
     try {
-      extracted = extractJSON(text);
+      extracted = extractJSON(aiText);
     } catch {
       return res.status(500).json({ success: false, message: 'Failed to parse AI response' });
     }

@@ -250,7 +250,7 @@ export default function ApplicationDetail() {
             <button
               onClick={viewCv}
               disabled={cvLoading}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-white/8 bg-white/3 hover:bg-white/6 hover:border-white/15 transition-all group disabled:opacity-60"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 hover:border-white/25 transition-all group disabled:opacity-60"
             >
               <div className="w-9 h-10 rounded-lg bg-red-500/12 border border-red-500/20 flex items-center justify-center flex-shrink-0">
                 {cvLoading
@@ -265,7 +265,7 @@ export default function ApplicationDetail() {
                   ) : 'PDF · Click to preview'}
                 </p>
               </div>
-              <Eye size={12} className="text-white/20 group-hover:text-white/50 transition-colors ml-1" />
+              <Eye size={12} className="text-white/60 group-hover:text-white transition-colors ml-1" />
             </button>
           )}
           {app.student?.linkedinUrl && (
