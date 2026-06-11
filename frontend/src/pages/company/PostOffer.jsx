@@ -23,7 +23,9 @@ export default function PostOffer() {
 
   const addSkill = (raw) => {
     const trimmed = raw.trim();
-    if (trimmed && !skills.includes(trimmed)) setSkills(prev => [...prev, trimmed]);
+    if (!trimmed) { setSkillInput(''); return; }
+    const lc = trimmed.toLowerCase();
+    if (!skills.some(s => s.toLowerCase() === lc)) setSkills(prev => [...prev, trimmed]);
     setSkillInput('');
   };
 
@@ -173,8 +175,12 @@ export default function PostOffer() {
             <DarkField label="Number of Openings" type="number" min="1"
               {...register('openings', { min: 1 })} />
             <DarkField label="Application Deadline *" type="date"
+              min={new Date().toISOString().split('T')[0]}
               error={errors.deadline?.message}
-              {...register('deadline', { required: 'Deadline is required' })} />
+              {...register('deadline', {
+                required: 'Deadline is required',
+                validate: v => !v || new Date(v) > new Date() || 'Deadline must be in the future',
+              })} />
           </div>
 
           <DarkField label="Preferred Start Date" type="date" {...register('startDate')} />

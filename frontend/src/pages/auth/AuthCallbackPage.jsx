@@ -33,6 +33,7 @@ export default function AuthCallbackPage() {
           navigate('/onboarding', { replace: true });
         } else {
           await refetchUser();
+          toast.success('Welcome back!');
           navigate(
             u.role === 'student' ? '/student/dashboard' :
             u.role === 'company' ? '/company/dashboard' :

@@ -49,7 +49,9 @@ export default function EditOffer() {
 
   const addSkill = (raw) => {
     const trimmed = raw.trim();
-    if (trimmed && !skills.includes(trimmed)) setSkills(prev => [...prev, trimmed]);
+    if (!trimmed) { setSkillInput(''); return; }
+    const lc = trimmed.toLowerCase();
+    if (!skills.some(s => s.toLowerCase() === lc)) setSkills(prev => [...prev, trimmed]);
     setSkillInput('');
   };
 
@@ -202,7 +204,9 @@ export default function EditOffer() {
               {...register('openings', { min: 1 })} />
             <DarkField label="Application Deadline *" type="date"
               error={errors.deadline?.message}
-              {...register('deadline', { required: 'Deadline is required' })} />
+              {...register('deadline', {
+                required: 'Deadline is required',
+              })} />
           </div>
 
           <DarkField label="Preferred Start Date" type="date" {...register('startDate')} />

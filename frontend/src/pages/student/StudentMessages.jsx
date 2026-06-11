@@ -192,7 +192,12 @@ export default function StudentMessages() {
               const isMe = msg.senderId === user?.id;
               return (
                 <div key={msg.id || i} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
-                  <Avatar name={isMe ? 'Me' : headerSubtitle} size="xs" />
+                  <Avatar
+                    name={isMe ? 'Me' : headerSubtitle}
+                    src={isMe
+                      ? (user?.studentProfile?.avatarUrl || user?.avatarUrl)
+                      : activeThread?.offer?.company_profiles?.logo_url}
+                    size="xs" />
                   <div className={`max-w-xs rounded-2xl px-4 py-2.5 ${isMe ? 'bg-lime-500 text-white rounded-tr-sm' : 'bg-white/5 text-white rounded-tl-sm'}`}>
                     <p className="text-sm leading-relaxed">{msg.content}</p>
                     <p className={`text-[10px] mt-1 ${isMe ? 'text-white/60' : 'text-white/30'}`}>{formatRelativeTime(msg.sentAt)}</p>
@@ -202,7 +207,7 @@ export default function StudentMessages() {
             })}
             {peerTyping && (
               <div className="flex gap-3">
-                <Avatar name={headerSubtitle} size="xs" />
+                <Avatar name={headerSubtitle} src={activeThread?.offer?.company_profiles?.logo_url} size="xs" />
                 <div className="bg-white/5 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }} />

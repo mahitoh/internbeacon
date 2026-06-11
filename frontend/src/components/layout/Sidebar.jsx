@@ -71,6 +71,13 @@ export default function Sidebar({ role, mobileOpen = false, onMobileClose }) {
     ? user?.companyProfile?.companyName || user?.email
     : user?.email;
 
+  // Uploaded profile image first, then Google avatar, else <Avatar> shows initials
+  const avatarSrc = role === 'student'
+    ? user?.studentProfile?.avatarUrl || user?.avatarUrl
+    : role === 'company'
+    ? user?.companyProfile?.logoUrl || user?.avatarUrl
+    : user?.avatarUrl;
+
   return (
     <aside className={cn(
       'flex flex-col bg-[#111111] border-r border-white/5 transition-all duration-300 h-screen',
@@ -155,7 +162,7 @@ export default function Sidebar({ role, mobileOpen = false, onMobileClose }) {
       {/* User section */}
       <div className="border-t border-white/5 p-3">
         <div className={cn('flex items-center gap-3', collapsed ? 'justify-center' : '')}>
-          <Avatar name={displayName} size="sm" />
+          <Avatar name={displayName} src={avatarSrc} size="sm" />
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{displayName}</p>

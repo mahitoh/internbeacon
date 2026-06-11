@@ -148,16 +148,6 @@ export default function DashboardTopbar({ title, role, onMenuToggle }) {
             + Post Internship
           </button>
         )}
-
-        {/* User avatar */}
-        <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white/10">
-          {user?.avatarUrl
-            ? <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-            : <div className="w-full h-full bg-lime-500/20 flex items-center justify-center text-lime-400 text-xs font-bold">
-                {(user?.email?.[0] || '?').toUpperCase()}
-              </div>
-          }
-        </div>
       </div>
     </header>
   );

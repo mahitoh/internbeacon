@@ -118,7 +118,7 @@ function InterviewCard({ app, isPast }) {
 export default function StudentInterviewCenter() {
   const { data: rawApps, isLoading } = useQuery({
     queryKey: ['my-apps'],
-    queryFn:  () => applicationsApi.my().then(r => r.data.data),
+    queryFn:  () => applicationsApi.my({ limit: 100 }).then(r => r.data.data),
   });
 
   const apps = rawApps || [];
@@ -129,7 +129,7 @@ export default function StudentInterviewCenter() {
 
   const now = Date.now();
   const upcoming = interviewApps
-    .filter(a => new Date(a.interview.date) >= now || a.status === 'interview_scheduled')
+    .filter(a => a.status === 'interview_scheduled' && new Date(a.interview.date) >= now)
     .sort((a, b) => new Date(a.interview.date) - new Date(b.interview.date));
 
   const past = interviewApps

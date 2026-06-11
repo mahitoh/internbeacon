@@ -1,5 +1,6 @@
 const { supabaseAdmin } = require('../config/supabase');
 const { computeRecommendationReasons } = require('../utils/fallbackMatcher');
+const { fireOfferAlerts } = require('../utils/offerAlerts');
 
 // ── GET /api/offers ────────────────────────────────────────────────────────────
 exports.list = async (req, res, next) => {
@@ -127,6 +128,8 @@ exports.create = async (req, res, next) => {
 
     if (error) throw error;
 
+    if (data.status === 'open') fireOfferAlerts(data);
+
     res.status(201).json({ success: true, data: normaliseOffer(data) });
   } catch (err) {
     next(err);
@@ -147,7 +150,7 @@ exports.update = async (req, res, next) => {
 
     const { data: existing } = await supabaseAdmin
       .from('internship_offers')
-      .select('company_id')
+      .select('company_id, status')
       .eq('id', id)
       .single();
 
@@ -182,6 +185,9 @@ exports.update = async (req, res, next) => {
       .single();
 
     if (error) throw error;
+
+    // Fire alerts when a draft is published (status transitions to open)
+    if (updates.status === 'open' && existing.status !== 'open') fireOfferAlerts(data);
 
     res.json({ success: true, data: normaliseOffer(data) });
   } catch (err) {
@@ -331,7 +337,7 @@ exports.myOffers = async (req, res, next) => {
       .from('internship_offers')
       .select(`
         id, title, domain, location, duration_weeks, is_paid, stipend_amount,
-        stipend_currency, openings, deadline, start_date, status, views_count, created_at,
+        stipend_currency, openings, filled_count, deadline, start_date, status, views_count, created_at,
         company_profiles ( id, company_name, sector, city, logo_url, is_verified )
       `, { count: 'exact' })
       .eq('company_id', cp.id)
@@ -430,6 +436,7 @@ function normaliseOffer(o) {
     requiredSkills:  rest.required_skills,
     status:          rest.status,
     viewsCount:      rest.views_count,
+    filledCount:     rest.filled_count ?? 0,
     createdAt:       rest.created_at,
     updatedAt:       rest.updated_at,
     companyId:       rest.company_id,

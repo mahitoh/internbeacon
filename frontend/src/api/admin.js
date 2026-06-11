@@ -1,7 +1,8 @@
 import api from './axios';
 
 export const adminApi = {
-  stats: () => api.get('/admin/stats'),
+  stats:  ()         => api.get('/admin/stats'),
+  trends: (days=30)  => api.get('/admin/trends', { params: { days } }),
 
   listUsers:  (params)       => api.get('/admin/users', { params }),
   getUser:    (id)            => api.get(`/admin/users/${id}`),

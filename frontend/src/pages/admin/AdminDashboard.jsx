@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Users, Briefcase, FileText, MessageSquare, CheckCircle2, Clock, Send, Radio } from 'lucide-react';
+import { Users, Briefcase, FileText, Send, Radio, TrendingUp } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import Spinner from '../../components/ui/Spinner';
 import { formatRelativeTime } from '../../lib/utils';
 import toast from 'react-hot-toast';
+import { useTheme } from '../../context/ThemeContext';
+import {
+  AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend,
+} from 'recharts';
 
 function StatBlock({ label, value, sub, color = 'lime' }) {
   const colors = { lime: 'text-lime-400', blue: 'text-blue-400', orange: 'text-orange-400', red: 'text-red-400', purple: 'text-purple-400' };
@@ -17,16 +21,34 @@ function StatBlock({ label, value, sub, color = 'lime' }) {
   );
 }
 
+const PERIOD_OPTIONS = [
+  { label: '7d',  days: 7 },
+  { label: '30d', days: 30 },
+  { label: '90d', days: 90 },
+];
+
+function shortDate(iso) {
+  const [, m, d] = iso.split('-');
+  return `${d}/${m}`;
+}
+
 export default function AdminDashboard() {
   const qc = useQueryClient();
+  const { isDark } = useTheme();
   const [broadcastTitle, setBroadcastTitle] = useState('');
   const [broadcastBody,  setBroadcastBody]  = useState('');
   const [broadcastRole,  setBroadcastRole]  = useState('');
-  const [sending, setSending] = useState(false);
+  const [sending,        setSending]        = useState(false);
+  const [trendDays,      setTrendDays]      = useState(30);
 
   const { data: stats, isLoading } = useQuery({
     queryKey: ['admin-stats'],
     queryFn:  () => adminApi.stats().then(r => r.data.data),
+  });
+
+  const { data: trendData } = useQuery({
+    queryKey: ['admin-trends', trendDays],
+    queryFn:  () => adminApi.trends(trendDays).then(r => r.data.data),
   });
 
   const sendBroadcast = async () => {
@@ -53,6 +75,17 @@ export default function AdminDashboard() {
   if (isLoading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const s = stats;
+
+  // Thin out labels so they don't crowd the x-axis
+  const tickEvery = trendDays <= 7 ? 1 : trendDays <= 30 ? 5 : 10;
+  const chartData = (trendData || []).map((d, i) => ({
+    ...d,
+    label: i % tickEvery === 0 ? shortDate(d.date) : '',
+  }));
+
+  const tooltipStyle = isDark
+    ? { background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#fff' }
+    : { background: '#ffffff', border: '1px solid #e7e4d5', borderRadius: 8, fontSize: 12, color: '#0f2d20' };
 
   return (
     <div className="space-y-6">
@@ -95,12 +128,51 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Messages */}
-      <div>
-        <h3 className="text-xs font-semibold text-white/30 uppercase tracking-widest mb-3">Engagement</h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatBlock label="Total Messages" value={s?.messages} color="purple" />
+      {/* Trend chart */}
+      <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={14} className="text-lime-400" />
+            <h3 className="font-semibold text-white text-sm">Platform Activity</h3>
+          </div>
+          <div className="flex items-center gap-1.5 bg-white/5 rounded-xl p-1">
+            {PERIOD_OPTIONS.map(o => (
+              <button key={o.days} onClick={() => setTrendDays(o.days)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${trendDays === o.days ? 'bg-lime-500 text-white' : 'text-white/40 hover:text-white'}`}>
+                {o.label}
+              </button>
+            ))}
+          </div>
         </div>
+        {chartData.length > 0 ? (
+          <div className="h-52">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gSignups" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#84cc16" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#84cc16" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gApps" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#a855f7" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#a855f7" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                <XAxis dataKey="label" tick={{ fill: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(15,45,32,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis allowDecimals={false} tick={{ fill: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(15,45,32,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={tooltipStyle} itemStyle={{ color: isDark ? 'rgba(255,255,255,0.7)' : '#0f2d20' }} />
+                <Legend wrapperStyle={{ fontSize: 11, color: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(15,45,32,0.5)' }} />
+                <Area type="monotone" dataKey="signups"      name="Signups"      stroke="#84cc16" strokeWidth={2} fill="url(#gSignups)" dot={false} activeDot={{ r: 4 }} />
+                <Area type="monotone" dataKey="applications" name="Applications" stroke="#a855f7" strokeWidth={2} fill="url(#gApps)"    dot={false} activeDot={{ r: 4 }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="h-52 flex items-center justify-center text-white/20">
+            <p className="text-sm">No data yet</p>
+          </div>
+        )}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">

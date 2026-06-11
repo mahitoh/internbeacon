@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Briefcase, FileText, CheckCircle2, Clock, Plus, Eye, Star, Calendar, XCircle, TrendingUp } from 'lucide-react';
+import { Briefcase, FileText, CheckCircle2, Clock, Plus, Eye, TrendingUp } from 'lucide-react';
 import { offersApi } from '../../api/offers';
 import { applicationsApi } from '../../api/applications';
 import { useAuth } from '../../context/AuthContext';
@@ -20,12 +20,12 @@ export default function CompanyDashboard() {
 
   const { data: offersData } = useQuery({
     queryKey: ['my-offers'],
-    queryFn:  () => offersApi.myOffers({ limit: 10 }).then(r => r.data.data),
+    queryFn:  () => offersApi.myOffers({ limit: 100 }).then(r => r.data.data),
   });
 
   const { data: appsData } = useQuery({
     queryKey: ['company-apps'],
-    queryFn:  () => applicationsApi.companyAll().then(r => r.data.data),
+    queryFn:  () => applicationsApi.companyAll({ limit: 500 }).then(r => r.data.data),
   });
 
   const offers = offersData || [];
@@ -75,12 +75,10 @@ export default function CompanyDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <StatCard label="Active Offers"   value={offers.filter(o => o.status === 'open').length}  icon={Briefcase}     color="lime"   />
         <StatCard label="Total Apps"      value={counts.total}                                    icon={FileText}      color="blue"   />
         <StatCard label="New"             value={counts.newApps}                                  icon={Clock}         color="orange" />
-        <StatCard label="Shortlisted"     value={counts.shortlisted}                              icon={Star}          color="purple" />
-        <StatCard label="Interview"       value={counts.interview}                                icon={Calendar}      color="indigo" />
         <StatCard label="Accepted"        value={counts.accepted}                                 icon={CheckCircle2}  color="lime"   />
         <StatCard label="Acceptance Rate" value={`${acceptanceRate}%`}                            icon={TrendingUp}    color="lime"   sub={counts.total > 0 ? `${counts.accepted}/${counts.total}` : 'No data'} />
       </div>
@@ -159,12 +157,17 @@ export default function CompanyDashboard() {
               <div key={offer.id} className="flex items-center gap-4 px-6 py-4 hover:bg-white/2 transition-colors">
                 <div className="flex-1 min-w-0">
                   <p className="text-white text-sm font-medium">{offer.title}</p>
-                  <p className="text-white/40 text-xs mt-0.5">{offer.location} · {offer.durationWeeks}w · {offer.openings} opening{offer.openings !== 1 ? 's' : ''}</p>
+                  <p className="text-white/40 text-xs mt-0.5">
+                    {offer.location} · {offer.durationWeeks}w ·{' '}
+                    <span className={offer.filledCount >= offer.openings ? 'text-amber-400/70' : ''}>
+                      {offer.filledCount}/{offer.openings} filled
+                    </span>
+                  </p>
                 </div>
                 <StatusBadge status={offer.status} />
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-white/30 flex items-center gap-1"><Eye size={11} /> {offer.viewsCount}</span>
-                  <Link to="/company/applications" className="text-xs text-lime-400 hover:text-lime-300">View apps →</Link>
+                  <Link to={`/company/applications?offer=${offer.id}`} className="text-xs text-lime-400 hover:text-lime-300">View apps →</Link>
                 </div>
               </div>
             ))}

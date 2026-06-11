@@ -319,3 +319,62 @@ function normaliseCompanyProfile(p) {
     updatedAt:    p.updated_at,
   };
 }
+
+exports.normaliseStudentProfile = normaliseStudentProfile;
+exports.normaliseCompanyProfile  = normaliseCompanyProfile;
+
+// ── GET /api/profiles/preferences ─────────────────────────────────────────────
+exports.getPreferences = async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const { data } = await supabaseAdmin
+      .from('notification_preferences')
+      .select('offer_alerts, email_alerts, min_match_score')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    // No row = user hasn't saved prefs yet; return defaults
+    res.json({
+      success: true,
+      data: {
+        offerAlerts:   data?.offer_alerts   ?? true,
+        emailAlerts:   data?.email_alerts   ?? false,
+        minMatchScore: data?.min_match_score ?? 50,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ── PATCH /api/profiles/preferences ───────────────────────────────────────────
+exports.updatePreferences = async (req, res, next) => {
+  try {
+    const { userId } = req.user;
+    const { offerAlerts, emailAlerts, minMatchScore } = req.body;
+
+    const row = { user_id: userId, updated_at: new Date().toISOString() };
+    if (offerAlerts   !== undefined) row.offer_alerts    = Boolean(offerAlerts);
+    if (emailAlerts   !== undefined) row.email_alerts    = Boolean(emailAlerts);
+    if (minMatchScore !== undefined) row.min_match_score = Math.min(100, Math.max(0, Number(minMatchScore)));
+
+    const { data, error } = await supabaseAdmin
+      .from('notification_preferences')
+      .upsert(row, { onConflict: 'user_id' })
+      .select('offer_alerts, email_alerts, min_match_score')
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      data: {
+        offerAlerts:   data.offer_alerts,
+        emailAlerts:   data.email_alerts,
+        minMatchScore: data.min_match_score,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};

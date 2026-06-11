@@ -66,35 +66,37 @@ function skillsScore(studentSkills, offerSkills) {
 
 function domainScore(programme, faculty, offerDomain) {
   if (!offerDomain) return 50;
-  const domainLower = offerDomain.toLowerCase();
+  const domainLower = offerDomain.toLowerCase().trim();
 
-  // Find the matching taxonomy bucket for the offer domain
+  // Resolve the taxonomy bucket for this offer domain using exact key match first,
+  // then full-phrase alias matching (no first-word shortcuts that cause false positives).
   let aliases = null;
   for (const [key, list] of Object.entries(DOMAIN_TAXONOMY)) {
     const keyLower = key.toLowerCase();
-    if (keyLower === domainLower || keyLower.includes(domainLower) || domainLower.includes(keyLower.split(' ')[0])) {
-      aliases = list;
-      break;
-    }
-    if (list.some(a => domainLower.includes(a.split(' ')[0]) || a.includes(domainLower.split(' ')[0]))) {
-      aliases = list;
-      break;
-    }
+    // Exact key match
+    if (keyLower === domainLower) { aliases = list; break; }
+    // Key contains offer domain or vice-versa (full phrase)
+    if (keyLower.includes(domainLower) || domainLower.includes(keyLower)) { aliases = list; break; }
+    // Any alias exactly equals offer domain
+    if (list.some(a => a === domainLower)) { aliases = list; break; }
+    // Offer domain contains a full alias phrase (e.g. "it" in "information technology")
+    if (list.some(a => domainLower.includes(a) && a.length >= 3)) { aliases = list; break; }
   }
 
-  if (!aliases) return 30; // unrecognised domain
+  if (!aliases) return 30;
 
-  const prog = (programme || '').toLowerCase();
-  const fac  = (faculty   || '').toLowerCase();
+  const prog = (programme || '').toLowerCase().trim();
+  const fac  = (faculty   || '').toLowerCase().trim();
 
-  // Programme exact/partial match
-  if (prog && aliases.some(a => prog.includes(a.split(' ')[0]) || a.includes(prog.split(' ')[0]))) {
-    return 100;
-  }
-  // Faculty broad match
-  if (fac && aliases.some(a => fac.includes(a.split(' ')[0]) || a.includes(fac.split(' ')[0]))) {
-    return 65;
-  }
+  // Full-phrase matching — avoid single-word collisions across domains
+  const phraseMatch = (text, aliasList) =>
+    aliasList.some(a => {
+      if (a.length < 3) return false; // skip very short aliases
+      return text === a || text.includes(a) || a.includes(text);
+    });
+
+  if (prog && phraseMatch(prog, aliases)) return 100;
+  if (fac  && phraseMatch(fac,  aliases)) return 65;
 
   return 15;
 }

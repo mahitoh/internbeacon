@@ -7,7 +7,8 @@ const authorize    = require('../middleware/authorize');
 router.use(authenticate, authorize('admin'));
 
 // ── Dashboard ──────────────────────────────────────────────────────────────────
-router.get('/stats', ctrl.stats);
+router.get('/stats',  ctrl.stats);
+router.get('/trends', ctrl.trends);
 
 // ── Users ─────────────────────────────────────────────────────────────────────
 router.get('/users',                 ctrl.listUsers);

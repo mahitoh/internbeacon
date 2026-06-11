@@ -41,7 +41,7 @@ export default function OffersPage() {
       total:  r.data.meta?.total  || 0,
       pages:  Math.ceil((r.data.meta?.total || 0) / 12) || 1,
     })),
-    keepPreviousData: true,
+    placeholderData: (prev) => prev,
   });
 
   const offers = data?.offers || [];

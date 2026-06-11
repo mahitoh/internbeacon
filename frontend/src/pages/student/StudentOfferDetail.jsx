@@ -42,7 +42,7 @@ export default function StudentOfferDetail() {
   // Determine if already applied
   const { data: myApps } = useQuery({
     queryKey: ['my-apps'],
-    queryFn:  () => applicationsApi.my().then(r => r.data.data || []),
+    queryFn:  () => applicationsApi.my({ limit: 100 }).then(r => r.data.data || []),
   });
   const existingApp = myApps?.find(a => a.offerId === id || a.offer?.id === id);
 
@@ -55,7 +55,19 @@ export default function StudentOfferDetail() {
 
   const handleCvFileChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) setNewCvFile(file);
+    if (file) {
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        toast.error('Only PDF files are accepted');
+        e.target.value = '';
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('CV must be smaller than 5 MB');
+        e.target.value = '';
+        return;
+      }
+      setNewCvFile(file);
+    }
     e.target.value = '';
   };
 
@@ -227,13 +239,19 @@ export default function StudentOfferDetail() {
 
               {/* Cover letter */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-white/70">
-                  Cover Letter <span className="text-white/30 font-normal">(optional)</span>
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium text-white/70">
+                    Cover Letter <span className="text-white/30 font-normal">(optional)</span>
+                  </label>
+                  <span className={`text-xs tabular-nums ${coverLetter.length > 1800 ? coverLetter.length >= 2000 ? 'text-red-400' : 'text-yellow-400' : 'text-white/25'}`}>
+                    {coverLetter.length}/2000
+                  </span>
+                </div>
                 <textarea
                   value={coverLetter}
-                  onChange={e => setCoverLetter(e.target.value)}
+                  onChange={e => setCoverLetter(e.target.value.slice(0, 2000))}
                   rows={4}
+                  maxLength={2000}
                   placeholder="Tell the company why you're the right candidate for this role…"
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 resize-none"
                 />

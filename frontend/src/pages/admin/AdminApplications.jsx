@@ -37,7 +37,7 @@ export default function AdminApplications() {
   const { data, isLoading } = useQuery({
     queryKey: ['admin-applications', { status, page }],
     queryFn:  () => adminApi.listApplications({ status: status || undefined, page, limit: 20 }).then(r => r.data),
-    keepPreviousData: true,
+    placeholderData: (prev) => prev,
   });
 
   const apps = data?.data || [];

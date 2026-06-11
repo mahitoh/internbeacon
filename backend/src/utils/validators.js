@@ -74,7 +74,8 @@ exports.createOfferRules = [
     .isInt({ min: 1, max: 104 }).withMessage('Duration must be between 1 and 104 weeks'),
   body('deadline')
     .notEmpty().withMessage('Deadline is required')
-    .isISO8601().withMessage('Deadline must be a valid date'),
+    .isISO8601().withMessage('Deadline must be a valid date')
+    .custom(v => { if (new Date(v) <= new Date()) throw new Error('Deadline must be in the future'); return true; }),
   body('isPaid')
     .optional()
     .isBoolean().withMessage('isPaid must be a boolean'),
@@ -109,7 +110,10 @@ exports.updateOfferRules = [
 
 exports.applyRules = [
   body('offerId').notEmpty().withMessage('Offer ID is required').isUUID().withMessage('Invalid offer ID'),
-  body('coverLetter').optional().isString(),
+  body('coverLetter')
+    .optional()
+    .isString()
+    .isLength({ max: 2000 }).withMessage('Cover letter must be 2000 characters or fewer'),
   body('cvSnapshotUrl').optional().isString().trim(),
 ];
 

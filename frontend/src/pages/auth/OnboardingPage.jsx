@@ -22,26 +22,36 @@ export default function OnboardingPage() {
   const [step, setStep]     = useState(preferredRole ? 'profile' : 'role');
   const [role, setRole]     = useState(preferredRole || '');
   const [googleUser, setGoogleUser] = useState(null);
+  const [googleName, setGoogleName] = useState({ firstName: '', lastName: '' });
 
   const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm();
 
-  // Get Google user info to pre-fill the form
+  // Fetch Google user metadata
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) { navigate('/login', { replace: true }); return; }
       setGoogleUser(user);
       const meta = user.user_metadata || {};
-      // Pre-fill name from Google profile
+      let firstName = '', lastName = '';
       if (meta.full_name || meta.name) {
         const parts = (meta.full_name || meta.name || '').split(' ');
-        setValue('firstName', parts[0] || '');
-        setValue('lastName',  parts.slice(1).join(' ') || '');
+        firstName = parts[0] || '';
+        lastName  = parts.slice(1).join(' ') || '';
       } else {
-        if (meta.given_name)  setValue('firstName', meta.given_name);
-        if (meta.family_name) setValue('lastName',  meta.family_name);
+        firstName = meta.given_name  || '';
+        lastName  = meta.family_name || '';
       }
+      setGoogleName({ firstName, lastName });
     });
   }, []);
+
+  // Pre-fill name fields once the profile step is rendered and fields are registered
+  useEffect(() => {
+    if (step === 'profile' && googleName.firstName) {
+      setValue('firstName', googleName.firstName, { shouldValidate: false });
+      setValue('lastName',  googleName.lastName,  { shouldValidate: false });
+    }
+  }, [step, googleName]);
 
   const handleRoleSelect = (r) => {
     setRole(r);

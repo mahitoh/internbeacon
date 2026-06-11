@@ -130,7 +130,7 @@ export default function CompanyMessages() {
               <button key={thread.appId} onClick={() => switchThread(thread.appId)}
                 className={`w-full text-left px-4 py-3 hover:bg-white/5 transition-colors ${String(thread.appId) === activeAppId ? 'bg-lime-500/5 border-r-2 border-lime-500' : ''}`}>
                 <div className="flex items-center gap-2">
-                  <Avatar name={tName} size="xs" />
+                  <Avatar name={tName} src={thread.student?.avatar_url} size="xs" />
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-xs font-medium truncate">{tName}</p>
                     <p className="text-white/30 text-[11px] truncate">{thread.offer?.title}</p>
@@ -175,7 +175,10 @@ export default function CompanyMessages() {
               const isMe = msg.senderId === user?.id;
               return (
                 <div key={msg.id || i} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
-                  <Avatar name={isMe ? 'You' : studentName} size="xs" />
+                  <Avatar
+                    name={isMe ? 'You' : studentName}
+                    src={isMe ? (user?.companyProfile?.logoUrl || user?.avatarUrl) : activeThread?.student?.avatar_url}
+                    size="xs" />
                   <div className={`max-w-sm rounded-2xl px-4 py-2.5 ${isMe ? 'bg-lime-500 text-white rounded-tr-sm' : 'bg-white/5 text-white rounded-tl-sm'}`}>
                     <p className="text-sm leading-relaxed">{msg.content}</p>
                     <p className={`text-[10px] mt-1 ${isMe ? 'text-white/60' : 'text-white/30'}`}>{formatRelativeTime(msg.sentAt)}</p>
@@ -185,7 +188,7 @@ export default function CompanyMessages() {
             })}
             {peerTyping && (
               <div className="flex gap-3">
-                <Avatar name={studentName} size="xs" />
+                <Avatar name={studentName} src={activeThread?.student?.avatar_url} size="xs" />
                 <div className="bg-white/5 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }} />

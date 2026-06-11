@@ -68,6 +68,39 @@ exports.stats = async (req, res, next) => {
   }
 };
 
+// ── GET /api/admin/trends ─────────────────────────────────────────────────────
+exports.trends = async (req, res, next) => {
+  try {
+    const days  = Math.min(Number(req.query.days) || 30, 90);
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+    const [{ data: signups }, { data: applications }] = await Promise.all([
+      supabaseAdmin.from('profiles').select('created_at').gte('created_at', since),
+      supabaseAdmin.from('applications').select('applied_at').gte('applied_at', since),
+    ]);
+
+    // Build a day-keyed map over the requested range
+    const dayMap = {};
+    for (let i = 0; i < days; i++) {
+      const d = new Date(Date.now() - (days - 1 - i) * 24 * 60 * 60 * 1000);
+      dayMap[d.toISOString().slice(0, 10)] = { date: d.toISOString().slice(0, 10), signups: 0, applications: 0 };
+    }
+
+    (signups || []).forEach(r => {
+      const key = r.created_at.slice(0, 10);
+      if (dayMap[key]) dayMap[key].signups++;
+    });
+    (applications || []).forEach(r => {
+      const key = r.applied_at.slice(0, 10);
+      if (dayMap[key]) dayMap[key].applications++;
+    });
+
+    res.json({ success: true, data: Object.values(dayMap) });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ── GET /api/admin/users ───────────────────────────────────────────────────────
 exports.listUsers = async (req, res, next) => {
   try {
@@ -85,8 +118,12 @@ exports.listUsers = async (req, res, next) => {
     if (role)     query = query.eq('role', role);
     if (isActive !== undefined) query = query.eq('is_active', isActive === 'true');
 
-    const offset = (Number(page) - 1) * Number(limit);
-    query = query.range(offset, offset + Number(limit) - 1);
+    // When search is active, skip pagination — email search requires post-join filtering
+    // across the full dataset (PostgREST can't query auth.users).
+    if (!search) {
+      const offset = (Number(page) - 1) * Number(limit);
+      query = query.range(offset, offset + Number(limit) - 1);
+    }
 
     const { data, error, count } = await query;
     if (error) throw error;
@@ -110,20 +147,20 @@ exports.listUsers = async (req, res, next) => {
       } : null,
     }));
 
-    // Apply email search after join (PostgREST can't search auth schema)
-    const filtered = search
+    const q = search?.toLowerCase();
+    const filtered = q
       ? users.filter(u =>
-          u.email?.toLowerCase().includes(search.toLowerCase()) ||
-          u.studentProfile?.first_name?.toLowerCase().includes(search.toLowerCase()) ||
-          u.studentProfile?.last_name?.toLowerCase().includes(search.toLowerCase()) ||
-          u.companyProfile?.company_name?.toLowerCase().includes(search.toLowerCase())
+          u.email?.toLowerCase().includes(q) ||
+          u.studentProfile?.first_name?.toLowerCase().includes(q) ||
+          u.studentProfile?.last_name?.toLowerCase().includes(q) ||
+          u.companyProfile?.company_name?.toLowerCase().includes(q)
         )
       : users;
 
     res.json({
       success: true,
       data: filtered,
-      meta: { total: count, page: Number(page), limit: Number(limit) },
+      meta: { total: q ? filtered.length : count, page: Number(page), limit: Number(limit) },
     });
   } catch (err) {
     next(err);

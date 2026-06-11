@@ -58,15 +58,42 @@ exports.apply = async (req, res, next) => {
     // Auto-populate CV snapshot from profile if not supplied
     const resolvedCv = cvSnapshotUrl || sp.cv_url || null;
 
+    // Build profile snapshot — immutable record of who applied and with what profile
+    const { data: fullProfile } = await supabaseAdmin
+      .from('student_profiles')
+      .select('first_name, last_name, university, faculty, programme, study_year, skills, bio, languages, avatar_url, cv_url, linkedin_url, ai_summary')
+      .eq('id', sp.id)
+      .single();
+
+    const profileSnapshot = fullProfile ? {
+      firstName:   fullProfile.first_name,
+      lastName:    fullProfile.last_name,
+      university:  fullProfile.university,
+      faculty:     fullProfile.faculty,
+      programme:   fullProfile.programme,
+      studyYear:   fullProfile.study_year,
+      skills:      fullProfile.skills,
+      bio:         fullProfile.bio,
+      languages:   fullProfile.languages,
+      avatarUrl:   fullProfile.avatar_url,
+      cvUrl:       fullProfile.cv_url,
+      linkedinUrl: fullProfile.linkedin_url,
+      aiSummary:   fullProfile.ai_summary,
+      snapshotAt:  new Date().toISOString(),
+    } : null;
+
+    const insertPayload = {
+      offer_id:        offerId,
+      student_id:      sp.id,
+      cover_letter:    coverLetter || null,
+      cv_snapshot_url: resolvedCv,
+      status:          'submitted',
+    };
+    if (profileSnapshot) insertPayload.profile_snapshot = profileSnapshot;
+
     const { data, error } = await supabaseAdmin
       .from('applications')
-      .insert({
-        offer_id:        offerId,
-        student_id:      sp.id,
-        cover_letter:    coverLetter || null,
-        cv_snapshot_url: resolvedCv,
-        status:          'submitted',
-      })
+      .insert(insertPayload)
       .select()
       .single();
 
@@ -74,6 +101,29 @@ exports.apply = async (req, res, next) => {
       if (error.code === '23505')
         return res.status(409).json({ success: false, message: 'You have already applied to this offer' });
       throw error;
+    }
+
+    // Copy CV to an immutable per-application snapshot so re-uploads don't overwrite the record.
+    // Fire-and-forget: a copy failure must never block the application from submitting.
+    if (resolvedCv) {
+      (async () => {
+        try {
+          const snapshotPath = `applications/${sp.id}/${data.id}.pdf`;
+          const { data: fileData, error: dlErr } = await supabaseAdmin.storage
+            .from('cvs').download(resolvedCv);
+          if (!dlErr && fileData) {
+            const buffer = Buffer.from(await fileData.arrayBuffer());
+            const { error: upErr } = await supabaseAdmin.storage
+              .from('cvs')
+              .upload(snapshotPath, buffer, { contentType: 'application/pdf', upsert: false });
+            if (!upErr) {
+              await supabaseAdmin.from('applications')
+                .update({ cv_snapshot_url: snapshotPath })
+                .eq('id', data.id);
+            }
+          }
+        } catch (_) { /* non-blocking */ }
+      })();
     }
 
     await addHistory(data.id, 'submitted', req.user.userId, null);
@@ -125,7 +175,7 @@ exports.myApplications = async (req, res, next) => {
     let query = supabaseAdmin
       .from('applications')
       .select(`
-        id, offer_id, status, cover_letter, cv_snapshot_url, company_note,
+        id, offer_id, status, cover_letter, cv_snapshot_url, company_note, profile_snapshot,
         applied_at, reviewed_at, decided_at,
         interview_date, interview_type, interview_location, interview_link, interview_notes,
         internship_offers (
@@ -167,11 +217,11 @@ exports.offerApplications = async (req, res, next) => {
     let query = supabaseAdmin
       .from('applications')
       .select(`
-        id, status, cover_letter, cv_snapshot_url, company_note, internal_note,
+        id, status, cover_letter, cv_snapshot_url, company_note, internal_note, profile_snapshot,
         applied_at, reviewed_at, decided_at,
         interview_date, interview_type, interview_location, interview_link, interview_notes,
         student_profiles (
-          id, first_name, last_name, university, faculty, programme,
+          id, user_id, first_name, last_name, university, faculty, programme,
           study_year, skills, avatar_url, cv_url, linkedin_url
         )
       `, { count: 'exact' })
@@ -391,7 +441,7 @@ exports.respondToOffer = async (req, res, next) => {
       const meta = STATUS_META[response];
       notify({
         userId: companyUserId,
-        type:   'offer_response',
+        type:   'status_update',
         title:  meta.title,
         body:   meta.body(offerTitle),
         link:   `/company/applications/${id}`,
@@ -430,11 +480,11 @@ exports.companyApplications = async (req, res, next) => {
     let query = supabaseAdmin
       .from('applications')
       .select(`
-        id, status, cover_letter, cv_snapshot_url, company_note, internal_note,
+        id, status, cover_letter, cv_snapshot_url, company_note, internal_note, profile_snapshot,
         applied_at, reviewed_at, decided_at, offer_id,
         interview_date, interview_type,
         internship_offers ( id, title, location ),
-        student_profiles ( id, first_name, last_name, university, programme, study_year, avatar_url, skills )
+        student_profiles ( id, user_id, first_name, last_name, university, programme, study_year, avatar_url, skills )
       `, { count: 'exact' })
       .in('offer_id', offerIds)
       .order('applied_at', { ascending: false });
@@ -461,7 +511,7 @@ exports.getOne = async (req, res, next) => {
     const { data: app, error } = await supabaseAdmin
       .from('applications')
       .select(`
-        id, status, cover_letter, cv_snapshot_url, company_note, internal_note,
+        id, status, cover_letter, cv_snapshot_url, company_note, internal_note, profile_snapshot,
         applied_at, reviewed_at, decided_at, offer_id, student_id,
         interview_date, interview_type, interview_location, interview_link, interview_notes,
         internship_offers ( id, title, domain, location, duration_weeks, status,
@@ -535,6 +585,7 @@ function normaliseApplication(a, { showInternal = false } = {}) {
   if (!a) return a;
   const rawOffer   = a.internship_offers;
   const rawStudent = a.student_profiles;
+  const snap       = a.profile_snapshot; // immutable snapshot from apply()
 
   const offer = rawOffer ? {
     id:            rawOffer.id,
@@ -554,7 +605,26 @@ function normaliseApplication(a, { showInternal = false } = {}) {
     } : undefined,
   } : undefined;
 
-  const student = rawStudent ? {
+  // Use profile_snapshot when available (immutable record of what was submitted).
+  // Fall back to live student_profiles join for older records that predate snapshots.
+  const student = snap ? {
+    id:          rawStudent?.id,
+    userId:      rawStudent?.user_id,
+    firstName:   snap.firstName,
+    lastName:    snap.lastName,
+    university:  snap.university,
+    faculty:     snap.faculty,
+    programme:   snap.programme,
+    studyYear:   snap.studyYear,
+    skills:      snap.skills,
+    bio:         snap.bio,
+    languages:   snap.languages,
+    avatarUrl:   snap.avatarUrl,
+    cvUrl:       snap.cvUrl,
+    linkedinUrl: snap.linkedinUrl,
+    aiSummary:   snap.aiSummary,
+    snapshotAt:  snap.snapshotAt,
+  } : rawStudent ? {
     id:          rawStudent.id,
     userId:      rawStudent.user_id,
     firstName:   rawStudent.first_name,
@@ -565,23 +635,25 @@ function normaliseApplication(a, { showInternal = false } = {}) {
     studyYear:   rawStudent.study_year,
     skills:      rawStudent.skills,
     bio:         rawStudent.bio,
+    languages:   rawStudent.languages,
     avatarUrl:   rawStudent.avatar_url,
     cvUrl:       rawStudent.cv_url,
     linkedinUrl: rawStudent.linkedin_url,
   } : undefined;
 
   return {
-    id:            a.id,
-    status:        a.status,
-    coverLetter:   a.cover_letter,
-    cvSnapshotUrl: a.cv_snapshot_url,
-    companyNote:   a.company_note,
-    internalNote:  showInternal ? (a.internal_note || null) : undefined,
-    appliedAt:     a.applied_at,
-    reviewedAt:    a.reviewed_at,
-    decidedAt:     a.decided_at,
-    offerId:       a.offer_id,
-    studentId:     a.student_id,
+    id:              a.id,
+    status:          a.status,
+    coverLetter:     a.cover_letter,
+    cvSnapshotUrl:   a.cv_snapshot_url,
+    companyNote:     a.company_note,
+    internalNote:    showInternal ? (a.internal_note || null) : undefined,
+    appliedAt:       a.applied_at,
+    reviewedAt:      a.reviewed_at,
+    decidedAt:       a.decided_at,
+    offerId:         a.offer_id,
+    studentId:       a.student_id,
+    hasProfileSnapshot: !!snap,
     interview: {
       date:     a.interview_date     || null,
       type:     a.interview_type     || null,
@@ -593,3 +665,39 @@ function normaliseApplication(a, { showInternal = false } = {}) {
     student,
   };
 }
+
+// ── PATCH /api/applications/:id/notes ────────────────────────────────────────
+// Update internal_note and/or company_note without triggering a status change.
+exports.patchNotes = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { internalNote, companyNote } = req.body;
+
+    if (internalNote === undefined && companyNote === undefined)
+      return res.status(400).json({ success: false, message: 'Provide internalNote and/or companyNote' });
+
+    const { data: cp } = await supabaseAdmin
+      .from('company_profiles').select('id').eq('user_id', req.user.userId).single();
+
+    const { data: app } = await supabaseAdmin
+      .from('applications')
+      .select('id, internship_offers ( company_id )')
+      .eq('id', id)
+      .single();
+
+    if (!app) return res.status(404).json({ success: false, message: 'Application not found' });
+    if (!cp || app.internship_offers.company_id !== cp.id)
+      return res.status(403).json({ success: false, message: 'Access denied' });
+
+    const updates = {};
+    if (internalNote !== undefined) updates.internal_note = internalNote || null;
+    if (companyNote  !== undefined) updates.company_note  = companyNote  || null;
+
+    const { data, error } = await supabaseAdmin
+      .from('applications').update(updates).eq('id', id).select().single();
+
+    if (error) throw error;
+
+    res.json({ success: true, data: normaliseApplication(data, { showInternal: true }) });
+  } catch (err) { next(err); }
+};

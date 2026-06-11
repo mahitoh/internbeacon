@@ -95,7 +95,12 @@ export default function CompanyOffers() {
                 <tr key={offer.id} className="hover:bg-white/2 transition-colors">
                   <td className="px-5 py-4">
                     <p className="text-white text-sm font-medium">{offer.title}</p>
-                    <p className="text-white/40 text-xs mt-0.5">{offer.location} · {offer.durationWeeks}w · {offer.openings} opening{offer.openings !== 1 ? 's' : ''}</p>
+                    <p className="text-white/40 text-xs mt-0.5">
+                      {offer.location} · {offer.durationWeeks}w ·{' '}
+                      <span className={offer.filledCount >= offer.openings ? 'text-amber-400/70' : ''}>
+                        {offer.filledCount}/{offer.openings} filled
+                      </span>
+                    </p>
                   </td>
                   <td className="px-5 py-4">
                     <span className="text-xs text-white/50">{offer.domain}</span>
@@ -111,7 +116,7 @@ export default function CompanyOffers() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
-                      <Link to="/company/applications"
+                      <Link to={`/company/applications?offer=${offer.id}`}
                         className="flex items-center gap-1 text-xs text-lime-400 hover:text-lime-300">
                         <Users size={11} /> Apps
                       </Link>

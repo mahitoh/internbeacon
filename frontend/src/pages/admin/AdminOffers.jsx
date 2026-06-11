@@ -17,7 +17,7 @@ export default function AdminOffers() {
   const { data, isLoading } = useQuery({
     queryKey: ['admin-offers', { status, page }],
     queryFn:  () => adminApi.listOffers({ status: status || undefined, page, limit: 20 }).then(r => r.data),
-    keepPreviousData: true,
+    placeholderData: (prev) => prev,
   });
 
   const offers = data?.data || [];

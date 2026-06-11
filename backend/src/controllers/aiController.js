@@ -181,11 +181,17 @@ exports.rankApplicants = async (req, res, next) => {
       .eq('id', offerId).eq('company_id', cp.id).single();
     if (!offer) return res.status(403).json({ success: false, message: 'Offer not found or access denied' });
 
-    const { data: apps } = await supabaseAdmin
+    // Cap at 50 most-recent active applicants to prevent AI prompt timeouts.
+    const TERMINAL = ['accepted', 'offer_accepted', 'offer_declined', 'rejected', 'withdrawn'];
+    let appsQuery = supabaseAdmin
       .from('applications')
-      .select('id, cover_letter, student_id, student_profiles(first_name, last_name, skills, bio, programme, faculty, study_year, languages, ai_summary)')
-      .eq('offer_id', offerId);
+      .select('id, cover_letter, status, student_id, student_profiles(first_name, last_name, skills, bio, programme, faculty, study_year, languages, ai_summary)')
+      .eq('offer_id', offerId)
+      .not('status', 'in', `(${TERMINAL.join(',')})`)
+      .order('applied_at', { ascending: false })
+      .limit(50);
 
+    const { data: apps } = await appsQuery;
     if (!apps?.length) return res.json({ success: true, data: [] });
 
     const candidates = apps.map(a => ({

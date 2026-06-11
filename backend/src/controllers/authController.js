@@ -1,4 +1,5 @@
 const { supabaseAdmin, supabaseAuth } = require('../config/supabase');
+const { normaliseStudentProfile, normaliseCompanyProfile } = require('./profilesController');
 
 // ── POST /api/auth/register ────────────────────────────────────────────────────
 // Creates the Supabase auth user (which fires the handle_new_user trigger and
@@ -234,8 +235,8 @@ exports.me = async (req, res, next) => {
         createdAt:      created_at,
         updatedAt:      updated_at,
         avatarUrl:      meta.avatar_url || meta.picture || null,
-        studentProfile: student_profiles,
-        companyProfile: company_profiles,
+        studentProfile: normaliseStudentProfile(student_profiles),
+        companyProfile: normaliseCompanyProfile(company_profiles),
       },
     });
   } catch (err) {

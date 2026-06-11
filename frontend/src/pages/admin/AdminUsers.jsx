@@ -19,7 +19,7 @@ export default function AdminUsers() {
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users', { search, role, page }],
     queryFn:  () => adminApi.listUsers({ search: search || undefined, role: role || undefined, page, limit: 20 }).then(r => r.data),
-    keepPreviousData: true,
+    placeholderData: (prev) => prev,
   });
 
   const users = data?.data || [];

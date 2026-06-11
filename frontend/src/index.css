@@ -94,17 +94,19 @@ html.light .border-white\/30 { border-color: #b8af90; }
 html.light .divide-white\/5  > * + * { border-color: #e7e4d5; }
 html.light .divide-white\/10 > * + * { border-color: #dbd7c0; }
 
-/* ── Text white → forest-950 ── */
+/* ── Text white → forest-950 ──
+   Opacities are bumped vs dark-mode equivalents so light-on-white text
+   stays readable. Minimum ~4.5:1 contrast on #fff at text-white/40. ── */
 html.light .text-white      { color: #0f2d20; }
-html.light .text-white\/80  { color: rgba(15,45,32,0.85); }
-html.light .text-white\/70  { color: rgba(15,45,32,0.75); }
-html.light .text-white\/60  { color: rgba(15,45,32,0.65); }
-html.light .text-white\/50  { color: rgba(15,45,32,0.55); }
-html.light .text-white\/40  { color: rgba(15,45,32,0.45); }
-html.light .text-white\/30  { color: rgba(15,45,32,0.38); }
-html.light .text-white\/25  { color: rgba(15,45,32,0.33); }
-html.light .text-white\/20  { color: rgba(15,45,32,0.28); }
-html.light .text-white\/15  { color: rgba(15,45,32,0.22); }
+html.light .text-white\/80  { color: rgba(15,45,32,0.88); }
+html.light .text-white\/70  { color: rgba(15,45,32,0.80); }
+html.light .text-white\/60  { color: rgba(15,45,32,0.72); }
+html.light .text-white\/50  { color: rgba(15,45,32,0.65); }
+html.light .text-white\/40  { color: rgba(15,45,32,0.60); }
+html.light .text-white\/30  { color: rgba(15,45,32,0.55); }
+html.light .text-white\/25  { color: rgba(15,45,32,0.50); }
+html.light .text-white\/20  { color: rgba(15,45,32,0.45); }
+html.light .text-white\/15  { color: rgba(15,45,32,0.40); }
 
 /* ── Hover states ── */
 html.light .hover\:bg-white\/2:hover   { background-color: rgba(15,45,32,0.03); }
@@ -112,14 +114,16 @@ html.light .hover\:bg-white\/5:hover   { background-color: rgba(15,45,32,0.05); 
 html.light .hover\:bg-white\/6:hover   { background-color: rgba(15,45,32,0.06); }
 html.light .hover\:bg-white\/10:hover  { background-color: rgba(15,45,32,0.08); }
 html.light .hover\:text-white:hover    { color: #0f2d20; }
+html.light .hover\:text-white\/70:hover { color: rgba(15,45,32,0.80); }
 html.light .hover\:border-white\/10:hover { border-color: #dbd7c0; }
 html.light .hover\:border-white\/15:hover { border-color: #d3cebc; }
+html.light .hover\:border-white\/20:hover { border-color: #c8c2a3; }
 
 /* ── Placeholder text ── */
-html.light .placeholder\:text-white\/20::placeholder { color: rgba(15,45,32,0.28); }
-html.light .placeholder\:text-white\/25::placeholder { color: rgba(15,45,32,0.33); }
-html.light .placeholder\:text-white\/30::placeholder { color: rgba(15,45,32,0.38); }
-html.light .placeholder\:text-white\/40::placeholder { color: rgba(15,45,32,0.45); }
+html.light .placeholder\:text-white\/20::placeholder { color: rgba(15,45,32,0.38); }
+html.light .placeholder\:text-white\/25::placeholder { color: rgba(15,45,32,0.42); }
+html.light .placeholder\:text-white\/30::placeholder { color: rgba(15,45,32,0.46); }
+html.light .placeholder\:text-white\/40::placeholder { color: rgba(15,45,32,0.50); }
 
 /* ── Form inputs / selects / textareas ── */
 html.light input,
@@ -144,6 +148,17 @@ html.light .bg-forest-950\/60 .text-white     { color: rgba(255,255,255,0.90) !i
 html.light .bg-forest-950\/60 .text-white\/40 { color: rgba(255,255,255,0.40) !important; }
 html.light .bg-forest-950\/60 .text-white\/50 { color: rgba(255,255,255,0.50) !important; }
 html.light .bg-forest-950\/60 .border-white\/5 { border-color: rgba(255,255,255,0.08) !important; }
+
+/* ── Sidebar nav: inactive links need readable colour on white ── */
+html.light aside nav a        { color: rgba(15,45,32,0.60); }
+html.light aside nav a:hover  { color: #0f2d20; background-color: rgba(15,45,32,0.05); }
+
+/* ── Sidebar collapse toggle button (bg-[#1a1a1a] → sand surface) ── */
+html.light aside > button.absolute {
+  background-color: #f2f1ea;
+  border-color: #dbd7c0;
+  color: rgba(15,45,32,0.55);
+}
 
 /* ── Ring utilities ── */
 html.light .ring-white\/10 { --tw-ring-color: rgba(15,45,32,0.10); }

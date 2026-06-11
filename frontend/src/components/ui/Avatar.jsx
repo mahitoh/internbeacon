@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { cn } from '../../lib/utils';
 
 function getInitials(name) {
@@ -18,11 +19,15 @@ function colorFor(name) {
 const sizes = { xs: 'w-7 h-7 text-xs', sm: 'w-9 h-9 text-sm', md: 'w-11 h-11 text-sm', lg: 'w-14 h-14 text-base', xl: 'w-20 h-20 text-xl' };
 
 export default function Avatar({ name, src, size = 'md', className }) {
-  if (src) {
+  const [failed, setFailed] = useState(false);
+
+  if (src && !failed) {
     return (
       <img
         src={src}
         alt={name}
+        referrerPolicy="no-referrer"
+        onError={() => setFailed(true)}
         className={cn('rounded-full object-cover ring-2 ring-white/10', sizes[size], className)}
       />
     );

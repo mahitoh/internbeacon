@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft, FileText, MessageSquare, CheckCircle2, XCircle,
   Star, Calendar, Video, Phone, MapPin, ClipboardCheck, Eye, ChevronRight,
-  ChevronDown, Search, Loader2,
+  ChevronDown, Search, Loader2, Save, Lock,
 } from 'lucide-react';
 import { StatusBadge } from '../../components/ui/Badge';
 import Avatar from '../../components/ui/Avatar';
@@ -104,14 +104,17 @@ export default function ApplicationDetail() {
   const navigate    = useNavigate();
   const qc          = useQueryClient();
 
-  const [loading,        setLoading]        = useState('');
-  const [cvLoading,      setCvLoading]      = useState(false);
-  const [cvViewerOpen,   setCvViewerOpen]   = useState(false);
-  const [cvViewerUrl,    setCvViewerUrl]    = useState('');
-  const [showTimeline,   setShowTimeline]   = useState(false);
-  const [companyNote,    setCompanyNote]    = useState('');
-  const [internalNote,   setInternalNote]   = useState('');
-  const [showNoteFor,    setShowNoteFor]    = useState(null);
+  const [loading,          setLoading]          = useState('');
+  const [cvLoading,        setCvLoading]        = useState(false);
+  const [cvViewerOpen,     setCvViewerOpen]     = useState(false);
+  const [cvViewerUrl,      setCvViewerUrl]      = useState('');
+  const [showTimeline,     setShowTimeline]     = useState(false);
+  const [companyNote,      setCompanyNote]      = useState('');
+  const [internalNote,     setInternalNote]     = useState('');
+  const [showNoteFor,      setShowNoteFor]      = useState(null);
+  const [notesDraft,       setNotesDraft]       = useState({ internal: '', public: '' });
+  const [notesInitialised, setNotesInitialised] = useState(false);
+  const [notesSaving,      setNotesSaving]      = useState(false);
 
   // Interview form state
   const [interviewForm, setInterviewForm] = useState({
@@ -123,14 +126,38 @@ export default function ApplicationDetail() {
     queryFn:  () => applicationsApi.getOne(appId).then(r => r.data.data),
   });
 
+  // Seed notes draft whenever app loads or reloads after a status change.
+  // notesInitialised prevents overwriting user-in-progress edits on the initial render;
+  // we reset it after each status change so the panel reflects any note sent with the transition.
+  if (app && !notesInitialised) {
+    setNotesDraft({ internal: app.internalNote || '', public: app.companyNote || '' });
+    setNotesInitialised(true);
+  }
+
+  // Use the immutable cv_snapshot_url path — not the student's current profile CV.
+  // Falls back to current CV if no snapshot was captured (legacy applications).
   const viewCv = async () => {
     setCvLoading(true);
     try {
-      const r = await uploadApi.getCvUrl(app.student?.userId);
+      const snapshotPath = app.cvSnapshotUrl;
+      const r = await uploadApi.getCvUrl(app.student?.userId, snapshotPath || undefined);
       setCvViewerUrl(r.data.data.url);
       setCvViewerOpen(true);
     } catch { toast.error('Could not retrieve CV'); }
     finally { setCvLoading(false); }
+  };
+
+  const saveNotes = async () => {
+    setNotesSaving(true);
+    try {
+      await applicationsApi.patchNotes(appId, {
+        internalNote: notesDraft.internal || null,
+        companyNote:  notesDraft.public   || null,
+      });
+      qc.invalidateQueries({ queryKey: ['application', appId] });
+      toast.success('Notes saved');
+    } catch { toast.error('Failed to save notes'); }
+    finally { setNotesSaving(false); }
   };
 
   const handleAction = async (action) => {
@@ -159,6 +186,7 @@ export default function ApplicationDetail() {
       setCompanyNote('');
       setInternalNote('');
       setShowNoteFor(null);
+      setNotesInitialised(false); // allow notes panel to re-seed from refreshed app data
       toast.success(`Status updated to: ${action.label}`);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update status');
@@ -218,7 +246,7 @@ export default function ApplicationDetail() {
           <p className="mt-4 text-sm text-white/50 leading-relaxed">{app.student.bio}</p>
         )}
         <div className="flex gap-3 mt-4 flex-wrap items-center">
-          {app.student?.cvUrl && (
+          {(app.cvSnapshotUrl || app.student?.cvUrl) && (
             <button
               onClick={viewCv}
               disabled={cvLoading}
@@ -231,7 +259,11 @@ export default function ApplicationDetail() {
               </div>
               <div className="text-left">
                 <p className="text-xs font-semibold text-white leading-tight">{studentName} — CV</p>
-                <p className="text-[10px] text-white/30 mt-0.5">PDF · Click to preview</p>
+                <p className="text-[10px] text-white/30 mt-0.5">
+                  {app.cvSnapshotUrl ? (
+                    <span className="flex items-center gap-1"><Lock size={9} className="inline" /> Snapshot at application time</span>
+                  ) : 'PDF · Click to preview'}
+                </p>
               </div>
               <Eye size={12} className="text-white/20 group-hover:text-white/50 transition-colors ml-1" />
             </button>
@@ -265,13 +297,43 @@ export default function ApplicationDetail() {
         </div>
       )}
 
-      {/* Existing company note */}
-      {app.companyNote && (
-        <div className="bg-white/3 rounded-xl border border-white/8 p-4">
-          <p className="text-xs text-white/30 mb-1">Note visible to student</p>
-          <p className="text-sm text-white/70">{app.companyNote}</p>
+      {/* Persistent recruiter notes — save any time, independent of status changes */}
+      <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-white text-sm">Recruiter Notes</h3>
+          <button
+            onClick={saveNotes}
+            disabled={notesSaving}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-lime-500/15 hover:bg-lime-500/25 border border-lime-500/30 text-lime-300 text-xs font-semibold transition-all disabled:opacity-40">
+            {notesSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+            Save Notes
+          </button>
         </div>
-      )}
+        <div>
+          <label className="block text-xs text-yellow-400/70 mb-1.5 font-semibold uppercase tracking-wide">
+            Internal note <span className="text-white/20 normal-case font-normal">(private — only your team sees this)</span>
+          </label>
+          <textarea
+            rows={3}
+            value={notesDraft.internal}
+            onChange={e => setNotesDraft(d => ({ ...d, internal: e.target.value }))}
+            placeholder="Strong React skills. Weak on databases. Good communication…"
+            className="w-full rounded-lg border border-yellow-500/20 bg-yellow-500/3 px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-yellow-500/40 resize-none"
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-lime-400/70 mb-1.5 font-semibold uppercase tracking-wide">
+            Note for candidate <span className="text-white/20 normal-case font-normal">(student will see this)</span>
+          </label>
+          <textarea
+            rows={2}
+            value={notesDraft.public}
+            onChange={e => setNotesDraft(d => ({ ...d, public: e.target.value }))}
+            placeholder="We were impressed with your profile and look forward to the next step…"
+            className="w-full rounded-lg border border-lime-500/15 bg-lime-500/3 px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-lime-500/30 resize-none"
+          />
+        </div>
+      </div>
 
       {/* Interview details (shown when scheduled) */}
       {['interview_scheduled', 'interview_completed'].includes(currentStatus) && app.interview?.date && (
@@ -466,13 +528,6 @@ export default function ApplicationDetail() {
         </div>
       )}
 
-      {/* Existing internal note */}
-      {app.internalNote && (
-        <div className="bg-yellow-500/5 rounded-xl border border-yellow-500/15 p-4">
-          <p className="text-xs text-yellow-400/60 mb-1 font-semibold uppercase tracking-wide">Internal Note</p>
-          <p className="text-sm text-white/60">{app.internalNote}</p>
-        </div>
-      )}
 
       {/* Application Timeline (collapsible) */}
       <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 overflow-hidden">

@@ -37,7 +37,7 @@ export default function StudentAnalytics() {
 
   const { data: rawApps, isLoading } = useQuery({
     queryKey: ['my-apps'],
-    queryFn:  () => applicationsApi.my().then(r => r.data.data),
+    queryFn:  () => applicationsApi.my({ limit: 100 }).then(r => r.data.data),
   });
 
   const { data: insightsData } = useQuery({

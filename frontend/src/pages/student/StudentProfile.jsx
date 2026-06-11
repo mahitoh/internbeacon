@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
-import { User, GraduationCap, Code2, Upload, Globe, Github, Linkedin, Save, FileText, Loader2, Sparkles, Eye } from 'lucide-react';
+import { User, GraduationCap, Code2, Upload, Globe, Github, Linkedin, Save, FileText, Loader2, Sparkles, Eye, Bell } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Avatar from '../../components/ui/Avatar';
 import CropModal from '../../components/ui/CropModal';
@@ -15,6 +16,7 @@ const SKILLS_LIST = ['JavaScript', 'Python', 'React', 'Node.js', 'Java', 'SQL', 
 
 export default function StudentProfile() {
   const { user, refetchUser } = useAuth();
+  const queryClient = useQueryClient();
   const profile  = user?.studentProfile;
   const [selectedSkills, setSelectedSkills] = useState(profile?.skills || []);
   const [parsingCv,      setParsingCv]      = useState(false);
@@ -29,6 +31,18 @@ export default function StudentProfile() {
   const [cropSrc,        setCropSrc]        = useState(null);
   const cvInputRef    = useRef(null);
   const photoInputRef = useRef(null);
+
+  const { data: prefs } = useQuery({
+    queryKey: ['notification-prefs'],
+    queryFn:  () => profilesApi.getPreferences().then(r => r.data.data),
+    staleTime: 60_000,
+  });
+
+  const prefsMutation = useMutation({
+    mutationFn: (updates) => profilesApi.updatePreferences(updates).then(r => r.data.data),
+    onSuccess:  (data) => queryClient.setQueryData(['notification-prefs'], data),
+    onError:    () => toast.error('Failed to save alert preferences'),
+  });
 
   const { register, handleSubmit, formState: { isSubmitting } } = useForm({
     defaultValues: {
@@ -83,6 +97,7 @@ export default function StudentProfile() {
     try {
       await uploadApi.cv(file);
       setCvUploaded(true);
+      await refetchUser();
       toast.success('CV uploaded!');
     } catch {
       toast.error('CV upload failed — max 5 MB PDF only');
@@ -286,6 +301,35 @@ export default function StudentProfile() {
                 className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-sm font-semibold transition-all">
                 <Eye size={15} /> Preview
               </button>
+            </div>
+          )}
+        </Section>
+
+        {/* Alert Preferences */}
+        <Section title="Offer Alerts" icon={Bell}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-white/80">Notify me about matching internships</p>
+              <p className="text-xs text-white/35 mt-0.5">Get in-app alerts when new offers match your profile</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => prefsMutation.mutate({ offerAlerts: !(prefs?.offerAlerts ?? true) })}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${(prefs?.offerAlerts ?? true) ? 'bg-lime-500' : 'bg-white/10'}`}>
+              <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ${(prefs?.offerAlerts ?? true) ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+          </div>
+          {(prefs?.offerAlerts ?? true) && (
+            <div className="flex items-center justify-between pt-1">
+              <label className="text-sm text-white/50">Minimum match score</label>
+              <select
+                value={prefs?.minMatchScore ?? 50}
+                onChange={e => prefsMutation.mutate({ minMatchScore: Number(e.target.value) })}
+                className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none">
+                {[40, 50, 60, 70, 80].map(v => (
+                  <option key={v} value={v} className="bg-[#1a1a1a]">{v}% or higher</option>
+                ))}
+              </select>
             </div>
           )}
         </Section>

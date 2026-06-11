@@ -15,6 +15,7 @@ router.patch('/:id/respond',  authenticate, authorize('student'), ctrl.respondTo
 router.get('/company',        authenticate, authorize('company'), ctrl.companyApplications);
 router.get('/offer/:offerId', authenticate, authorize('company'), ctrl.offerApplications);
 router.patch('/:id/status',   authenticate, authorize('company'), updateStatusRules, validate, ctrl.updateStatus);
+router.patch('/:id/notes',    authenticate, authorize('company'), ctrl.patchNotes);
 
 // ── Student or Company ────────────────────────────────────────────────────────
 router.get('/:id',         authenticate, ctrl.getOne);

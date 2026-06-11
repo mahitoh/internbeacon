@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { FileText, Clock, CheckCircle2, XCircle, Briefcase, ArrowRight, TrendingUp, Star, Calendar, AlertCircle } from 'lucide-react';
+import { FileText, Clock, CheckCircle2, XCircle, Briefcase, ArrowRight, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { applicationsApi } from '../../api/applications';
 import { offersApi } from '../../api/offers';
@@ -26,7 +26,7 @@ export default function StudentDashboard() {
   const { isDark } = useTheme();
   const name = user?.studentProfile?.firstName || 'Student';
 
-  const { data: appsData }    = useQuery({ queryKey: ['my-apps'],          queryFn: () => applicationsApi.my().then(r => r.data.data) });
+  const { data: appsData }    = useQuery({ queryKey: ['my-apps'],          queryFn: () => applicationsApi.my({ limit: 100 }).then(r => r.data.data) });
   const { data: recData }     = useQuery({ queryKey: ['offers-rec'],       queryFn: () => offersApi.recommended(4).then(r => r.data.data) });
   const { data: threadsData } = useQuery({ queryKey: ['message-threads'],  queryFn: () => messagesApi.threads().then(r => r.data.data) });
 
@@ -46,10 +46,6 @@ export default function StudentDashboard() {
     accepted:    apps.filter(a => ['accepted','offer_accepted'].includes(a.status)).length,
     rejected:    apps.filter(a => ['rejected','withdrawn','offer_declined'].includes(a.status)).length,
   };
-
-  const profile           = user?.studentProfile;
-  const completionScore   = profile?.completionScore ?? 0;
-  const completionTips    = profile?.completionTips  ?? [];
 
   const pieData = [
     { name: 'Active',      value: counts.active,      color: STATUS_COLORS.active },
@@ -74,47 +70,12 @@ export default function StudentDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
-        <StatCard label="Total"       value={counts.total}       icon={FileText}     color="lime"   />
-        <StatCard label="Active"      value={counts.active}      icon={Clock}        color="blue"   />
-        <StatCard label="Shortlisted" value={counts.shortlisted} icon={Star}         color="purple" />
-        <StatCard label="Interview"   value={counts.interview}   icon={Calendar}     color="indigo" />
-        <StatCard label="Accepted"    value={counts.accepted}    icon={CheckCircle2} color="lime"   />
-        <StatCard label="Rejected"    value={counts.rejected}    icon={XCircle}      color="red"    />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard label="Total"    value={counts.total}    icon={FileText}     color="lime" />
+        <StatCard label="Active"   value={counts.active}   icon={Clock}        color="blue" />
+        <StatCard label="Accepted" value={counts.accepted} icon={CheckCircle2} color="lime" />
+        <StatCard label="Rejected" value={counts.rejected} icon={XCircle}      color="red"  />
       </div>
-
-      {/* Profile completion banner — hide when at 100% */}
-      {completionScore < 100 && (
-        <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-5">
-          <div className="flex items-start justify-between gap-4 mb-3">
-            <div>
-              <p className="text-sm font-semibold text-white">Complete your profile</p>
-              <p className="text-xs text-white/40 mt-0.5">A complete profile gets more recruiter attention</p>
-            </div>
-            <span className={`text-2xl font-black ${completionScore >= 80 ? 'text-lime-400' : completionScore >= 50 ? 'text-yellow-400' : 'text-orange-400'}`}>
-              {completionScore}%
-            </span>
-          </div>
-          <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden mb-3">
-            <div
-              className={`h-full rounded-full transition-all duration-500 ${completionScore >= 80 ? 'bg-lime-500' : completionScore >= 50 ? 'bg-yellow-500' : 'bg-orange-500'}`}
-              style={{ width: `${completionScore}%` }}
-            />
-          </div>
-          {completionTips.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {completionTips.slice(0, 3).map(tip => (
-                <Link key={tip.field} to="/student/profile"
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/4 border border-white/8 text-xs text-white/50 hover:text-white hover:border-lime-500/30 transition-all">
-                  <AlertCircle size={11} className="text-orange-400 flex-shrink-0" />
-                  {tip.message}
-                  <span className="text-lime-400 font-semibold">+{tip.points}%</span>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Main grid */}
       <div className="grid lg:grid-cols-3 gap-6">

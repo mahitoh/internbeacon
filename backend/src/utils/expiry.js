@@ -33,7 +33,7 @@ async function expireOffers() {
 
       notify({
         userId: companyUserId,
-        type:   'offer_expired',
+        type:   'offer_closed',
         title:  'Offer deadline reached',
         body:   `"${offer.title}" has been automatically closed`,
         link:   '/company/offers',

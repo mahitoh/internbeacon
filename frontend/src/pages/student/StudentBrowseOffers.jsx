@@ -35,7 +35,7 @@ export default function StudentBrowseOffers() {
       ...(location ? { location } : {}),
       page, limit: LIMIT,
     }).then(r => ({ offers: r.data.data || [], total: r.data.meta?.total || 0 })),
-    keepPreviousData: true,
+    placeholderData: (prev) => prev,
   });
 
   const offers    = data?.offers || [];
