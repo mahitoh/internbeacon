@@ -1,7 +1,22 @@
-const pdfParse  = require('pdf-parse');
+const { PDFParse } = require('pdf-parse'); // v2 class API — calling the module as a function throws
 const { supabaseAdmin } = require('../config/supabase');
 const { callAI, extractJSON, getActiveProviders } = require('../utils/aiProvider');
 const { computeFallbackMatch } = require('../utils/fallbackMatcher');
+
+/**
+ * Fire-and-forget log of every fallback event — measured reliability for
+ * the analytics donut and thesis Chapter 4. Never throws.
+ */
+function logFallback({ studentId, offerId, feature, reason }) {
+  supabaseAdmin
+    .from('ai_fallback_log')
+    .insert({ student_id: studentId || null, offer_id: offerId || null, feature, reason: String(reason || '').slice(0, 500) })
+    .then(({ error }) => {
+      if (error && process.env.NODE_ENV !== 'production') {
+        console.warn('[AI] fallback log insert failed:', error.message);
+      }
+    });
+}
 
 // ── GET /api/ai/providers ─────────────────────────────────────────────────────
 exports.providers = (req, res) => {
@@ -34,7 +49,8 @@ exports.parseCv = async (req, res, next) => {
     if (dlErr || !fileData) return res.status(404).json({ success: false, message: 'CV file not found in storage' });
 
     const buffer = Buffer.from(await fileData.arrayBuffer());
-    const parsed = await pdfParse(buffer);
+    const parser = new PDFParse({ data: new Uint8Array(buffer) });
+    const parsed = await parser.getText();
     const cvText = parsed.text?.slice(0, 8000) || '';
 
     if (!cvText.trim()) return res.status(400).json({ success: false, message: 'Could not extract text from CV. Make sure your CV is a text-based PDF.' });
@@ -157,18 +173,35 @@ Respond with ONLY valid JSON:
   "verdict": "<Excellent Match|Good Match|Partial Match|Low Match>",
   "strengths": ["...", "..."],
   "gaps": ["...", "..."],
-  "tip": "<one actionable tip to improve chances>"
-}`;
+  "tip": "<one actionable tip to improve chances>",
+  "breakdown": {
+    "skills":   { "score": <0-1>, "matched": ["<required skills the student has>"], "missing": ["<required skills the student lacks>"] },
+    "domain":   { "score": <0-1> },
+    "level":    { "score": <0-1> },
+    "language": { "score": <0-1> }
+  }
+}
+breakdown rules: scores are fractions 0-1 per factor; matched/missing must only contain skills from the offer's required skills list.`;
 
     let result;
     try {
-      const { text } = await callAI(prompt, 512);
+      const { text } = await callAI(prompt, 768);
       result = extractJSON(text);
       result.method = 'ai';
+
+      // Guarantee breakdown shape — if the model omitted or malformed it,
+      // substitute the deterministic breakdown so the frontend never branches.
+      const bd = result.breakdown;
+      const valid = bd && bd.skills && Array.isArray(bd.skills.matched) && Array.isArray(bd.skills.missing)
+        && [bd.skills, bd.domain, bd.level, bd.language].every(f => f && typeof f.score === 'number');
+      if (!valid) {
+        result.breakdown = computeFallbackMatch(student, offer).breakdown;
+      }
     } catch (aiErr) {
       if (aiErr.status === 503) {
         console.log('[AI] All providers failed for matchOffer — using algorithmic fallback');
         result = computeFallbackMatch(student, offer);
+        logFallback({ studentId: req.user.userId, offerId, feature: 'match_offer', reason: aiErr.message });
       } else {
         return res.status(500).json({ success: false, message: 'Failed to parse AI response' });
       }
@@ -243,6 +276,7 @@ Respond with ONLY valid JSON array, ranked best to worst:
     } catch (aiErr) {
       if (aiErr.status === 503) {
         console.log('[AI] All providers failed for rankApplicants — using algorithmic fallback');
+        logFallback({ offerId, feature: 'rank_applicants', reason: aiErr.message });
         rankings = apps.map(a => {
           const sp = a.student_profiles || {};
           const fallback = computeFallbackMatch(sp, offer);

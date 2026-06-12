@@ -9,7 +9,19 @@
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function fetchWithTimeout(url, options, ms = 25000) {
+// Hard ceiling per provider attempt — a slow provider must fail fast so the
+// chain (next provider → algorithmic fallback) keeps the UI responsive.
+const PROVIDER_TIMEOUT_MS = 10_000;
+
+function withTimeout(promise, ms, label = 'AI call') {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+async function fetchWithTimeout(url, options, ms = 8000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
   try {
@@ -143,7 +155,7 @@ async function callAI(prompt, maxTokens = 1024) {
   const failures = [];
   for (const provider of PROVIDERS) {
     try {
-      const text = await provider.call(prompt, maxTokens);
+      const text = await withTimeout(provider.call(prompt, maxTokens), PROVIDER_TIMEOUT_MS, provider.name);
       if (provider !== PROVIDERS[0]) {
         console.log(`[AI] Used fallback provider: ${provider.name}`);
       }

@@ -6,6 +6,7 @@ import { offersApi } from '../../api/offers';
 import { aiApi } from '../../api/ai';
 import { formatDate } from '../../lib/utils';
 import Spinner from '../../components/ui/Spinner';
+import WhyMatchPopover from '../../components/ui/WhyMatchPopover';
 import toast from 'react-hot-toast';
 
 const DOMAINS    = ['Information Technology', 'Finance & Banking', 'Telecommunications', 'Marketing & Sales', 'Engineering', 'Human Resources', 'Healthcare', 'Agriculture', 'Other'];
@@ -189,10 +190,12 @@ function OfferCard({ offer, matchCache, onClick }) {
       {/* AI match score — shown after check, stays visible */}
       {match && match !== 'loading' && (
         <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-bold ${scoreColor(match.score)}`}>
-            <Sparkles size={10} />
-            {match.score}% match
-          </span>
+          <WhyMatchPopover breakdown={match.breakdown} method={match.method}>
+            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-bold ${scoreColor(match.score)}`}>
+              <Sparkles size={10} />
+              {match.score}% match
+            </span>
+          </WhyMatchPopover>
           <span className="text-xs text-white/40 truncate flex-1">{match.verdict}</span>
           <button
             onClick={handleCheckMatch}

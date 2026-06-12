@@ -146,7 +146,7 @@ flowchart TD
     P2 -- ok --> OUT
     P2 -- fail --> P3{"xAI Grok"}
     P3 -- ok --> OUT
-    P3 -- fail --> ALG["Local engine — weighted scoring<br/>40% skills (Jaccard) · 25% domain taxonomy<br/>20% study level · 15% language"]
+    P3 -- fail --> ALG["Local engine — weighted scoring<br/>45% skills (coverage) · 25% domain taxonomy<br/>15% study level · 15% language"]
     ALG --> OUT2["scored result · method: algorithmic"]
 ```
 

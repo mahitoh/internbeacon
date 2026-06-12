@@ -2,9 +2,51 @@
  * Algorithmic match/recommendation engine.
  * Used when all AI providers fail, and for instant recommendations.
  *
- * Formula: 40% skills Jaccard + 25% domain/programme + 20% study level + 15% language
- * Output shape mirrors AI response so the frontend needs no changes.
+ * Skills use COVERAGE (matched / required), not Jaccard — Jaccard divides by
+ * the union, which penalizes students with broad skill sets. Coverage answers
+ * the business question: what fraction of the offer's requirements are met?
+ *
+ * Output shape mirrors the AI response so the frontend needs no changes, plus
+ * a structured `breakdown` consumed by the "Why this match?" UI.
  */
+
+// ── Scoring weights — single source of truth, tune & justify here ─────────────
+
+const WEIGHTS = {
+  skills:   0.45,
+  domain:   0.25,
+  level:    0.15,
+  language: 0.15,
+};
+
+// ── Skill normalization ───────────────────────────────────────────────────────
+// Applied before ANY comparison so "JS" === "JavaScript" === "Javascript ES6".
+
+const SKILL_ALIASES = {
+  'js': 'javascript', 'javascript es6': 'javascript', 'es6': 'javascript',
+  'reactjs': 'react', 'react.js': 'react', 'react js': 'react',
+  'node': 'nodejs', 'node.js': 'nodejs', 'node js': 'nodejs',
+  'postgres': 'postgresql', 'psql': 'postgresql',
+  'py': 'python', 'python3': 'python',
+  'html5': 'html', 'css3': 'css',
+  'ms excel': 'excel', 'microsoft excel': 'excel',
+  'ms word': 'word', 'microsoft word': 'word',
+  'ts': 'typescript', 'type script': 'typescript',
+  'tailwindcss': 'tailwind', 'tailwind css': 'tailwind',
+  'expressjs': 'express', 'express.js': 'express',
+  'vuejs': 'vue', 'vue.js': 'vue',
+  'nextjs': 'next.js', 'next js': 'next.js',
+  'c sharp': 'c#', 'csharp': 'c#',
+  'golang': 'go',
+  'ml': 'machine learning', 'ai': 'artificial intelligence',
+  'db': 'databases', 'database': 'databases',
+  'ui/ux': 'ui-ux design', 'ux/ui': 'ui-ux design', 'ui ux': 'ui-ux design',
+};
+
+function normalizeSkill(s) {
+  const cleaned = String(s || '').trim().toLowerCase();
+  return SKILL_ALIASES[cleaned] || cleaned;
+}
 
 // ── Domain taxonomy ───────────────────────────────────────────────────────────
 
@@ -47,21 +89,27 @@ const DOMAIN_TAXONOMY = {
 
 // ── Core scoring functions ────────────────────────────────────────────────────
 
-function jaccard(arrA, arrB) {
-  const a = new Set((arrA || []).map(s => String(s).toLowerCase().trim()).filter(Boolean));
-  const b = new Set((arrB || []).map(s => String(s).toLowerCase().trim()).filter(Boolean));
-  if (a.size === 0 && b.size === 0) return 0;
-  let intersection = 0;
-  for (const item of a) if (b.has(item)) intersection++;
-  return intersection / (a.size + b.size - intersection);
-}
+/**
+ * Coverage scoring: fraction of the offer's required skills the student has.
+ * Returns { score: 0-100, matched: [...], missing: [...] } using the offer's
+ * original skill labels (so the UI shows "Docker", not "docker").
+ */
+function skillsCoverage(studentSkills, offerSkills) {
+  if (!offerSkills || offerSkills.length === 0) {
+    return { score: 50, matched: [], missing: [] }; // neutral: no requirements specified
+  }
 
-function skillsScore(studentSkills, offerSkills) {
-  if (!offerSkills || offerSkills.length === 0) return 50; // neutral: no requirements specified
-  const score = Math.round(jaccard(studentSkills, offerSkills) * 100);
+  const have = new Set((studentSkills || []).map(normalizeSkill).filter(Boolean));
+  const matched = [];
+  const missing = [];
+  for (const skill of offerSkills) {
+    (have.has(normalizeSkill(skill)) ? matched : missing).push(skill);
+  }
+
+  const score = Math.round((matched.length / offerSkills.length) * 100);
 
   // Soften total mismatch — student still has a baseline score
-  return Math.max(score, 5);
+  return { score: Math.max(score, 5), matched, missing };
 }
 
 function domainScore(programme, faculty, offerDomain) {
@@ -156,28 +204,38 @@ function computeFallbackMatch(student, offer) {
     ...((student.ai_summary?.skills) || []),
   ];
 
-  const ss = skillsScore(merged, offer.required_skills);
+  const sk = skillsCoverage(merged, offer.required_skills);
   const ds = domainScore(student.programme, student.faculty, offer.domain);
   const ls = studyLevelScore(student.study_year, offer.requirements);
   const lg = languageScore(student.languages, offer.requirements, offer.description);
 
-  const score = Math.min(100, Math.round(ss * 0.40 + ds * 0.25 + ls * 0.20 + lg * 0.15));
+  const score = Math.min(100, Math.round(
+    sk.score * WEIGHTS.skills +
+    ds       * WEIGHTS.domain +
+    ls       * WEIGHTS.level +
+    lg       * WEIGHTS.language
+  ));
+
+  // Structured per-factor breakdown — consumed by the "Why this match?" UI.
+  // Same shape is produced by the AI path in aiController so the frontend
+  // never branches on `method`.
+  const breakdown = {
+    skills:   { score: sk.score / 100, matched: sk.matched, missing: sk.missing },
+    domain:   { score: ds / 100 },
+    level:    { score: ls / 100 },
+    language: { score: lg / 100 },
+  };
 
   // Build human-readable strengths and gaps
   const strengths = [];
   const gaps = [];
 
   const offerSkills = offer.required_skills || [];
-  if (offerSkills.length > 0) {
-    const mergedLower = merged.map(s => s.toLowerCase().trim());
-    const matched  = offerSkills.filter(s => mergedLower.includes(s.toLowerCase().trim()));
-    const missing  = offerSkills.filter(s => !mergedLower.includes(s.toLowerCase().trim()));
-    if (matched.length > 0) {
-      strengths.push(`${matched.slice(0, 3).join(', ')} ${matched.length > 3 ? `+${matched.length - 3} more ` : ''}matched`);
-    }
-    if (missing.length > 0) {
-      gaps.push(`Missing: ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? ` (+${missing.length - 3})` : ''}`);
-    }
+  if (sk.matched.length > 0) {
+    strengths.push(`${sk.matched.slice(0, 3).join(', ')} ${sk.matched.length > 3 ? `+${sk.matched.length - 3} more ` : ''}matched`);
+  }
+  if (sk.missing.length > 0) {
+    gaps.push(`Missing: ${sk.missing.slice(0, 3).join(', ')}${sk.missing.length > 3 ? ` (+${sk.missing.length - 3})` : ''}`);
   }
 
   if (ds >= 75) strengths.push(`${student.programme || 'Your programme'} aligns with ${offer.domain}`);
@@ -197,6 +255,7 @@ function computeFallbackMatch(student, offer) {
     strengths,
     gaps,
     tip,
+    breakdown,
     method: 'algorithmic',
   };
 }
@@ -213,11 +272,7 @@ function computeRecommendationReasons(student, offer) {
     if (ds >= 65) reasons.push(`Matches your ${student.programme} programme`);
   }
 
-  const merged = [...(student.skills || []), ...((student.ai_summary?.skills) || [])];
-  const offerSkills = offer.required_skills || [];
-  const matched = offerSkills.filter(s =>
-    merged.some(ss => ss.toLowerCase().trim() === s.toLowerCase().trim())
-  );
+  const matched = match.breakdown.skills.matched;
   if (matched.length > 0) {
     reasons.push(`Matches ${matched.slice(0, 2).join(', ')} skill${matched.length !== 1 ? 's' : ''}`);
   }
@@ -233,4 +288,4 @@ function computeRecommendationReasons(student, offer) {
   };
 }
 
-module.exports = { computeFallbackMatch, computeRecommendationReasons, getVerdict };
+module.exports = { computeFallbackMatch, computeRecommendationReasons, getVerdict, normalizeSkill };

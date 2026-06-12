@@ -13,9 +13,58 @@ body {
 
 .bg-grid {
   background-size: 44px 44px;
-  background-image: 
+  background-image:
     linear-gradient(to right, rgba(15, 45, 32, 0.045) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(15, 45, 32, 0.045) 1px, transparent 1px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL POLISH LAYER
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Display typography ──
+   All headline/stat text in the app uses .font-black / .font-extrabold —
+   one hook gives the whole product a distinctive display voice while
+   Inter keeps body text quietly readable. */
+h1, h2, h3,
+.font-black,
+.font-extrabold {
+  font-family: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.015em;
+}
+
+/* ── Dark-mode atmosphere ──
+   Faint lime aurora at the top of every dark page wrapper — depth instead
+   of a flat void. Light mode switches these wrappers to parchment and
+   removes the glow below. */
+.bg-\[\#0f0f0f\],
+.bg-\[\#0d0d0d\] {
+  background-image:
+    radial-gradient(1100px 480px at 78% -12%, rgba(132, 204, 22, 0.055), transparent 70%),
+    radial-gradient(900px 420px at -8% 104%, rgba(60, 151, 114, 0.05), transparent 70%);
+  background-attachment: fixed;
+}
+
+/* ── Text selection ── */
+::selection { background: #3f6212; color: #f7fee7; }
+
+/* ── Keyboard focus — visible, on-brand, never on mouse click ── */
+:focus-visible {
+  outline: 2px solid rgba(132, 204, 22, 0.65);
+  outline-offset: 2px;
+}
+
+/* ── Tactile press on every button ── */
+button:not(:disabled) { transition: transform 0.1s ease; }
+button:not(:disabled):active { transform: scale(0.97); }
+
+/* ── Respect reduced-motion preferences ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .dashboard-scroll::-webkit-scrollbar {
@@ -32,157 +81,325 @@ body {
   background: #2a5a48;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   LIGHT MODE — same sand/forest palette as the public landing page
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT MODE — "Parchment & Forest" design system
    Applied when <html class="light">
-   ═══════════════════════════════════════════════════════════════ */
+
+   Foundation
+   ──────────
+   Page          #f1efe6   warm parchment — soft on the eyes, never stark
+   Card          #ffffff   white surface lifted by layered shadow
+   Nested panel  #f6f4ec   warm off-white for insets inside cards
+   Ink           #1b2a20   deep forest charcoal (not pure black — less strain)
+   Border        sand scale #e7e3d2 → #b0a883
+
+   Accent rule
+   ───────────
+   Dark mode uses -300/-400 accent text (light on dark). On white those are
+   nearly invisible (~1.7:1), so every accent is remapped to its -600/-700
+   equivalent. Solid lime fills darken one step so white text stays readable.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 html.light { color-scheme: light; }
 
-/* Light mode — give form elements explicit backgrounds so they don't flash white */
-html.light input,
-html.light select,
-html.light textarea {
-  background-color: rgba(15,45,32,0.04) !important;
-}
+/* ── 1. Foundation ─────────────────────────────────────────────────────── */
 
 html.light body {
-  background-color: #e8e4d5; /* sand-300ish — darker than cards so they pop */
-  color: #0f2d20;            /* forest-950 */
+  background-color: #f1efe6;
+  color: #1b2a20;
 }
 
-/* ── Topbar: white bar with sand border ── */
-html.light header {
-  background-color: #ffffff !important;
-  border-bottom-color: #e7e4d5 !important; /* sand-200 */
-}
+html.light ::selection { background: #d9e9b8; color: #1b2a20; }
 
-/* ── Sidebar: white panel with sand border ── */
-html.light aside {
-  background-color: #ffffff !important;
-  border-right-color: #e7e4d5 !important;
-}
-
-/* ── Page / outer wrapper backgrounds → sand-50 ── */
+/* Page / outer wrappers blend into the parchment page (no dark-mode aurora) */
 html.light .bg-\[\#0f0f0f\],
 html.light .bg-\[\#0d0d0d\] {
-  background-color: #faf9f5; /* sand-50 */
+  background-color: #f1efe6;
+  background-image: none;
 }
 
-/* bg-[#111] / bg-[#111111] is also used by the sidebar — handled by `aside` above.
-   For any other elements using this class, give them a white surface. */
+/* Focus ring re-tuned for light surfaces (selection handled in Foundation) */
+html.light :focus-visible { outline-color: rgba(77, 124, 15, 0.7); }
+
+/* ── 2. Surfaces ───────────────────────────────────────────────────────── */
+
+/* Topbar + sidebar: clean white panels with a sand hairline */
+html.light header {
+  background-color: #ffffff !important;
+  border-bottom-color: #e7e3d2 !important;
+  box-shadow: 0 1px 0 rgba(27,42,32,0.03);
+}
+html.light aside {
+  background-color: #ffffff !important;
+  border-right-color: #e7e3d2 !important;
+}
+
+/* Modals / dark shells (sidebar uses #111 too — handled by `aside` above) */
 html.light .bg-\[\#111\],
 html.light .bg-\[\#111111\] {
   background-color: #ffffff;
 }
 
-/* ── Card / panel surfaces ── */
+/* Primary card surface — white, lifted off the parchment by layered shadow */
 html.light .bg-\[\#1a1a1a\] {
   background-color: #ffffff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow:
+    0 1px 2px rgba(27,42,32,0.05),
+    0 4px 16px rgba(27,42,32,0.05);
 }
-html.light .bg-\[\#141414\] { background-color: #f0ede3; } /* sand-100 */
 
-/* ── White-alpha backgrounds → forest-alpha (warm, not cold gray) ── */
-html.light .bg-white\/2  { background-color: rgba(15,45,32,0.02); }
-html.light .bg-white\/3  { background-color: rgba(15,45,32,0.03); }
-html.light .bg-white\/4  { background-color: rgba(15,45,32,0.04); }
-html.light .bg-white\/5  { background-color: rgba(15,45,32,0.04); }
-html.light .bg-white\/8  { background-color: rgba(15,45,32,0.05); }
-html.light .bg-white\/10 { background-color: rgba(15,45,32,0.06); }
-html.light .bg-white\/15 { background-color: rgba(15,45,32,0.08); }
-html.light .bg-white\/20 { background-color: rgba(15,45,32,0.10); }
+/* Nested / secondary surfaces inside cards */
+html.light .bg-\[\#141414\] { background-color: #f6f4ec; }
+html.light .bg-\[\#181818\],
+html.light .bg-\[\#1e1e1e\],
+html.light .bg-\[\#1f1f1f\] { background-color: #f6f4ec; }
+html.light .bg-\[\#252525\] { background-color: #efece0; }
 
-/* ── Borders → sand palette (visible, warm) ── */
-html.light .border-white\/5  { border-color: #d4cfbc; } /* stronger than before */
-html.light .border-white\/8  { border-color: #cdc8b3; }
-html.light .border-white\/10 { border-color: #c8c2a3; } /* sand-400 */
-html.light .border-white\/15 { border-color: #d3cebc; }
-html.light .border-white\/20 { border-color: #c8c2a3; } /* sand-400 */
-html.light .border-white\/25 { border-color: #c0b99a; }
-html.light .border-white\/30 { border-color: #b8af90; }
+/* CvViewerModal & friends use #0f0f0f as header/footer chrome inside #111 —
+   when nested inside a white shell, render as warm off-white, not page bg */
+html.light .bg-\[\#111\] .bg-\[\#0f0f0f\],
+html.light .bg-\[\#1a1a1a\] .bg-\[\#0f0f0f\] {
+  background-color: #faf8f2;
+}
 
-html.light .divide-white\/5  > * + * { border-color: #d4cfbc; }
-html.light .divide-white\/10 > * + * { border-color: #c8c2a3; }
+/* ── 3. White-alpha fills → warm forest tints ──────────────────────────── */
 
-/* ── Text white → forest-950 ──
-   Opacities are bumped vs dark-mode equivalents so light-on-white text
-   stays readable. Minimum ~4.5:1 contrast on #fff at text-white/40. ── */
-html.light .text-white      { color: #0f2d20; }
-html.light .text-white\/80  { color: rgba(15,45,32,0.88); }
-html.light .text-white\/70  { color: rgba(15,45,32,0.80); }
-html.light .text-white\/60  { color: rgba(15,45,32,0.72); }
-html.light .text-white\/50  { color: rgba(15,45,32,0.65); }
-html.light .text-white\/40  { color: rgba(15,45,32,0.60); }
-html.light .text-white\/30  { color: rgba(15,45,32,0.55); }
-html.light .text-white\/25  { color: rgba(15,45,32,0.50); }
-html.light .text-white\/20  { color: rgba(15,45,32,0.45); }
-html.light .text-white\/15  { color: rgba(15,45,32,0.40); }
+html.light .bg-white\/2  { background-color: rgba(27,42,32,0.025); }
+html.light .bg-white\/3  { background-color: rgba(27,42,32,0.035); }
+html.light .bg-white\/4  { background-color: rgba(27,42,32,0.045); }
+html.light .bg-white\/5  { background-color: rgba(27,42,32,0.05); }
+html.light .bg-white\/8  { background-color: rgba(27,42,32,0.06); }
+html.light .bg-white\/10 { background-color: rgba(27,42,32,0.07); }
+html.light .bg-white\/15 { background-color: rgba(27,42,32,0.09); }
+html.light .bg-white\/20 { background-color: rgba(27,42,32,0.11); }
 
-/* ── Hover states ── */
-html.light .hover\:bg-white\/2:hover   { background-color: rgba(15,45,32,0.03); }
-html.light .hover\:bg-white\/5:hover   { background-color: rgba(15,45,32,0.05); }
-html.light .hover\:bg-white\/6:hover   { background-color: rgba(15,45,32,0.06); }
-html.light .hover\:bg-white\/10:hover  { background-color: rgba(15,45,32,0.08); }
-html.light .hover\:text-white:hover    { color: #0f2d20; }
-html.light .hover\:text-white\/70:hover { color: rgba(15,45,32,0.80); }
-html.light .hover\:border-white\/10:hover { border-color: #dbd7c0; }
-html.light .hover\:border-white\/15:hover { border-color: #d3cebc; }
-html.light .hover\:border-white\/20:hover { border-color: #c8c2a3; }
+/* ── 4. Borders → sand scale (visible, warm, never harsh) ──────────────── */
 
-/* ── Placeholder text ── */
-html.light .placeholder\:text-white\/20::placeholder { color: rgba(15,45,32,0.38); }
-html.light .placeholder\:text-white\/25::placeholder { color: rgba(15,45,32,0.42); }
-html.light .placeholder\:text-white\/30::placeholder { color: rgba(15,45,32,0.46); }
-html.light .placeholder\:text-white\/40::placeholder { color: rgba(15,45,32,0.50); }
+html.light .border-white\/5  { border-color: #e7e3d2; }
+html.light .border-white\/8  { border-color: #ded9c5; }
+html.light .border-white\/10 { border-color: #d6d0b9; }
+html.light .border-white\/15 { border-color: #ccc5ab; }
+html.light .border-white\/20 { border-color: #c2ba9c; }
+html.light .border-white\/25 { border-color: #b9b08f; }
+html.light .border-white\/30 { border-color: #b0a883; }
 
-/* ── Form inputs / selects / textareas ── */
+html.light .divide-white\/5  > * + * { border-color: #eeeadb; }
+html.light .divide-white\/10 > * + * { border-color: #e2ddca; }
+
+/* ── 5. Text scale → forest ink ────────────────────────────────────────── */
+/* Opacities bumped vs dark mode so secondary text stays ≥4.5:1 on white */
+
+html.light .text-white      { color: #1b2a20; }
+html.light .text-white\/80  { color: rgba(27,42,32,0.87); }
+html.light .text-white\/70  { color: rgba(27,42,32,0.80); }
+html.light .text-white\/60  { color: rgba(27,42,32,0.72); }
+html.light .text-white\/50  { color: rgba(27,42,32,0.64); }
+html.light .text-white\/40  { color: rgba(27,42,32,0.58); }
+html.light .text-white\/30  { color: rgba(27,42,32,0.52); }
+html.light .text-white\/25  { color: rgba(27,42,32,0.47); }
+html.light .text-white\/20  { color: rgba(27,42,32,0.43); }
+html.light .text-white\/15  { color: rgba(27,42,32,0.38); }
+
+/* ── 6. Accent text remap — the readability core ───────────────────────── */
+/* -300/-400 accents are invisible on white; remap to -600/-700 hues */
+
+html.light .text-lime-300,
+html.light .text-lime-400,
+html.light .text-lime-500      { color: #4d7c0f; }  /* lime-700  */
+html.light .text-lime-400\/70  { color: rgba(77,124,15,0.85); }
+html.light .text-lime-400\/60  { color: rgba(77,124,15,0.75); }
+
+html.light .text-red-300,
+html.light .text-red-400       { color: #dc2626; }  /* red-600   */
+html.light .text-red-400\/70   { color: rgba(220,38,38,0.85); }
+
+html.light .text-blue-300,
+html.light .text-blue-400      { color: #2563eb; }  /* blue-600  */
+
+html.light .text-indigo-300,
+html.light .text-indigo-400    { color: #4f46e5; }  /* indigo-600 */
+html.light .text-indigo-400\/70 { color: rgba(79,70,229,0.85); }
+
+html.light .text-purple-300,
+html.light .text-purple-400    { color: #9333ea; }  /* purple-600 */
+
+html.light .text-orange-300,
+html.light .text-orange-400    { color: #c2410c; }  /* orange-700 */
+html.light .text-orange-400\/70 { color: rgba(194,65,12,0.85); }
+
+html.light .text-yellow-300,
+html.light .text-yellow-400    { color: #a16207; }  /* yellow-700 */
+html.light .text-yellow-400\/70 { color: rgba(161,98,7,0.85); }
+
+html.light .text-amber-300,
+html.light .text-amber-400     { color: #b45309; }  /* amber-700  */
+html.light .text-amber-400\/70 { color: rgba(180,83,9,0.85); }
+
+html.light .text-pink-300      { color: #db2777; }  /* pink-600   */
+html.light .text-cyan-300      { color: #0e7490; }  /* cyan-700   */
+html.light .text-green-300,
+html.light .text-green-400     { color: #16a34a; }  /* green-600  */
+html.light .text-emerald-300,
+html.light .text-emerald-400   { color: #059669; }  /* emerald-600 */
+
+/* ── 7. Solid accent fills — white button text needs real contrast ─────── */
+
+html.light .bg-lime-500            { background-color: #65a30d; }  /* lime-600 */
+html.light .bg-lime-600            { background-color: #4d7c0f; }  /* lime-700 */
+html.light .hover\:bg-lime-600:hover { background-color: #4d7c0f; }
+html.light .hover\:bg-lime-500:hover { background-color: #65a30d; }
+
+/* ── 8. Accent tints (chips/badges) — re-hue to the darker accent ──────── */
+
+html.light .bg-lime-500\/5,
+html.light .bg-lime-400\/10 { background-color: rgba(101,163,13,0.07); }
+html.light .bg-lime-500\/8  { background-color: rgba(101,163,13,0.09); }
+html.light .bg-lime-500\/10 { background-color: rgba(101,163,13,0.10); }
+html.light .bg-lime-500\/15 { background-color: rgba(101,163,13,0.13); }
+html.light .bg-lime-500\/20 { background-color: rgba(101,163,13,0.16); }
+html.light .bg-lime-500\/25 { background-color: rgba(101,163,13,0.19); }
+html.light .bg-lime-500\/30 { background-color: rgba(101,163,13,0.22); }
+html.light .hover\:bg-lime-500\/20:hover { background-color: rgba(101,163,13,0.16); }
+html.light .hover\:bg-lime-500\/10:hover { background-color: rgba(101,163,13,0.10); }
+
+html.light .bg-red-400\/10,
+html.light .bg-red-500\/10    { background-color: rgba(220,38,38,0.08); }
+html.light .bg-red-500\/12,
+html.light .bg-red-500\/15    { background-color: rgba(220,38,38,0.11); }
+html.light .bg-red-500\/20    { background-color: rgba(220,38,38,0.14); }
+
+html.light .bg-blue-400\/10,
+html.light .bg-blue-500\/10   { background-color: rgba(37,99,235,0.08); }
+html.light .bg-blue-500\/15   { background-color: rgba(37,99,235,0.11); }
+html.light .bg-blue-500\/20   { background-color: rgba(37,99,235,0.14); }
+
+html.light .bg-indigo-500\/5  { background-color: rgba(79,70,229,0.06); }
+html.light .bg-indigo-500\/10 { background-color: rgba(79,70,229,0.08); }
+html.light .bg-indigo-500\/15 { background-color: rgba(79,70,229,0.11); }
+html.light .bg-indigo-500\/20 { background-color: rgba(79,70,229,0.14); }
+
+html.light .bg-purple-400\/10,
+html.light .bg-purple-500\/10 { background-color: rgba(147,51,234,0.08); }
+html.light .bg-purple-500\/15 { background-color: rgba(147,51,234,0.11); }
+html.light .bg-purple-500\/20,
+html.light .bg-purple-500\/25 { background-color: rgba(147,51,234,0.14); }
+
+html.light .bg-orange-500\/10 { background-color: rgba(194,65,12,0.09); }
+html.light .bg-orange-500\/20 { background-color: rgba(194,65,12,0.14); }
+
+html.light .bg-yellow-500\/10 { background-color: rgba(161,98,7,0.09); }
+html.light .bg-yellow-500\/15 { background-color: rgba(161,98,7,0.12); }
+html.light .bg-yellow-500\/25 { background-color: rgba(161,98,7,0.16); }
+
+html.light .bg-pink-500\/20   { background-color: rgba(219,39,119,0.13); }
+
+/* ── 9. Accent borders — same re-hue, slightly stronger so chips read ──── */
+
+html.light .border-lime-500\/15 { border-color: rgba(101,163,13,0.28); }
+html.light .border-lime-500\/20 { border-color: rgba(101,163,13,0.32); }
+html.light .border-lime-500\/25 { border-color: rgba(101,163,13,0.36); }
+html.light .border-lime-500\/30,
+html.light .border-lime-300\/30 { border-color: rgba(101,163,13,0.40); }
+html.light .border-lime-500\/40 { border-color: rgba(101,163,13,0.48); }
+html.light .border-lime-500\/50 { border-color: rgba(101,163,13,0.56); }
+
+html.light .border-red-500\/20    { border-color: rgba(220,38,38,0.30); }
+html.light .border-red-500\/30    { border-color: rgba(220,38,38,0.38); }
+html.light .border-blue-500\/20   { border-color: rgba(37,99,235,0.30); }
+html.light .border-indigo-500\/15 { border-color: rgba(79,70,229,0.26); }
+html.light .border-indigo-500\/20 { border-color: rgba(79,70,229,0.30); }
+html.light .border-indigo-500\/30 { border-color: rgba(79,70,229,0.38); }
+html.light .border-indigo-500\/50 { border-color: rgba(79,70,229,0.55); }
+html.light .border-purple-500\/20 { border-color: rgba(147,51,234,0.30); }
+html.light .border-purple-500\/30 { border-color: rgba(147,51,234,0.38); }
+html.light .border-orange-500\/20 { border-color: rgba(194,65,12,0.30); }
+html.light .border-orange-500\/30 { border-color: rgba(194,65,12,0.38); }
+html.light .border-yellow-500\/20 { border-color: rgba(161,98,7,0.30); }
+html.light .border-yellow-500\/30 { border-color: rgba(161,98,7,0.38); }
+
+/* ── 10. Hover states ──────────────────────────────────────────────────── */
+
+html.light .hover\:bg-white\/2:hover   { background-color: rgba(27,42,32,0.03); }
+html.light .hover\:bg-white\/5:hover   { background-color: rgba(27,42,32,0.05); }
+html.light .hover\:bg-white\/6:hover   { background-color: rgba(27,42,32,0.06); }
+html.light .hover\:bg-white\/10:hover  { background-color: rgba(27,42,32,0.08); }
+html.light .hover\:bg-white\/12:hover  { background-color: rgba(27,42,32,0.09); }
+html.light .hover\:text-white:hover    { color: #1b2a20; }
+html.light .hover\:text-white\/70:hover { color: rgba(27,42,32,0.80); }
+html.light .hover\:border-white\/10:hover { border-color: #d6d0b9; }
+html.light .hover\:border-white\/15:hover { border-color: #ccc5ab; }
+html.light .hover\:border-white\/20:hover { border-color: #c2ba9c; }
+html.light .hover\:border-white\/25:hover { border-color: #b9b08f; }
+
+/* ── 11. Forms ─────────────────────────────────────────────────────────── */
+
 html.light input,
 html.light select,
 html.light textarea {
-  color: #0f2d20;
-  caret-color: #3c9772; /* forest-500 cursor */
+  background-color: rgba(27,42,32,0.035) !important;
+  color: #1b2a20;
+  caret-color: #4d7c0f;
+}
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus {
+  background-color: #ffffff !important;
 }
 html.light option,
 html.light option.bg-\[\#1a1a1a\] {
   background-color: #ffffff !important;
-  color: #0f2d20 !important;
+  color: #1b2a20 !important;
 }
+html.light .focus\:border-lime-500\/50:focus { border-color: rgba(101,163,13,0.60); }
 
-/* ── Dark offer cards (bg-forest-950/60) keep white text ── */
-/* These are dark OfferCards used in student dashboard — don't invert their text */
+/* ── 12. Placeholders ──────────────────────────────────────────────────── */
+
+html.light .placeholder\:text-white\/20::placeholder { color: rgba(27,42,32,0.40); }
+html.light .placeholder\:text-white\/25::placeholder { color: rgba(27,42,32,0.44); }
+html.light .placeholder\:text-white\/30::placeholder { color: rgba(27,42,32,0.48); }
+html.light .placeholder\:text-white\/40::placeholder { color: rgba(27,42,32,0.52); }
+
+/* ── 13. Intentionally-dark islands keep white text ────────────────────── */
+/* Dark OfferCards (bg-forest-950/60) stay dark in light mode — don't invert */
+
 html.light .bg-forest-950\/60 {
   color: rgba(255,255,255,0.90);
-  border-color: rgba(15,45,32,0.20) !important;
+  border-color: rgba(27,42,32,0.20) !important;
 }
-html.light .bg-forest-950\/60 .text-white     { color: rgba(255,255,255,0.90) !important; }
-html.light .bg-forest-950\/60 .text-white\/40 { color: rgba(255,255,255,0.40) !important; }
-html.light .bg-forest-950\/60 .text-white\/50 { color: rgba(255,255,255,0.50) !important; }
+html.light .bg-forest-950\/60 .text-white      { color: rgba(255,255,255,0.92) !important; }
+html.light .bg-forest-950\/60 .text-white\/40  { color: rgba(255,255,255,0.42) !important; }
+html.light .bg-forest-950\/60 .text-white\/50  { color: rgba(255,255,255,0.52) !important; }
+html.light .bg-forest-950\/60 .text-lime-400   { color: #a3e635 !important; }
 html.light .bg-forest-950\/60 .border-white\/5 { border-color: rgba(255,255,255,0.08) !important; }
 
-/* ── Sidebar nav: inactive links need readable colour on white ── */
-html.light aside nav a        { color: rgba(15,45,32,0.60); }
-html.light aside nav a:hover  { color: #0f2d20; background-color: rgba(15,45,32,0.05); }
+/* ── 14. Sidebar nav ───────────────────────────────────────────────────── */
 
-/* ── Sidebar collapse toggle button (bg-[#1a1a1a] → sand surface) ── */
+html.light aside nav a        { color: rgba(27,42,32,0.62); }
+html.light aside nav a:hover  { color: #1b2a20; background-color: rgba(27,42,32,0.05); }
+
+/* Sidebar collapse toggle (bg-[#1a1a1a] pill) */
 html.light aside > button.absolute {
-  background-color: #f2f1ea;
-  border-color: #dbd7c0;
-  color: rgba(15,45,32,0.55);
+  background-color: #f6f4ec;
+  border-color: #ded9c5;
+  color: rgba(27,42,32,0.55);
+  box-shadow: none;
 }
 
-/* ── Ring utilities ── */
-html.light .ring-white\/10 { --tw-ring-color: rgba(15,45,32,0.10); }
-html.light .ring-2 { --tw-ring-color: rgba(15,45,32,0.12); }
+/* ── 15. Rings / focus ─────────────────────────────────────────────────── */
 
-/* ── Scrollbar ── */
-html.light .dashboard-scroll::-webkit-scrollbar-track { background: #f2f1ea; }  /* sand-100 */
-html.light .dashboard-scroll::-webkit-scrollbar-thumb { background: #90cdb2; border-radius: 2px; } /* forest-300 */
-html.light .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: #3c9772; } /* forest-500 */
+html.light .ring-white\/10 { --tw-ring-color: rgba(27,42,32,0.10); }
+html.light .ring-2 { --tw-ring-color: rgba(101,163,13,0.30); }
 
-/* ── bg-grid ── */
+/* ── 16. Scrollbar ─────────────────────────────────────────────────────── */
+
+html.light .dashboard-scroll::-webkit-scrollbar-track { background: #efece0; }
+html.light .dashboard-scroll::-webkit-scrollbar-thumb { background: #c9c2a8; border-radius: 2px; }
+html.light .dashboard-scroll::-webkit-scrollbar-thumb:hover { background: #4d7c0f; }
+
+/* ── 17. Decorative grid ───────────────────────────────────────────────── */
+
 html.light .bg-grid {
   background-image:
-    linear-gradient(to right, rgba(15,45,32,0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(15,45,32,0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(27,42,32,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(27,42,32,0.05) 1px, transparent 1px);
 }

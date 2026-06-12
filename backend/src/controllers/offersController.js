@@ -403,7 +403,14 @@ exports.recommended = async (req, res, next) => {
     // Score every candidate and attach reasons
     const scored = pool.map(offer => {
       const match = computeRecommendationReasons(sp, offer);
-      return { ...normaliseOffer(offer), matchScore: match.score, matchReasons: match.reasons, matchVerdict: match.verdict };
+      return {
+        ...normaliseOffer(offer),
+        matchScore:     match.score,
+        matchReasons:   match.reasons,
+        matchVerdict:   match.verdict,
+        matchBreakdown: match.breakdown,
+        matchMethod:    match.method,
+      };
     });
 
     // Sort by score desc, take top N

@@ -13,6 +13,7 @@ import { uploadApi } from '../../api/upload';
 import { aiApi } from '../../api/ai';
 import { useAuth } from '../../context/AuthContext';
 import Spinner from '../../components/ui/Spinner';
+import WhyMatchPopover from '../../components/ui/WhyMatchPopover';
 import { formatDate } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
@@ -356,12 +357,18 @@ function AiMatchPanel({ match, onReset }) {
       </div>
 
       <div className="flex items-end gap-2">
-        <span className={`text-3xl font-black ${SCORE_COLOR(match.score)}`}>{match.score}</span>
+        <WhyMatchPopover breakdown={match.breakdown} method={match.method}>
+          <span className={`text-3xl font-black ${SCORE_COLOR(match.score)}`}>{match.score}</span>
+        </WhyMatchPopover>
         <span className="text-white/30 text-sm mb-1">/100</span>
         <span className={`ml-auto text-xs font-semibold px-2 py-0.5 rounded-full ${SCORE_BG(match.score)} ${SCORE_COLOR(match.score)}`}>
           {match.verdict}
         </span>
       </div>
+
+      {match.breakdown && (
+        <WhyMatchPopover breakdown={match.breakdown} method={match.method} />
+      )}
 
       {/* Score bar */}
       <div className="h-1.5 bg-white/10 rounded-full">

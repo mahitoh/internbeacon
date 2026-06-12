@@ -5,7 +5,7 @@ import {
   FileText, Clock, CheckCircle2, XCircle, Briefcase, ArrowRight,
   TrendingUp, Sparkles, Brain, Zap, Calendar, ChevronRight,
   BookOpen, Languages, GraduationCap, Code2, RefreshCw,
-  Upload, Search, User,
+  Upload, Search, User, Lightbulb,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
@@ -103,6 +103,20 @@ export default function StudentDashboard() {
   const threadUnreadMap = useMemo(() => (threadsData || []).reduce((m, t) => {
     m[t.appId] = t.unreadCount; return m;
   }, {}), [threadsData]);
+
+  // Skill gap: the missing skill that blocks the most recommended offers.
+  // Aggregated from the per-offer match breakdowns — no extra API call.
+  const skillGap = useMemo(() => {
+    const counts = {};
+    for (const offer of recOffers) {
+      for (const skill of offer.matchBreakdown?.skills?.missing || []) {
+        const key = skill.trim();
+        if (key) counts[key] = (counts[key] || 0) + 1;
+      }
+    }
+    const ranked = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    return ranked.length ? { skill: ranked[0][0], offers: ranked[0][1] } : null;
+  }, [recOffers]);
 
   const counts = useMemo(() => ({
     total:       apps.length,
@@ -483,9 +497,9 @@ export default function StudentDashboard() {
             {/* Weight factors */}
             <div className="space-y-3">
               {[
-                { label: 'Skills Match',        pct: 40, color: 'bg-lime-400',    icon: Code2,        desc: 'Jaccard similarity between your skills and required skills' },
+                { label: 'Skills Match',        pct: 45, color: 'bg-lime-400',    icon: Code2,        desc: 'Share of the required skills you already have' },
                 { label: 'Domain & Programme',  pct: 25, color: 'bg-blue-400',    icon: BookOpen,     desc: 'How well your study field aligns with the offer domain' },
-                { label: 'Academic Level',      pct: 20, color: 'bg-purple-400',  icon: GraduationCap,desc: 'Year of study vs. the internship level requirement' },
+                { label: 'Academic Level',      pct: 15, color: 'bg-purple-400',  icon: GraduationCap,desc: 'Year of study vs. the internship level requirement' },
                 { label: 'Language',            pct: 15, color: 'bg-orange-400',  icon: Languages,    desc: 'Language compatibility with the offer requirements' },
               ].map(({ label, pct, color, icon: Icon, desc }) => (
                 <div key={label}>
@@ -548,6 +562,20 @@ export default function StudentDashboard() {
             </div>
             <Link to="/student/offers" className="text-xs text-lime-400 hover:text-lime-300 mt-1">Browse all →</Link>
           </div>
+
+          {/* Skill-gap nudge — turns matching into career guidance */}
+          {skillGap && (
+            <Link to="/student/profile"
+              className="flex items-center gap-2.5 mb-4 px-4 py-2.5 rounded-xl bg-lime-500/8 border border-lime-500/20 hover:bg-lime-500/15 transition-colors group">
+              <Lightbulb size={14} className="text-lime-400 flex-shrink-0" />
+              <p className="text-xs text-white/60">
+                Add <span className="font-bold text-lime-400">{skillGap.skill}</span> to your profile to improve
+                your match on <span className="font-semibold text-white/80">{skillGap.offers} recommended offer{skillGap.offers !== 1 ? 's' : ''}</span>
+              </p>
+              <span className="ml-auto text-[10px] text-white/30 group-hover:text-white/60 transition-colors flex-shrink-0">Update profile →</span>
+            </Link>
+          )}
+
           <div className="grid sm:grid-cols-2 gap-4">
             {recOffers.slice(0, 4).map(offer => (
               <div key={offer.id} className="relative">
