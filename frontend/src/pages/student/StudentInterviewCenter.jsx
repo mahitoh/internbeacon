@@ -1,90 +1,82 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Video, Phone, MessageSquare, Briefcase, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, Video, Phone, MessageSquare, Briefcase, CheckCircle2, AlertCircle } from 'lucide-react';
 import { applicationsApi } from '../../api/applications';
 import Spinner from '../../components/ui/Spinner';
 import { formatDate } from '../../lib/utils';
 
 const TYPE_META = {
-  google_meet: { label: 'Google Meet',     icon: Video,  color: 'text-blue-400' },
-  zoom:        { label: 'Zoom',            icon: Video,  color: 'text-blue-400' },
-  teams:       { label: 'Microsoft Teams', icon: Video,  color: 'text-indigo-400' },
-  in_person:   { label: 'In Person',       icon: MapPin, color: 'text-lime-400' },
-  phone:       { label: 'Phone Call',      icon: Phone,  color: 'text-yellow-400' },
+  google_meet: { label: 'Google Meet',     icon: Video,  color: '#3B82F6' },
+  zoom:        { label: 'Zoom',            icon: Video,  color: '#3B82F6' },
+  teams:       { label: 'Microsoft Teams', icon: Video,  color: '#6366F1' },
+  in_person:   { label: 'In Person',       icon: MapPin, color: '#1E5B45' },
+  phone:       { label: 'Phone Call',      icon: Phone,  color: '#D97706' },
 };
 
 function InterviewCard({ app, isPast }) {
   const { interview, offer } = app;
   const interviewDate = new Date(interview.date);
-  const typeMeta = TYPE_META[interview.type] || { label: interview.type, icon: Calendar, color: 'text-white/40' };
+  const typeMeta = TYPE_META[interview.type] || { label: interview.type, icon: Calendar, color: '#9A9E97' };
   const Icon = typeMeta.icon;
 
   const daysUntil = Math.ceil((interviewDate - Date.now()) / 86400000);
-  let urgencyLabel, urgencyCls;
-  if (isPast) {
-    urgencyLabel = 'Completed';
-    urgencyCls   = 'text-white/30 bg-white/5 border-white/10';
-  } else if (daysUntil === 0) {
-    urgencyLabel = 'Today';
-    urgencyCls   = 'text-lime-300 bg-lime-500/15 border-lime-500/30';
-  } else if (daysUntil === 1) {
-    urgencyLabel = 'Tomorrow';
-    urgencyCls   = 'text-amber-300 bg-amber-500/12 border-amber-500/25';
-  } else if (daysUntil <= 7) {
-    urgencyLabel = `In ${daysUntil} days`;
-    urgencyCls   = 'text-indigo-300 bg-indigo-500/12 border-indigo-500/25';
-  } else {
-    urgencyLabel = formatDate(interview.date);
-    urgencyCls   = 'text-white/40 bg-white/5 border-white/10';
-  }
+  let urgencyLabel, urgencyStyle;
+  if (isPast)            { urgencyLabel = 'Completed';              urgencyStyle = { background: '#F6F5F1', border: '1px solid #E7E6DF', color: '#9A9E97' }; }
+  else if (daysUntil === 0) { urgencyLabel = 'Today';              urgencyStyle = { background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }; }
+  else if (daysUntil === 1) { urgencyLabel = 'Tomorrow';           urgencyStyle = { background: '#FFFBEB', border: '1px solid #FDE68A', color: '#92400E' }; }
+  else if (daysUntil <= 7)  { urgencyLabel = `In ${daysUntil} days`; urgencyStyle = { background: '#EEF2FF', border: '1px solid #C7D2FE', color: '#3730A3' }; }
+  else                      { urgencyLabel = formatDate(interview.date); urgencyStyle = { background: '#F6F5F1', border: '1px solid #E7E6DF', color: '#6B6F69' }; }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`bg-[#1a1a1a] rounded-2xl border p-5 space-y-4 ${isPast ? 'border-white/5 opacity-70' : 'border-indigo-500/20'}`}>
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl p-5 space-y-4"
+      style={{
+        background: '#fff',
+        border: `1px solid ${isPast ? '#E7E6DF' : '#C7D2FE'}`,
+        opacity: isPast ? 0.8 : 1,
+      }}>
 
       {/* Top row */}
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Briefcase size={14} className="text-white/30" />
-            <h3 className="text-white font-semibold text-sm">{offer?.title}</h3>
+            <Briefcase size={14} style={{ color: '#9A9E97' }} />
+            <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>{offer?.title}</h3>
           </div>
-          <p className="text-white/40 text-xs">{offer?.company?.companyName}</p>
+          <p className="text-xs" style={{ color: '#9A9E97' }}>{offer?.company?.companyName}</p>
         </div>
-        <span className={`flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full border ${urgencyCls}`}>
+        <span className="flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full" style={urgencyStyle}>
           {urgencyLabel}
         </span>
       </div>
 
       {/* Date + time */}
       <div className="flex items-center gap-2 text-sm">
-        <Calendar size={14} className="text-indigo-400 flex-shrink-0" />
-        <span className="text-white/80">
+        <Calendar size={14} style={{ color: '#6366F1', flexShrink: 0 }} />
+        <span style={{ color: '#1B1D1A' }}>
           {interviewDate.toLocaleString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </span>
-        <span className="text-white/40">at</span>
-        <span className="text-white/80 font-semibold">
+        <span style={{ color: '#9A9E97' }}>at</span>
+        <span className="font-semibold" style={{ color: '#1B1D1A' }}>
           {interviewDate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
         </span>
       </div>
 
       {/* Format */}
       <div className="flex items-center gap-2 text-sm">
-        <Icon size={14} className={`${typeMeta.color} flex-shrink-0`} />
-        <span className="text-white/60">{typeMeta.label}</span>
-        {interview.location && <span className="text-white/30">— {interview.location}</span>}
+        <Icon size={14} style={{ color: typeMeta.color, flexShrink: 0 }} />
+        <span style={{ color: '#6B6F69' }}>{typeMeta.label}</span>
+        {interview.location && <span style={{ color: '#9A9E97' }}>— {interview.location}</span>}
       </div>
 
-      {/* Link */}
+      {/* Join link */}
       {interview.link && (
-        <a
-          href={interview.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/15 transition-colors text-sm text-indigo-400 hover:text-indigo-300">
+        <a href={interview.link} target="_blank" rel="noopener noreferrer"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-colors"
+          style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', color: '#4338CA', textDecoration: 'none' }}
+          onMouseEnter={e => e.currentTarget.style.background = '#E0E7FF'}
+          onMouseLeave={e => e.currentTarget.style.background = '#EEF2FF'}>
           <Video size={13} />
           Join Interview
         </a>
@@ -92,22 +84,26 @@ function InterviewCard({ app, isPast }) {
 
       {/* Notes */}
       {interview.notes && (
-        <div className="p-3 rounded-xl bg-white/3 border border-white/8">
-          <p className="text-xs text-white/30 mb-1 font-semibold uppercase tracking-wide">Instructions</p>
-          <p className="text-xs text-white/50 leading-relaxed">{interview.notes}</p>
+        <div className="p-3 rounded-xl" style={{ background: '#F6F5F1', border: '1px solid #E7E6DF' }}>
+          <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: '#9A9E97' }}>Instructions</p>
+          <p className="text-xs leading-relaxed" style={{ color: '#6B6F69' }}>{interview.notes}</p>
         </div>
       )}
 
       {/* Actions */}
       <div className="flex items-center gap-3 pt-1">
-        <Link
-          to={`/student/messages/${app.id}`}
-          className="flex items-center gap-1.5 text-xs text-white/40 hover:text-lime-400 transition-colors">
+        <Link to={`/student/messages/${app.id}`}
+          className="flex items-center gap-1.5 text-xs font-medium transition-colors"
+          style={{ color: '#6B6F69', textDecoration: 'none' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#1E5B45'}
+          onMouseLeave={e => e.currentTarget.style.color = '#6B6F69'}>
           <MessageSquare size={12} /> Message recruiter
         </Link>
-        <Link
-          to="/student/applications"
-          className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white transition-colors ml-auto">
+        <Link to="/student/applications"
+          className="flex items-center gap-1.5 text-xs transition-colors ml-auto"
+          style={{ color: '#9A9E97', textDecoration: 'none' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#1B1D1A'}
+          onMouseLeave={e => e.currentTarget.style.color = '#9A9E97'}>
           View application →
         </Link>
       </div>
@@ -122,7 +118,6 @@ export default function StudentInterviewCenter() {
   });
 
   const apps = rawApps || [];
-
   const interviewApps = apps.filter(a =>
     ['interview_scheduled', 'interview_completed'].includes(a.status) && a.interview?.date
   );
@@ -139,18 +134,23 @@ export default function StudentInterviewCenter() {
   if (isLoading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-2xl" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
       <div>
-        <h2 className="text-2xl font-black text-white">Interview Center</h2>
-        <p className="text-white/40 text-sm mt-0.5">All your scheduled and completed interviews in one place</p>
+        <h2 className="text-2xl font-black" style={{ color: '#1B1D1A' }}>Interview Center</h2>
+        <p className="text-sm mt-0.5" style={{ color: '#9A9E97' }}>
+          All your scheduled and completed interviews in one place
+        </p>
       </div>
 
       {interviewApps.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-white/30 bg-[#1a1a1a] rounded-2xl border border-white/5">
-          <Calendar size={40} className="mb-3 opacity-40" />
+        <div className="flex flex-col items-center justify-center py-24 rounded-2xl"
+          style={{ background: '#fff', border: '1px solid #E7E6DF', color: '#C0BFBA' }}>
+          <Calendar size={40} className="mb-3 opacity-50" />
           <p className="text-sm font-medium">No interviews yet</p>
-          <p className="text-xs mt-1">When a company schedules an interview, it'll appear here</p>
-          <Link to="/student/applications" className="mt-4 text-lime-400 text-xs hover:underline">
+          <p className="text-xs mt-1" style={{ color: '#9A9E97' }}>
+            When a company schedules an interview, it'll appear here
+          </p>
+          <Link to="/student/applications" className="mt-4 text-xs font-semibold" style={{ color: '#1E5B45' }}>
             View applications →
           </Link>
         </div>
@@ -159,8 +159,10 @@ export default function StudentInterviewCenter() {
           {upcoming.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <AlertCircle size={14} className="text-indigo-400" />
-                <h3 className="text-sm font-semibold text-white">Upcoming ({upcoming.length})</h3>
+                <AlertCircle size={14} style={{ color: '#6366F1' }} />
+                <h3 className="text-sm font-semibold" style={{ color: '#1B1D1A' }}>
+                  Upcoming ({upcoming.length})
+                </h3>
               </div>
               {upcoming.map((app, i) => (
                 <motion.div key={app.id} transition={{ delay: i * 0.05 }}>
@@ -173,8 +175,10 @@ export default function StudentInterviewCenter() {
           {past.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <CheckCircle2 size={14} className="text-white/30" />
-                <h3 className="text-sm font-semibold text-white/50">Completed ({past.length})</h3>
+                <CheckCircle2 size={14} style={{ color: '#9A9E97' }} />
+                <h3 className="text-sm font-semibold" style={{ color: '#9A9E97' }}>
+                  Completed ({past.length})
+                </h3>
               </div>
               {past.map((app, i) => (
                 <motion.div key={app.id} transition={{ delay: i * 0.05 }}>

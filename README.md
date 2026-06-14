@@ -2,9 +2,9 @@
 
 # 🔦 InternBeacon
 
-### The AI-Powered Internship Matching Platform for Cameroonian University Students
+### The Internship Matching Platform for Cameroonian University Students
 
-*Not a job board. A matching engine — with real-time tracking, recruiter chat, and an AI core that never goes down.*
+*Not a job board. A matching engine — a transparent, explainable algorithm that scores every student–offer pair, with real-time tracking and recruiter chat.*
 
 [![CI](https://github.com/mahitoh/internbeacon/actions/workflows/ci.yml/badge.svg)](https://github.com/mahitoh/internbeacon/actions/workflows/ci.yml)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
@@ -15,7 +15,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-[Features](#-features) · [Architecture](#-architecture) · [AI Engine](#-the-ai-engine) · [Quick Start](#-quick-start) · [API](#-api-reference) · [Real-Time](#-real-time-events)
+[Features](#-features) · [Architecture](#-architecture) · [Matching Engine](#-the-matching-engine) · [Quick Start](#-quick-start) · [API](#-api-reference) · [Real-Time](#-real-time-events)
 
 </div>
 
@@ -31,8 +31,8 @@ Every year, thousands of Cameroonian students hunt for internships through word 
 | Cameroonian context | ❌ | Partial | ✅ |
 | Real-time application status push | ❌ | ❌ | ✅ |
 | Direct student ↔ recruiter chat | ❌ | ❌ | ✅ |
-| AI CV parsing & applicant ranking | ❌ | ❌ | ✅ |
-| Degrades gracefully without AI | — | — | ✅ |
+| Explainable match scores & applicant ranking | ❌ | ❌ | ✅ |
+| AI CV parsing | ❌ | ❌ | ✅ |
 | Free for students | Partial | Partial | ✅ |
 
 Built as a Bachelor's final-year project at **ICT University (FICT)** — engineered like a production ATS.
@@ -47,12 +47,12 @@ Built as a Bachelor's final-year project at **ICT University (FICT)** — engine
 
 ### 🎓 Students
 
-- **Smart discovery** — search, filter, and a personalised *Recommended* feed ranked by algorithmic fit
+- **Smart discovery** — search, filter, and a personalised *Recommended* feed ranked by algorithmic fit; every offer card shows your live match score
 - **AI CV parser** — upload a PDF, get skills, education, and experience extracted into your profile
-- **AI match score** — 0–100 compatibility against any offer, with a verdict and improvement tips
-- **Live status tracking** — an 8-stage pipeline with a visual timeline that updates *without a page reload*
+- **Explainable match score** — 0–100 compatibility against any offer, with a verdict, a per-factor breakdown, and concrete improvement tips
+- **Live status tracking** — a multi-stage pipeline with a visual timeline that updates *without a page reload*
 - **Direct messaging** — real-time chat with recruiters, with typing indicators and read receipts
-- **Interview center** — all scheduled interviews (Meet, Zoom, Teams, in-person, phone) in one place
+- **Interview center** — all scheduled interviews (Google Meet, Zoom, Teams, in-person, phone) with links and reminders in one place
 - **Bookmarks, analytics, profile-completeness score**
 
 </td>
@@ -61,9 +61,9 @@ Built as a Bachelor's final-year project at **ICT University (FICT)** — engine
 ### 🏢 Companies
 
 - **Offer management** — post, edit, close; offers auto-expire past their deadline via a background job
-- **AI applicant ranking** — every applicant scored and ordered by fit, with reasoning
+- **Applicant ranking** — every applicant scored and ordered by algorithmic fit, with per-candidate reasoning
 - **Structured pipeline** — move candidates through review → shortlist → interview → decision
-- **Interview scheduling** — date, type, link, and notes attached to the application; student notified instantly
+- **Interview scheduling** — date, type (Meet/Zoom/Teams/in-person/phone), link, and notes attached to the application; student notified instantly
 - **Internal notes** — private recruiter annotations, never visible to candidates
 - **Immutable application snapshots** — see the profile and CV *as submitted*, even if edited later
 - **Verified badge** — admin-granted trust mark on profile and offer cards
@@ -112,14 +112,19 @@ flowchart LR
         ST["Storage: cvs · avatars · logos"]
     end
 
-    subgraph AI["🧠 AI Fallback Chain"]
-        G["Gemini 2.5 / 2.0 Flash"] --> Q["Groq · Llama 3.1 8B"] --> X["xAI Grok"] --> F["Local algorithmic engine<br/>(always available)"]
+    subgraph ENG["🧮 Matching Engine (deterministic)"]
+        ME["5-factor weighted scorer<br/>skills · domain · location · level · language"]
+    end
+
+    subgraph CV["🧠 AI — CV parsing only"]
+        G["Gemini 2.5 / 2.0 Flash"] --> Q["Groq · Llama 3.1 8B"] --> X["xAI Grok"]
     end
 
     Client -- REST --> MW --> RT
     Client -. WebSocket .-> IO
     RT --> Data
-    RT --> AI
+    RT --> ENG
+    RT --> CV
     JOB --> PG
 ```
 
@@ -134,28 +139,46 @@ flowchart LR
 
 ---
 
-## 🧠 The AI Engine
+## 🧮 The Matching Engine
 
-InternBeacon's headline trick: **AI features that cannot go down.** Providers are tried in priority order; if every external provider is unavailable, a local algorithmic engine produces the *same response shape* — the frontend never knows the difference. The response simply reports `method: 'ai'` or `method: 'algorithmic'`.
+InternBeacon's headline trick: **matching that is fast, free, and fully explainable.** Every student–offer pair is scored by a deterministic weighted model (`backend/src/utils/matchingEngine.js`) — no external API call, no rate limit, no black box. The same engine powers offer cards, the recommended feed, recruiter applicant ranking, and offer alerts. Every score comes with a verdict, a per-factor breakdown, and human-readable strengths, gaps, and a tip.
 
 ```mermaid
 flowchart TD
-    REQ["match / rank request"] --> P1{"Gemini<br/>2.5 Flash → 2.0 Flash → Flash Lite"}
-    P1 -- ok --> OUT["scored result · method: ai"]
-    P1 -- fail --> P2{"Groq<br/>Llama 3.1 8B Instant"}
-    P2 -- ok --> OUT
-    P2 -- fail --> P3{"xAI Grok"}
-    P3 -- ok --> OUT
-    P3 -- fail --> ALG["Local engine — weighted scoring<br/>45% skills (coverage) · 25% domain taxonomy<br/>15% study level · 15% language"]
-    ALG --> OUT2["scored result · method: algorithmic"]
+    REQ["student + offer"] --> S["Skills 35%<br/>coverage of required skills<br/>(alias-normalized)"]
+    REQ --> D["Domain 30%<br/>programme → field → offer domain<br/>taxonomy cross-reference"]
+    REQ --> L["Location 15%<br/>city / region / remote<br/>(Cameroon region groups)"]
+    REQ --> Y["Study level 15%<br/>study year vs. required seniority"]
+    REQ --> G["Language 5%<br/>EN/FR requirements vs. profile"]
+    S & D & L & Y & G --> W["weighted sum → 0–100"]
+    W --> B["blocking conditions<br/>(study-year / location caps)"]
+    B --> OUT["score · verdict · breakdown<br/>strengths · gaps · tip"]
 ```
 
-| Capability | What it does |
-|---|---|
-| **CV Parsing** | Extracts text from the stored PDF (`pdf-parse`), prompts for structured JSON — skills, education, experience, languages, summary — and enriches the student profile. |
-| **Offer Matching** | Scores a student against any offer (0–100) with a verdict and concrete tips to improve fit. |
-| **Applicant Ranking** | Batch-ranks every applicant on an offer for the recruiter, with per-candidate reasoning. |
-| **Recommendations** | A pure-algorithmic personalised feed (`/api/offers/recommended`) — fast, free, no external calls. |
+**Why a deterministic engine instead of an LLM?** It is instantaneous, costs nothing, never rate-limits, and — crucially for a thesis — is fully reproducible and explainable. Two robustness touches keep it fair: when a programme or offer domain can't be classified, domain's weight is redistributed to skills rather than penalizing the student; and **blocking conditions** stop one perfect factor from masking a disqualifying mismatch (e.g. a hard study-year miss caps the verdict at *Review Carefully*).
+
+| Capability | Engine | What it does |
+|---|---|---|
+| **Offer Matching** | algorithmic | Scores a student against any offer (0–100) with a verdict, per-factor breakdown, and concrete tips. Shown inline on every offer card and detail page. |
+| **Applicant Ranking** | algorithmic | Batch-ranks every (non-terminal) applicant on an offer for the recruiter, with per-candidate reasoning. |
+| **Recommendations** | algorithmic | A personalised feed (`/api/offers/recommended`) with the reasons each offer surfaced. |
+| **Offer Alerts** | algorithmic | At publish time, scores a new offer against every opted-in student and notifies those above their threshold. |
+| **CV Parsing** | AI (LLM) | The one AI feature: extracts text from the stored PDF (`pdf-parse`), prompts for structured JSON — skills, education, experience, languages, summary — and enriches the student profile. |
+
+### AI for CV parsing
+
+CV parsing is the only feature that calls an LLM. Providers are tried in priority order; if all are down, the endpoint returns a clean `503` and the rest of the platform is unaffected (matching never depends on AI).
+
+```mermaid
+flowchart LR
+    CV["PDF CV"] --> P1{"Gemini<br/>2.5 → 2.0 Flash → Flash Lite"}
+    P1 -- ok --> JSON["structured JSON → profile"]
+    P1 -- fail --> P2{"Groq · Llama 3.1 8B"}
+    P2 -- ok --> JSON
+    P2 -- fail --> P3{"xAI Grok"}
+    P3 -- ok --> JSON
+    P3 -- fail --> ERR["503 — try again later"]
+```
 
 > Robust JSON extraction (`extractJSON`) strips model preamble before parsing, so a chatty LLM never breaks the API.
 
@@ -245,7 +268,7 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
-# ── AI providers (at least one for AI features; tried in order) ─
+# ── AI providers (CV parsing only; at least one to enable it; tried in order) ─
 GEMINI_API_KEY=...        # primary — Gemini 2.5/2.0 Flash
 GROQ_API_KEY=...          # fallback — Llama 3.1 8B Instant
 XAI_API_KEY=...           # fallback — Grok
@@ -293,8 +316,8 @@ VITE_SUPABASE_ANON_KEY=your_anon_key
 
 | Method | Endpoint | Role | Description |
 |--------|----------|:---:|-------------|
-| GET | `/api/offers` | public | List active offers (filter + search) |
-| GET | `/api/offers/:id` | public | Offer details |
+| GET | `/api/offers` | public* | List active offers (filter + search); *students get inline match scores |
+| GET | `/api/offers/:id` | public* | Offer details; *students get a full match breakdown |
 | GET | `/api/offers/recommended` | student | Personalised algorithmic feed |
 | GET | `/api/offers/bookmarks` | student | Saved offers |
 | POST / DELETE | `/api/offers/:id/bookmark` | student | Toggle bookmark |
@@ -334,14 +357,14 @@ VITE_SUPABASE_ANON_KEY=your_anon_key
 </details>
 
 <details>
-<summary><b>AI</b> — 4 endpoints</summary>
+<summary><b>AI & Matching</b> — 4 endpoints</summary>
 
-| Method | Endpoint | Role | Description |
-|--------|----------|:---:|-------------|
-| GET | `/api/ai/providers` | any | Active provider chain |
-| POST | `/api/ai/parse-cv` | student | Structured extraction from PDF CV |
-| GET | `/api/ai/match-offer/:offerId` | student | 0–100 compatibility + tips |
-| GET | `/api/ai/rank-applicants/:offerId` | company | Ranked applicant list |
+| Method | Endpoint | Role | Engine | Description |
+|--------|----------|:---:|:---:|-------------|
+| GET | `/api/ai/providers` | any | — | Active CV-parsing provider chain |
+| POST | `/api/ai/parse-cv` | student | AI | Structured extraction from PDF CV |
+| GET | `/api/ai/match-offer/:offerId` | student | algorithmic | 0–100 compatibility + breakdown + tips |
+| GET | `/api/ai/rank-applicants/:offerId` | company | algorithmic | Ranked applicant list |
 
 </details>
 
@@ -416,13 +439,14 @@ internbeacon/
 ├── backend/src/
 │   ├── server.js              # HTTP + Socket.IO entry point
 │   ├── app.js                 # Express app, middleware chain, routes
-│   ├── middleware/            # authenticate · authorize · validate
+│   ├── middleware/            # authenticate · authenticateOptional · authorize · validate
 │   ├── routes/                # 12 route modules
 │   ├── controllers/           # 11 controllers (business logic)
 │   ├── socket/index.js        # rooms, auth, emit helpers
 │   └── utils/
-│       ├── aiProvider.js      # multi-provider fallback chain
-│       ├── fallbackMatcher.js # local scoring engine
+│       ├── matchingEngine.js  # 5-factor weighted scorer (matching core)
+│       ├── aiProvider.js      # multi-provider chain (CV parsing only)
+│       ├── offerAlerts.js     # score new offers vs. opted-in students
 │       ├── expiry.js          # hourly offer-expiry job
 │       ├── notifier.js        # persist + push, fire-and-forget
 │       └── mailer.js          # transactional email
@@ -439,7 +463,7 @@ internbeacon/
 
 ## 🗺 Roadmap
 
-- [ ] **Smart Offer Alerts** — score every new offer against student profiles at publish time; notify matches instantly
+- [x] **Smart Offer Alerts** — score every new offer against student profiles at publish time; notify matches above their threshold instantly
 - [ ] **Bilingual FR/EN** — full interface localisation for Cameroon's two official languages
 - [ ] **Automated test suite** — Jest + Supertest (API) and React Testing Library (UI)
 - [ ] **PWA / low-bandwidth mode** — offline shell and aggressive caching for unstable connections

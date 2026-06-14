@@ -11,13 +11,18 @@ const LOCATIONS  = ['Yaoundé', 'Douala', 'Bafoussam', 'Garoua', 'Bamenda', 'Rem
 const DURATIONS  = [4, 8, 12, 16, 24];
 const CURRENCIES = ['XAF', 'USD', 'EUR'];
 
+const fieldStyle = {
+  background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px',
+  padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none',
+};
+
 export default function PostOffer() {
   const navigate = useNavigate();
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: { isPaid: false, openings: 1, stipendCurrency: 'XAF' }
   });
-  const [skills,      setSkills]      = useState([]);
-  const [skillInput,  setSkillInput]  = useState('');
+  const [skills,     setSkills]     = useState([]);
+  const [skillInput, setSkillInput] = useState('');
 
   const isPaid = watch('isPaid');
 
@@ -30,28 +35,19 @@ export default function PostOffer() {
   };
 
   const handleSkillKey = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      addSkill(skillInput);
-    } else if (e.key === 'Backspace' && !skillInput && skills.length) {
-      setSkills(prev => prev.slice(0, -1));
-    }
+    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addSkill(skillInput); }
+    else if (e.key === 'Backspace' && !skillInput && skills.length) setSkills(prev => prev.slice(0, -1));
   };
 
   const removeSkill = (skill) => setSkills(prev => prev.filter(s => s !== skill));
 
   const onSubmit = async (data) => {
-    // Flush any partially-typed skill before submitting
     const allSkills = skillInput.trim()
       ? [...skills, ...skillInput.split(',').map(s => s.trim()).filter(Boolean)]
       : skills;
-
-    const paid = data.isPaid === true || data.isPaid === 'true';
+    const paid   = data.isPaid === true || data.isPaid === 'true';
     const amount = paid && data.stipendAmount ? Number(data.stipendAmount) : undefined;
-    if (paid && (!amount || isNaN(amount))) {
-      toast.error('Please enter a stipend amount for paid internships');
-      return;
-    }
+    if (paid && (!amount || isNaN(amount))) { toast.error('Please enter a stipend amount for paid internships'); return; }
     try {
       await offersApi.create({
         title:            data.title,
@@ -77,104 +73,94 @@ export default function PostOffer() {
   };
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="max-w-2xl space-y-5" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
       <div>
-        <h2 className="text-2xl font-black text-white">Post New Internship</h2>
-        <p className="text-white/40 text-sm mt-0.5">Fill in the details to attract the right candidates</p>
+        <h2 className="text-2xl font-black" style={{ color: '#1B1D1A' }}>Post New Internship</h2>
+        <p className="text-sm mt-0.5" style={{ color: '#9A9E97' }}>Fill in the details to attract the right candidates</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Basic Info */}
         <FormSection title="Basic Information" icon={Briefcase}>
-          <DarkField label="Internship Title *" error={errors.title?.message}
+          <Field label="Internship Title *" error={errors.title?.message}
             {...register('title', { required: 'Title is required' })}
             placeholder="e.g. Software Development Intern" />
 
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">Domain *</label>
-            <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
-              {...register('domain', { required: 'Domain is required' })}>
-              <option value="" className="bg-[#1a1a1a]">Select domain…</option>
-              {DOMAINS.map(d => <option key={d} value={d} className="bg-[#1a1a1a]">{d}</option>)}
-            </select>
-            {errors.domain && <p className="text-xs text-red-400">{errors.domain.message}</p>}
-          </div>
+          <SelectField label="Domain *" error={errors.domain?.message}
+            {...register('domain', { required: 'Domain is required' })}>
+            <option value="">Select domain…</option>
+            {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
+          </SelectField>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">Description *</label>
+            <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>Description *</label>
             <textarea rows={5} placeholder="Describe the internship role and what the intern will be doing…"
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 resize-none"
+              style={{ ...fieldStyle, resize: 'none' }}
+              onFocus={e => e.target.style.borderColor = '#1E5B45'}
+              onBlur={e => e.target.style.borderColor = '#DDDBD2'}
               {...register('description', { required: 'Description is required' })} />
-            {errors.description && <p className="text-xs text-red-400">{errors.description.message}</p>}
+            {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">Responsibilities</label>
+            <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>Responsibilities</label>
             <textarea rows={3} placeholder="Key responsibilities for this role…"
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 resize-none"
+              style={{ ...fieldStyle, resize: 'none' }}
+              onFocus={e => e.target.style.borderColor = '#1E5B45'}
+              onBlur={e => e.target.style.borderColor = '#DDDBD2'}
               {...register('responsibilities')} />
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">Requirements</label>
+            <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>Requirements</label>
             <textarea rows={3} placeholder="Candidate requirements and qualifications…"
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 resize-none"
+              style={{ ...fieldStyle, resize: 'none' }}
+              onFocus={e => e.target.style.borderColor = '#1E5B45'}
+              onBlur={e => e.target.style.borderColor = '#DDDBD2'}
               {...register('requirements')} />
           </div>
 
-          {/* Tag input for required skills */}
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">Required Skills</label>
-            <div className="min-h-[46px] flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 focus-within:border-lime-500/50 transition-colors">
+            <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>Required Skills</label>
+            <div className="min-h-[46px] flex flex-wrap items-center gap-2 rounded-xl px-3 py-2 transition-colors"
+              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2' }}
+              onFocus={() => {}} >
               {skills.map(skill => (
-                <span key={skill} className="flex items-center gap-1 px-2.5 py-1 bg-lime-500/15 border border-lime-500/25 text-lime-300 text-xs rounded-lg font-medium">
+                <span key={skill} className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium"
+                  style={{ background: '#1E5B45', color: '#fff' }}>
                   {skill}
-                  <button type="button" onClick={() => removeSkill(skill)} className="text-lime-400/60 hover:text-lime-300 transition-colors ml-0.5">
+                  <button type="button" onClick={() => removeSkill(skill)} className="ml-0.5 opacity-70 hover:opacity-100 transition-opacity">
                     <X size={11} />
                   </button>
                 </span>
               ))}
-              <input
-                value={skillInput}
-                onChange={e => setSkillInput(e.target.value)}
+              <input value={skillInput} onChange={e => setSkillInput(e.target.value)}
                 onKeyDown={handleSkillKey}
                 onBlur={() => skillInput.trim() && addSkill(skillInput)}
                 placeholder={skills.length ? '' : 'JavaScript, React, SQL… (Enter or comma to add)'}
-                className="flex-1 min-w-[140px] bg-transparent text-sm text-white placeholder:text-white/25 focus:outline-none py-0.5"
-              />
+                className="flex-1 min-w-[140px] bg-transparent text-sm focus:outline-none py-0.5"
+                style={{ color: '#1B1D1A' }} />
             </div>
-            <p className="text-[11px] text-white/25">Press Enter or comma to add each skill</p>
+            <p className="text-[11px]" style={{ color: '#C0BFBA' }}>Press Enter or comma to add each skill</p>
           </div>
         </FormSection>
 
-        {/* Logistics */}
         <FormSection title="Logistics" icon={MapPin}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-white/60">Location *</label>
-              <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
-                {...register('location', { required: 'Location is required' })}>
-                <option value="" className="bg-[#1a1a1a]">Select city…</option>
-                {LOCATIONS.map(l => <option key={l} value={l} className="bg-[#1a1a1a]">{l}</option>)}
-              </select>
-              {errors.location && <p className="text-xs text-red-400">{errors.location.message}</p>}
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-white/60">Duration (weeks) *</label>
-              <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
-                {...register('durationWeeks', { required: 'Duration is required' })}>
-                <option value="" className="bg-[#1a1a1a]">Select…</option>
-                {DURATIONS.map(d => <option key={d} value={d} className="bg-[#1a1a1a]">{d} weeks</option>)}
-              </select>
-              {errors.durationWeeks && <p className="text-xs text-red-400">{errors.durationWeeks.message}</p>}
-            </div>
+            <SelectField label="Location *" error={errors.location?.message}
+              {...register('location', { required: 'Location is required' })}>
+              <option value="">Select city…</option>
+              {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+            </SelectField>
+            <SelectField label="Duration (weeks) *" error={errors.durationWeeks?.message}
+              {...register('durationWeeks', { required: 'Duration is required' })}>
+              <option value="">Select…</option>
+              {DURATIONS.map(d => <option key={d} value={d}>{d} weeks</option>)}
+            </SelectField>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DarkField label="Number of Openings" type="number" min="1"
-              {...register('openings', { min: 1 })} />
-            <DarkField label="Application Deadline *" type="date"
+            <Field label="Number of Openings" type="number" min="1" {...register('openings', { min: 1 })} />
+            <Field label="Application Deadline *" type="date"
               min={new Date().toISOString().split('T')[0]}
               error={errors.deadline?.message}
               {...register('deadline', {
@@ -182,29 +168,21 @@ export default function PostOffer() {
                 validate: v => !v || new Date(v) > new Date() || 'Deadline must be in the future',
               })} />
           </div>
-
-          <DarkField label="Preferred Start Date" type="date" {...register('startDate')} />
+          <Field label="Preferred Start Date" type="date" {...register('startDate')} />
         </FormSection>
 
-        {/* Compensation */}
         <FormSection title="Compensation" icon={Banknote}>
           <label className="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" className="accent-lime-500 w-4 h-4"
-              {...register('isPaid')} />
-            <span className="text-sm text-white">This is a paid internship</span>
+            <input type="checkbox" className="w-4 h-4 accent-[#1E5B45]" {...register('isPaid')} />
+            <span className="text-sm" style={{ color: '#1B1D1A' }}>This is a paid internship</span>
           </label>
 
           {isPaid && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
-              <DarkField label="Stipend Amount (per month)" type="number"
-                {...register('stipendAmount')} placeholder="50000" />
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-white/60">Currency</label>
-                <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
-                  {...register('stipendCurrency')}>
-                  {CURRENCIES.map(c => <option key={c} value={c} className="bg-[#1a1a1a]">{c}</option>)}
-                </select>
-              </div>
+              <Field label="Stipend Amount (per month)" type="number" {...register('stipendAmount')} placeholder="50000" />
+              <SelectField label="Currency" {...register('stipendCurrency')}>
+                {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </SelectField>
             </div>
           )}
         </FormSection>
@@ -224,22 +202,40 @@ export default function PostOffer() {
 
 function FormSection({ title, icon: Icon, children }) {
   return (
-    <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6 space-y-4">
+    <div className="rounded-2xl p-6 space-y-4" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
       <div className="flex items-center gap-2">
-        <Icon size={16} className="text-lime-400" />
-        <h3 className="font-semibold text-white text-sm">{title}</h3>
+        <Icon size={16} style={{ color: '#1E5B45' }} />
+        <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>{title}</h3>
       </div>
       {children}
     </div>
   );
 }
 
-function DarkField({ label, error, ...props }) {
+function Field({ label, error, ...props }) {
   return (
     <div className="space-y-1.5">
-      {label && <label className="block text-sm font-medium text-white/60">{label}</label>}
-      <input className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 transition-colors" {...props} />
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {label && <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>}
+      <input style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none' }}
+        onFocus={e => e.target.style.borderColor = '#1E5B45'}
+        onBlur={e => e.target.style.borderColor = '#DDDBD2'}
+        {...props} />
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+function SelectField({ label, error, children, ...props }) {
+  return (
+    <div className="space-y-1.5">
+      {label && <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>}
+      <select style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none', appearance: 'none' }}
+        onFocus={e => e.target.style.borderColor = '#1E5B45'}
+        onBlur={e => e.target.style.borderColor = '#DDDBD2'}
+        {...props}>
+        {children}
+      </select>
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }

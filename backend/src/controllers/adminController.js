@@ -8,6 +8,7 @@ exports.stats = async (req, res, next) => {
       { count: totalStudents },
       { count: totalCompanies },
       { count: totalAdmins },
+      { count: verifiedCompanies },
       { count: openOffers },
       { count: closedOffers },
       { count: draftOffers },
@@ -22,6 +23,7 @@ exports.stats = async (req, res, next) => {
       supabaseAdmin.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'student'),
       supabaseAdmin.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'company'),
       supabaseAdmin.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'admin'),
+      supabaseAdmin.from('company_profiles').select('id', { count: 'exact', head: true }).eq('is_verified', true),
       supabaseAdmin.from('internship_offers').select('id', { count: 'exact', head: true }).eq('status', 'open'),
       supabaseAdmin.from('internship_offers').select('id', { count: 'exact', head: true }).eq('status', 'closed'),
       supabaseAdmin.from('internship_offers').select('id', { count: 'exact', head: true }).eq('status', 'draft'),
@@ -41,10 +43,11 @@ exports.stats = async (req, res, next) => {
       success: true,
       data: {
         users: {
-          students:  totalStudents,
-          companies: totalCompanies,
-          admins:    totalAdmins,
-          total:     (totalStudents || 0) + (totalCompanies || 0) + (totalAdmins || 0),
+          students:          totalStudents,
+          companies:         totalCompanies,
+          admins:            totalAdmins,
+          verifiedCompanies: verifiedCompanies,
+          total:             (totalStudents || 0) + (totalCompanies || 0) + (totalAdmins || 0),
         },
         offers: {
           open:   openOffers,

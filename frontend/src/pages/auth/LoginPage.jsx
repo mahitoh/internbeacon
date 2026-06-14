@@ -2,15 +2,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Compass, ArrowRight, AlertCircle } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { DarkInput } from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
+import { LightInput } from '../../components/ui/Input';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 
-const signInWithGoogle = async (preferredRole) => {
-  if (preferredRole) sessionStorage.setItem('googleOAuthRole', preferredRole);
+const signInWithGoogle = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -19,8 +17,8 @@ const signInWithGoogle = async (preferredRole) => {
 };
 
 export default function LoginPage() {
-  const { login }   = useAuth();
-  const navigate    = useNavigate();
+  const { login } = useAuth();
+  const navigate  = useNavigate();
   const [authError, setAuthError] = useState('');
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
@@ -35,123 +33,166 @@ export default function LoginPage() {
         role === 'admin'   ? '/admin/dashboard'   : '/'
       );
     } catch (err) {
-      const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
-      setAuthError(msg);
+      setAuthError(err.response?.data?.message || 'Something went wrong. Please try again.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-forest-950 flex-col justify-between p-12 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: 'linear-gradient(#2a7a4a 1px,transparent 1px),linear-gradient(90deg,#2a7a4a 1px,transparent 1px)', backgroundSize: '32px 32px' }} />
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-lime-500/10 rounded-full blur-3xl" />
+    <div className="min-h-screen flex" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
 
-        <Link to="/" className="flex items-center gap-2 relative">
-          <div className="w-9 h-9 bg-lime-500 rounded-lg flex items-center justify-center">
-            <Compass size={20} className="text-white" />
+      {/* ── Left editorial panel ── */}
+      <div className="hidden lg:flex lg:w-[46%] flex-col justify-between p-[52px] relative overflow-hidden"
+        style={{ background: '#10342A', color: '#fff' }}>
+
+        {/* Grid overlay */}
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px)',
+          backgroundSize: '38px 38px',
+        }} />
+
+        {/* Logo */}
+        <Link to="/" className="relative flex items-center gap-3">
+          <div className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center flex-shrink-0"
+            style={{ background: '#9FE870' }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#10342A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <polygon points="16 8 11 11 8 16 13 13 16 8" fill="#10342A" stroke="#10342A" />
+            </svg>
           </div>
-          <span className="font-bold text-white text-xl">InternBeacon</span>
+          <span style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.02em' }}>InternBeacon</span>
         </Link>
 
-        <div className="relative">
-          <blockquote className="text-white/80 text-lg leading-relaxed italic">
-            "InternBeacon helped me land my internship at MTN Cameroon in just 3 weeks. The dashboard made tracking so easy."
+        {/* Testimonial */}
+        <div className="relative" style={{ maxWidth: 440 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#9FE870', letterSpacing: '0.04em', marginBottom: 22 }}>
+            CAMEROON'S INTERNSHIP NETWORK
+          </div>
+          <blockquote style={{
+            fontFamily: "'Source Serif 4', Georgia, serif",
+            fontSize: 27, lineHeight: 1.42, fontWeight: 500,
+            margin: '0 0 28px', letterSpacing: '-0.01em',
+          }}>
+            "I tracked every application in one place and landed my internship at MTN Cameroon within three weeks of joining."
           </blockquote>
-          <div className="flex items-center gap-3 mt-6">
-            <div className="w-10 h-10 rounded-full bg-lime-500/20 flex items-center justify-center text-lime-400 font-bold text-sm">AB</div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center rounded-full flex-shrink-0"
+              style={{ width: 46, height: 46, background: '#9FE870', color: '#10342A', fontWeight: 800, fontSize: 15 }}>
+              AB
+            </div>
             <div>
-              <p className="text-white font-semibold text-sm">Amina Bello</p>
-              <p className="text-white/40 text-xs">Computer Science · ICT University</p>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>Amina Bello</div>
+              <div style={{ fontSize: 13, color: '#A9C4B8' }}>Computer Science · ICT University</div>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-6 relative">
-          <div><p className="text-2xl font-black text-white">2,400+</p><p className="text-white/40 text-xs">Students placed</p></div>
-          <div><p className="text-2xl font-black text-white">850+</p><p className="text-white/40 text-xs">Companies</p></div>
-          <div><p className="text-2xl font-black text-white">95%</p><p className="text-white/40 text-xs">Satisfaction</p></div>
+        {/* Stats */}
+        <div className="relative flex gap-10" style={{ paddingTop: 28, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
+          {[['2,400+', 'Students placed'], ['850+', 'Partner companies'], ['12 days', 'Avg. time to offer']].map(([num, label]) => (
+            <div key={label}>
+              <div style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 27, fontWeight: 600 }}>{num}</div>
+              <div style={{ fontSize: 12.5, color: '#A9C4B8', marginTop: 3 }}>{label}</div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md">
+      {/* ── Right form panel ── */}
+      <div className="flex-1 flex items-center justify-center p-12" style={{ background: '#F6F5F1' }}>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="w-full" style={{ maxWidth: 400 }}>
+
           {/* Mobile logo */}
           <Link to="/" className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-8 h-8 bg-lime-500 rounded-lg flex items-center justify-center">
-              <Compass size={16} className="text-white" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#1E5B45' }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="9" /><polygon points="16 8 11 11 8 16 13 13 16 8" fill="#9FE870" stroke="#9FE870" />
+              </svg>
             </div>
-            <span className="font-bold text-white">InternBeacon</span>
+            <span style={{ fontWeight: 800, fontSize: 17, color: '#1B1D1A' }}>InternBeacon</span>
           </Link>
 
-          <h1 className="text-3xl font-black text-white">Welcome back</h1>
-          <p className="text-white/40 mt-2 text-sm">Sign in to your InternBeacon account</p>
+          <h1 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 30, fontWeight: 600, letterSpacing: '-0.01em', margin: '0 0 6px', color: '#1B1D1A' }}>
+            Welcome back
+          </h1>
+          <p style={{ margin: '0 0 30px', color: '#6B6F69', fontSize: 14.5 }}>Sign in to manage your applications.</p>
 
-          {/* Google sign-in */}
-          <div className="mt-6">
-            <GoogleButton onClick={() => signInWithGoogle()} />
-          </div>
+          <GoogleButton onClick={signInWithGoogle} />
 
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-white/30 text-xs">or sign in with email</span>
-            <div className="flex-1 h-px bg-white/10" />
+          <div className="flex items-center gap-4 my-6">
+            <div className="flex-1 h-px" style={{ background: '#E1DFD6' }} />
+            <span style={{ fontSize: 12.5, color: '#9A9E97' }}>or sign in with email</span>
+            <div className="flex-1 h-px" style={{ background: '#E1DFD6' }} />
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <DarkInput
+            <LightInput
               label="Email address"
               type="email"
               icon={Mail}
-              placeholder="you@example.com"
+              placeholder="you@university.cm"
               error={errors.email?.message}
-              {...register('email', {
-                required: 'Email is required',
-                onChange: () => setAuthError(''),
-              })}
-            />
-            <DarkInput
-              label="Password"
-              type="password"
-              icon={Lock}
-              placeholder="••••••••"
-              error={errors.password?.message}
-              {...register('password', {
-                required: 'Password is required',
-                onChange: () => setAuthError(''),
-              })}
+              {...register('email', { required: 'Email is required', onChange: () => setAuthError('') })}
             />
 
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#1B1D1A' }}>Password</label>
+                <Link to="/forgot-password" style={{ fontSize: 13, fontWeight: 600, color: '#1E5B45', textDecoration: 'none' }}>
+                  Forgot password?
+                </Link>
+              </div>
+              <LightInput
+                type="password"
+                icon={Lock}
+                placeholder="••••••••••"
+                error={errors.password?.message}
+                {...register('password', { required: 'Password is required', onChange: () => setAuthError('') })}
+              />
+            </div>
+
             {authError && (
-              <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
-                <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-300 leading-snug">{authError}</p>
+              <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl" style={{ background: 'rgba(192,86,62,0.08)', border: '1px solid rgba(192,86,62,0.2)' }}>
+                <AlertCircle size={15} className="flex-shrink-0 mt-0.5" style={{ color: '#C0563E' }} />
+                <p style={{ fontSize: 13.5, color: '#C0563E', lineHeight: 1.5 }}>{authError}</p>
               </div>
             )}
 
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm text-white/50 cursor-pointer">
-                <input type="checkbox" className="accent-lime-500" /> Remember me
-              </label>
-              <Link to="/forgot-password" className="text-sm text-lime-400 hover:text-lime-300">Forgot password?</Link>
-            </div>
+            <label className="flex items-center gap-2 cursor-pointer" style={{ fontSize: 13.5, color: '#6B6F69' }}>
+              <input type="checkbox" className="accent-[#1E5B45]" /> Keep me signed in
+            </label>
 
-            <Button type="submit" variant="primary" size="lg" loading={isSubmitting} className="w-full mt-2">
-              Sign In <ArrowRight size={16} />
-            </Button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full flex items-center justify-center gap-2"
+              style={{
+                background: isSubmitting ? '#4E8A6E' : '#1E5B45',
+                color: '#fff', border: 'none', borderRadius: 11,
+                padding: '14px', fontSize: 15, fontWeight: 600,
+                fontFamily: 'inherit', cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                boxShadow: '0 1px 2px rgba(30,91,69,.3)',
+              }}>
+              {isSubmitting ? 'Signing in…' : 'Sign in'}
+              {!isSubmitting && <ArrowRight size={17} />}
+            </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-white/40 text-sm">
-              Don't have an account?{' '}
-              <Link to="/register/student" className="text-lime-400 hover:text-lime-300 font-medium">Register as Student</Link>
-              {' '}or{' '}
-              <Link to="/register/company" className="text-lime-400 hover:text-lime-300 font-medium">as Company</Link>
-            </p>
+          <div className="mt-6">
+            <p className="text-center mb-3" style={{ fontSize: 13, color: '#8A8E86' }}>New to InternBeacon?</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Link to="/register/student"
+                className="flex items-center justify-center gap-2 transition-colors"
+                style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', borderRadius: 11, padding: '11px 14px', fontSize: 13.5, fontWeight: 600, color: '#1E5B45', textDecoration: 'none' }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                Student
+              </Link>
+              <Link to="/register/company"
+                className="flex items-center justify-center gap-2 transition-colors"
+                style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', borderRadius: 11, padding: '11px 14px', fontSize: 13.5, fontWeight: 600, color: '#1E5B45', textDecoration: 'none' }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                Company
+              </Link>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -164,12 +205,19 @@ function GoogleButton({ onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-sm rounded-xl transition-colors border border-white/10">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-        <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
-        <path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/>
-        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+      className="w-full flex items-center justify-center gap-3 transition-colors"
+      style={{
+        background: '#fff', border: '1px solid #DDDBD2', borderRadius: 11,
+        padding: '13px', fontSize: 14.5, fontWeight: 600,
+        fontFamily: 'inherit', color: '#1B1D1A', cursor: 'pointer',
+      }}
+      onMouseEnter={e => e.currentTarget.style.background = '#FAFAF7'}
+      onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+      <svg width="18" height="18" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z" />
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z" />
+        <path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z" />
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38Z" />
       </svg>
       Continue with Google
     </button>

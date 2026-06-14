@@ -71,7 +71,6 @@ export default function Sidebar({ role, mobileOpen = false, onMobileClose }) {
     ? user?.companyProfile?.companyName || user?.email
     : user?.email;
 
-  // Uploaded profile image first, then Google avatar, else <Avatar> shows initials
   const avatarSrc = role === 'student'
     ? user?.studentProfile?.avatarUrl || user?.avatarUrl
     : role === 'company'
@@ -80,24 +79,27 @@ export default function Sidebar({ role, mobileOpen = false, onMobileClose }) {
 
   return (
     <aside className={cn(
-      'flex flex-col bg-[#111111] border-r border-white/5 transition-all duration-300 h-screen',
-      // Mobile: fixed off-canvas drawer; desktop: sticky sidebar
+      'flex flex-col bg-white border-r border-[#E7E6DF] transition-all duration-300 h-screen',
       'fixed inset-y-0 left-0 z-50 lg:sticky lg:top-0 lg:z-auto',
       mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       collapsed ? 'w-16' : 'w-60'
     )}>
       {/* Logo */}
-      <div className={cn('flex items-center border-b border-white/5 h-16', collapsed ? 'justify-center px-2' : 'px-5 gap-2')}>
-        <div className="w-8 h-8 bg-brand-800 rounded-lg flex items-center justify-center flex-shrink-0">
-          <Compass size={16} className="text-lime-400" />
+      <div className={cn('flex items-center border-b border-[#E7E6DF] h-16', collapsed ? 'justify-center px-2' : 'px-5 gap-2.5')}>
+        <div className="w-8 h-8 rounded-[9px] flex items-center justify-center flex-shrink-0" style={{ background: '#1E5B45' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <polygon points="16 8 11 11 8 16 13 13 16 8" fill="#9FE870" stroke="#9FE870" />
+          </svg>
         </div>
-        {!collapsed && <span className="font-bold text-white text-base tracking-tight">InternBeacon</span>}
+        {!collapsed && <span style={{ fontWeight: 800, fontSize: 16, letterSpacing: '-0.02em', color: '#1B1D1A' }}>InternBeacon</span>}
       </div>
 
       {/* Admin badge */}
       {role === 'admin' && !collapsed && (
         <div className="px-4 pt-4">
-          <div className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-lime-500/10 border border-lime-500/20 text-lime-400 text-xs font-semibold">
+          <div className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border text-xs font-semibold"
+            style={{ background: '#EDF2EE', borderColor: '#C4DBCE', color: '#1E5B45' }}>
             <ShieldCheck size={14} /> Admin Panel
           </div>
         </div>
@@ -108,7 +110,10 @@ export default function Sidebar({ role, mobileOpen = false, onMobileClose }) {
         <div className="px-4 pt-4">
           <button
             onClick={() => navigate('/company/offers/post')}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-lime-500 hover:bg-lime-600 text-white text-sm font-semibold transition-colors">
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-white text-sm font-semibold transition-colors"
+            style={{ background: '#1E5B45' }}
+            onMouseEnter={e => e.currentTarget.style.background = '#10342A'}
+            onMouseLeave={e => e.currentTarget.style.background = '#1E5B45'}>
             <Plus size={16} />
             Post Internship
           </button>
@@ -126,15 +131,15 @@ export default function Sidebar({ role, mobileOpen = false, onMobileClose }) {
               'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
               collapsed ? 'justify-center' : '',
               isActive
-                ? 'bg-lime-500/10 text-lime-400'
-                : 'text-white/50 hover:text-white hover:bg-white/5'
+                ? 'bg-[#EDF2EE] text-[#1E5B45]'
+                : 'text-[#6B6F69] hover:text-[#1B1D1A] hover:bg-[#F0F0EA]'
             )}
             title={collapsed ? item.label : undefined}
           >
             <div className="relative flex-shrink-0">
               <item.icon size={18} />
               {item.notifBadge && unreadCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[14px] h-[14px] bg-lime-500 rounded-full text-white text-[9px] flex items-center justify-center font-bold px-0.5">
+                <span className="absolute -top-1.5 -right-1.5 min-w-[14px] h-[14px] bg-[#1E5B45] rounded-full text-white text-[9px] flex items-center justify-center font-bold px-0.5">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -143,7 +148,8 @@ export default function Sidebar({ role, mobileOpen = false, onMobileClose }) {
               <span className="flex-1">{item.label}</span>
             )}
             {!collapsed && item.notifBadge && unreadCount > 0 && (
-              <span className="ml-auto bg-lime-500/15 text-lime-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                style={{ background: '#EDF2EE', color: '#1E5B45' }}>
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
@@ -154,29 +160,38 @@ export default function Sidebar({ role, mobileOpen = false, onMobileClose }) {
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 bg-[#1a1a1a] border border-white/10 rounded-full flex items-center justify-center text-white/40 hover:text-white transition-colors"
+        className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center transition-colors"
+        style={{ background: '#fff', border: '1px solid #E7E6DF', color: '#9A9E97' }}
+        onMouseEnter={e => e.currentTarget.style.color = '#1B1D1A'}
+        onMouseLeave={e => e.currentTarget.style.color = '#9A9E97'}
       >
         {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
       </button>
 
       {/* User section */}
-      <div className="border-t border-white/5 p-3">
+      <div className="border-t border-[#E7E6DF] p-3">
         <div className={cn('flex items-center gap-3', collapsed ? 'justify-center' : '')}>
           <Avatar name={displayName} src={avatarSrc} size="sm" />
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{displayName}</p>
-              <p className="text-xs text-white/40 capitalize">{role}</p>
+              <p className="text-sm font-semibold truncate" style={{ color: '#1B1D1A' }}>{displayName}</p>
+              <p className="text-xs capitalize" style={{ color: '#9A9E97' }}>{role}</p>
             </div>
           )}
           {!collapsed && (
-            <button onClick={handleLogout} className="text-white/30 hover:text-red-400 transition-colors" title="Logout">
+            <button onClick={handleLogout} className="transition-colors" style={{ color: '#C0BFBA' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
+              onMouseLeave={e => e.currentTarget.style.color = '#C0BFBA'}
+              title="Logout">
               <LogOut size={16} />
             </button>
           )}
         </div>
         {collapsed && (
-          <button onClick={handleLogout} className="mt-2 w-full flex justify-center text-white/30 hover:text-red-400 transition-colors" title="Logout">
+          <button onClick={handleLogout} className="mt-2 w-full flex justify-center transition-colors" style={{ color: '#C0BFBA' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#ef4444'}
+            onMouseLeave={e => e.currentTarget.style.color = '#C0BFBA'}
+            title="Logout">
             <LogOut size={16} />
           </button>
         )}

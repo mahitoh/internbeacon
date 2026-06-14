@@ -1,47 +1,33 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Users, Briefcase, FileText, Send, TrendingUp, ShieldCheck, UserCheck, Building2, CheckCircle2, Clock } from 'lucide-react';
+import { Users, Briefcase, FileText, Send, TrendingUp, UserCheck, Building2, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import Spinner from '../../components/ui/Spinner';
 import { formatRelativeTime } from '../../lib/utils';
 import toast from 'react-hot-toast';
-import { useTheme } from '../../context/ThemeContext';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 
-/* ── Stat card ──────────────────────────────────────────── */
-function MetricCard({ label, value, icon: Icon, color = 'lime', sub }) {
-  const palettes = {
-    lime:   { icon: 'text-lime-400',   bg: 'bg-lime-400/10'   },
-    blue:   { icon: 'text-blue-400',   bg: 'bg-blue-400/10'   },
-    purple: { icon: 'text-purple-400', bg: 'bg-purple-400/10' },
-    orange: { icon: 'text-orange-400', bg: 'bg-orange-400/10' },
-    red:    { icon: 'text-red-400',    bg: 'bg-red-400/10'    },
-    indigo: { icon: 'text-indigo-400', bg: 'bg-indigo-400/10' },
-  };
-  const p = palettes[color] || palettes.lime;
+function MetricCard({ label, value, icon: Icon, iconBg, iconColor, sub }) {
   return (
-    <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-5 flex items-center gap-4">
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${p.bg}`}>
-        <Icon size={20} className={p.icon} />
+    <div className="rounded-2xl p-5 flex items-center gap-4" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: iconBg }}>
+        <Icon size={20} style={{ color: iconColor }} />
       </div>
       <div className="min-w-0">
-        <p className="text-white/40 text-xs font-medium uppercase tracking-wide">{label}</p>
-        <p className="text-2xl font-black text-white mt-0.5">{value ?? '—'}</p>
-        {sub && <p className="text-white/30 text-[11px] mt-0.5">{sub}</p>}
+        <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9A9E97' }}>{label}</p>
+        <p className="text-2xl font-black mt-0.5" style={{ fontFamily: "'Source Serif 4', Georgia, serif", color: '#1B1D1A' }}>{value ?? '—'}</p>
+        {sub && <p className="text-[11px] mt-0.5" style={{ color: '#9A9E97' }}>{sub}</p>}
       </div>
     </div>
   );
 }
 
-/* ── Chart tooltip ──────────────────────────────────────── */
-function ChartTooltip({ active, payload, label, isDark }) {
+function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className={`px-3 py-2 rounded-lg border text-xs shadow-lg ${
-      isDark ? 'bg-[#1a1a1a] border-white/10 text-white' : 'bg-white border-[#d4cfbc] text-[#0f2d20]'
-    }`}>
+    <div className="px-3 py-2 rounded-lg border text-xs shadow-lg" style={{ background: '#fff', border: '1px solid #E7E6DF', color: '#1B1D1A' }}>
       <p className="font-semibold mb-1">{label}</p>
       {payload.map(p => (
         <p key={p.name} style={{ color: p.color }}>{p.name}: {p.value}</p>
@@ -63,16 +49,13 @@ function shortDate(iso) {
   return `${d}/${m}`;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   MAIN
-   ═══════════════════════════════════════════════════════════ */
 export default function AdminDashboard() {
-  const { isDark } = useTheme();
-  const [broadcastTitle, setBroadcastTitle] = useState('');
-  const [broadcastBody,  setBroadcastBody]  = useState('');
-  const [broadcastRole,  setBroadcastRole]  = useState('');
-  const [sending,        setSending]        = useState(false);
-  const [trendDays,      setTrendDays]      = useState(30);
+  const [broadcastTitle,   setBroadcastTitle]   = useState('');
+  const [broadcastBody,    setBroadcastBody]    = useState('');
+  const [broadcastRole,    setBroadcastRole]    = useState('');
+  const [sending,          setSending]          = useState(false);
+  const [confirmBroadcast, setConfirmBroadcast] = useState(false);
+  const [trendDays,        setTrendDays]        = useState(30);
 
   const { data: stats, isLoading } = useQuery({
     queryKey: ['admin-stats'],
@@ -85,86 +68,82 @@ export default function AdminDashboard() {
   });
 
   const sendBroadcast = async () => {
-    if (!broadcastTitle.trim() || !broadcastBody.trim()) {
-      toast.error('Title and body are required');
-      return;
-    }
+    if (!broadcastTitle.trim() || !broadcastBody.trim()) { toast.error('Title and body are required'); return; }
+    if (!confirmBroadcast) { setConfirmBroadcast(true); return; }
     setSending(true);
+    setConfirmBroadcast(false);
     try {
-      const res = await adminApi.broadcast({
-        title: broadcastTitle.trim(),
-        body:  broadcastBody.trim(),
-        role:  broadcastRole || undefined,
-      });
+      const res = await adminApi.broadcast({ title: broadcastTitle.trim(), body: broadcastBody.trim(), role: broadcastRole || undefined });
       toast.success(res.data.message);
-      setBroadcastTitle('');
-      setBroadcastBody('');
-      setBroadcastRole('');
-    } catch {
-      toast.error('Failed to send broadcast');
-    } finally { setSending(false); }
+      setBroadcastTitle(''); setBroadcastBody(''); setBroadcastRole('');
+    } catch { toast.error('Failed to send broadcast'); }
+    finally { setSending(false); }
   };
 
   if (isLoading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   const s = stats;
-
   const tickEvery = trendDays <= 7 ? 1 : trendDays <= 30 ? 5 : 10;
-  const chartData = (trendData || []).map((d, i) => ({
-    ...d,
-    label: i % tickEvery === 0 ? shortDate(d.date) : '',
-  }));
+  const chartData = (trendData || []).map((d, i) => ({ ...d, label: i % tickEvery === 0 ? shortDate(d.date) : '' }));
 
-  const axisColor  = isDark ? 'rgba(255,255,255,0.22)' : 'rgba(15,45,32,0.30)';
-  const gridColor  = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,45,32,0.05)';
+  const metrics = [
+    { label: 'Total Users',        value: s?.users?.total,              icon: Users,        iconBg: '#EDF2EE', iconColor: '#1E5B45' },
+    { label: 'Students',           value: s?.users?.students,           icon: UserCheck,    iconBg: '#DBEAFE', iconColor: '#1E40AF' },
+    { label: 'Companies',          value: s?.users?.companies,          icon: Building2,    iconBg: '#EDE9FE', iconColor: '#5B21B6' },
+    { label: 'Verified Companies', value: s?.users?.verifiedCompanies,  icon: ShieldCheck,  iconBg: '#EDF2EE', iconColor: '#1E5B45', sub: s?.users?.companies > 0 ? `${s?.users?.companies - (s?.users?.verifiedCompanies ?? 0)} pending` : undefined },
+    { label: 'Open Offers',        value: s?.offers?.open,              icon: Briefcase,    iconBg: '#FFFBEB', iconColor: '#D97706', sub: `${s?.offers?.total ?? 0} total` },
+    { label: 'Applications',       value: s?.applications?.total,       icon: FileText,     iconBg: '#EEF2FF', iconColor: '#4338CA', sub: `${s?.applications?.pending ?? 0} new` },
+    { label: 'Accepted',           value: s?.applications?.accepted,    icon: CheckCircle2, iconBg: '#EDF2EE', iconColor: '#1E5B45', sub: `${s?.applications?.rejected ?? 0} rejected` },
+  ];
+
+  const inputStyle = {
+    background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '12px',
+    padding: '10px 12px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none',
+  };
 
   return (
-    <div className="space-y-5">
-
-      {/* ── Header ───────────────────────────────────────── */}
+    <div className="space-y-5" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
       <div>
-        <h2 className="text-2xl font-black text-white">Admin Overview</h2>
-        <p className="text-white/40 text-sm mt-0.5">Platform-wide statistics and controls</p>
+        <h2 className="text-2xl font-black" style={{ color: '#1B1D1A' }}>Admin Overview</h2>
+        <p className="text-sm mt-0.5" style={{ color: '#9A9E97' }}>Platform-wide statistics and controls</p>
       </div>
 
-      {/* ── 6 key metrics ────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-        <MetricCard label="Total Users"    value={s?.users?.total}              icon={Users}        color="lime"   />
-        <MetricCard label="Students"       value={s?.users?.students}           icon={UserCheck}    color="blue"   />
-        <MetricCard label="Companies"      value={s?.users?.companies}          icon={Building2}    color="purple" />
-        <MetricCard label="Open Offers"    value={s?.offers?.open}              icon={Briefcase}    color="orange" sub={`${s?.offers?.total ?? 0} total`} />
-        <MetricCard label="Applications"   value={s?.applications?.total}       icon={FileText}     color="indigo" sub={`${s?.applications?.pending ?? 0} new`} />
-        <MetricCard label="Accepted"       value={s?.applications?.accepted}    icon={CheckCircle2} color="lime"   sub={`${s?.applications?.rejected ?? 0} rejected`} />
+      {/* Metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {metrics.map(m => <MetricCard key={m.label} {...m} />)}
       </div>
 
-      {/* ── Trend chart ──────────────────────────────────── */}
-      <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+      {/* Trend chart */}
+      <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid #E7E6DF' }}>
           <div className="flex items-center gap-2">
-            <TrendingUp size={15} className="text-lime-400" />
-            <h3 className="font-semibold text-white text-sm">Platform Activity</h3>
+            <TrendingUp size={15} style={{ color: '#1E5B45' }} />
+            <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Platform Activity</h3>
           </div>
-          <div className="flex gap-1 bg-white/5 rounded-xl p-1">
-            {PERIODS.map(o => (
-              <button key={o.days} onClick={() => setTrendDays(o.days)}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                  trendDays === o.days ? 'bg-lime-500 text-white' : 'text-white/40 hover:text-white'
-                }`}>
-                {o.label}
-              </button>
-            ))}
+          <div className="flex gap-1 p-1 rounded-xl" style={{ background: '#EFEEE8' }}>
+            {PERIODS.map(o => {
+              const isActive = trendDays === o.days;
+              return (
+                <button key={o.days} onClick={() => setTrendDays(o.days)}
+                  className="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
+                  style={isActive
+                    ? { background: '#1E5B45', color: '#fff' }
+                    : { color: '#6B6F69' }}>
+                  {o.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Custom legend */}
         <div className="flex items-center gap-5 px-6 pt-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-0.5 bg-lime-400 rounded-full" />
-            <span className="text-xs text-white/40">Signups</span>
+            <div className="w-3 h-0.5 rounded-full" style={{ background: '#1E5B45' }} />
+            <span className="text-xs" style={{ color: '#9A9E97' }}>Signups</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-0.5 bg-purple-400 rounded-full" />
-            <span className="text-xs text-white/40">Applications</span>
+            <div className="w-3 h-0.5 rounded-full" style={{ background: '#A855F7' }} />
+            <span className="text-xs" style={{ color: '#9A9E97' }}>Applications</span>
           </div>
         </div>
 
@@ -175,73 +154,67 @@ export default function AdminDashboard() {
                 <AreaChart data={chartData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="gSignups" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="#84cc16" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="#84cc16" stopOpacity={0}   />
+                      <stop offset="0%"   stopColor="#1E5B45" stopOpacity={0.15} />
+                      <stop offset="100%" stopColor="#1E5B45" stopOpacity={0}   />
                     </linearGradient>
                     <linearGradient id="gApps" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="#a855f7" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="#a855f7" stopOpacity={0}   />
+                      <stop offset="0%"   stopColor="#A855F7" stopOpacity={0.15} />
+                      <stop offset="100%" stopColor="#A855F7" stopOpacity={0}   />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
-                  <XAxis dataKey="label" tick={{ fill: axisColor, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <YAxis allowDecimals={false} tick={{ fill: axisColor, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<ChartTooltip isDark={isDark} />} cursor={{ stroke: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,45,32,0.06)', strokeWidth: 1 }} />
-                  <Area type="monotone" dataKey="signups"      name="Signups"      stroke="#84cc16" strokeWidth={2} fill="url(#gSignups)" dot={false} activeDot={{ r: 4, fill: '#84cc16' }} />
-                  <Area type="monotone" dataKey="applications" name="Applications" stroke="#a855f7" strokeWidth={2} fill="url(#gApps)"    dot={false} activeDot={{ r: 4, fill: '#a855f7' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,45,32,0.05)" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fill: '#9A9E97', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis allowDecimals={false} tick={{ fill: '#9A9E97', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(15,45,32,0.06)', strokeWidth: 1 }} />
+                  <Area type="monotone" dataKey="signups"      name="Signups"      stroke="#1E5B45" strokeWidth={2} fill="url(#gSignups)" dot={false} activeDot={{ r: 4, fill: '#1E5B45' }} />
+                  <Area type="monotone" dataKey="applications" name="Applications" stroke="#A855F7" strokeWidth={2} fill="url(#gApps)"    dot={false} activeDot={{ r: 4, fill: '#A855F7' }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-52 flex items-center justify-center text-white/20">
-              <p className="text-sm">No data for this period</p>
-            </div>
+            <div className="h-52 flex items-center justify-center text-sm" style={{ color: '#C0BFBA' }}>No data for this period</div>
           )}
         </div>
       </div>
 
-      {/* ── Bottom row: Recent signups + Broadcast ────────── */}
+      {/* Bottom row */}
       <div className="grid lg:grid-cols-2 gap-5">
-
         {/* Recent signups */}
-        <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 overflow-hidden">
-          <div className="flex items-center gap-2 px-5 py-4 border-b border-white/5">
-            <Users size={14} className="text-lime-400" />
-            <h3 className="font-semibold text-white text-sm">Recent Signups</h3>
+        <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+          <div className="flex items-center gap-2 px-5 py-4" style={{ borderBottom: '1px solid #E7E6DF' }}>
+            <Users size={14} style={{ color: '#1E5B45' }} />
+            <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Recent Signups</h3>
           </div>
-          <div className="divide-y divide-white/5">
+          <div>
             {(s?.recentUsers || []).length === 0 ? (
-              <div className="flex items-center justify-center py-10 text-white/20">
-                <p className="text-xs">No users yet</p>
-              </div>
-            ) : (s?.recentUsers || []).map(u => {
-              const displayName =
-                u.role === 'company'
-                  ? (u.company_profiles?.company_name ?? 'Unnamed Company')
-                  : u.student_profiles
-                    ? `${u.student_profiles.first_name ?? ''} ${u.student_profiles.last_name ?? ''}`.trim() || 'Unnamed Student'
-                    : 'New User';
+              <div className="flex items-center justify-center py-10 text-sm" style={{ color: '#C0BFBA' }}>No users yet</div>
+            ) : (s?.recentUsers || []).map((u, i) => {
+              const displayName = u.role === 'company'
+                ? (u.company_profiles?.company_name ?? 'Unnamed Company')
+                : u.student_profiles
+                  ? `${u.student_profiles.first_name ?? ''} ${u.student_profiles.last_name ?? ''}`.trim() || 'Unnamed Student'
+                  : 'New User';
               const initial = displayName[0]?.toUpperCase() ?? '?';
+              const roleStyle = u.role === 'student'
+                ? { bg: '#DBEAFE', text: '#1E40AF' }
+                : u.role === 'company'
+                  ? { bg: '#EDE9FE', text: '#5B21B6' }
+                  : { bg: '#EDF2EE', text: '#1E5B45' };
               return (
-                <div key={u.id} className="px-5 py-3 flex items-center justify-between gap-3">
+                <div key={u.id} className="px-5 py-3 flex items-center justify-between gap-3"
+                  style={{ borderTop: i > 0 ? '1px solid #F0F0EA' : 'none' }}>
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                      u.role === 'student' ? 'bg-blue-500/15 text-blue-400'
-                      : u.role === 'company' ? 'bg-purple-500/15 text-purple-400'
-                      : 'bg-lime-500/15 text-lime-400'
-                    }`}>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                      style={{ background: roleStyle.bg, color: roleStyle.text }}>
                       {initial}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm text-white font-medium truncate">{displayName}</p>
-                      <p className="text-xs text-white/30">{formatRelativeTime(u.created_at)}</p>
+                      <p className="text-sm font-medium truncate" style={{ color: '#1B1D1A' }}>{displayName}</p>
+                      <p className="text-xs" style={{ color: '#9A9E97' }}>{formatRelativeTime(u.created_at)}</p>
                     </div>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold capitalize flex-shrink-0 ${
-                    u.role === 'student'  ? 'bg-blue-500/10 text-blue-400'
-                    : u.role === 'company' ? 'bg-purple-500/10 text-purple-400'
-                    : 'bg-lime-500/10 text-lime-400'
-                  }`}>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold capitalize flex-shrink-0"
+                    style={{ background: roleStyle.bg, color: roleStyle.text }}>
                     {u.role}
                   </span>
                 </div>
@@ -250,32 +223,59 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Broadcast notification */}
-        <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 overflow-hidden">
-          <div className="flex items-center gap-2 px-5 py-4 border-b border-white/5">
-            <Send size={14} className="text-lime-400" />
-            <h3 className="font-semibold text-white text-sm">Broadcast Notification</h3>
+        {/* Broadcast */}
+        <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+          <div className="flex items-center gap-2 px-5 py-4" style={{ borderBottom: '1px solid #E7E6DF' }}>
+            <Send size={14} style={{ color: '#1E5B45' }} />
+            <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Broadcast Notification</h3>
           </div>
           <div className="p-5 space-y-3">
             <div>
-              <label className="text-xs text-white/40 mb-1.5 block">Target audience</label>
-              <select value={broadcastRole} onChange={e => setBroadcastRole(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-lime-500/50">
-                <option value="" className="bg-[#1a1a1a]">All users</option>
-                <option value="student" className="bg-[#1a1a1a]">Students only</option>
-                <option value="company" className="bg-[#1a1a1a]">Companies only</option>
+              <label className="text-xs font-medium mb-1.5 block" style={{ color: '#6B6F69' }}>Target audience</label>
+              <select value={broadcastRole} onChange={e => setBroadcastRole(e.target.value)} style={inputStyle}
+                onFocus={e => e.target.style.borderColor = '#1E5B45'}
+                onBlur={e => e.target.style.borderColor = '#DDDBD2'}>
+                <option value="">All users</option>
+                <option value="student">Students only</option>
+                <option value="company">Companies only</option>
               </select>
             </div>
             <input value={broadcastTitle} onChange={e => setBroadcastTitle(e.target.value)}
-              placeholder="Notification title…"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50" />
+              placeholder="Notification title…" style={inputStyle}
+              onFocus={e => e.target.style.borderColor = '#1E5B45'}
+              onBlur={e => e.target.style.borderColor = '#DDDBD2'} />
             <textarea rows={3} value={broadcastBody} onChange={e => setBroadcastBody(e.target.value)}
               placeholder="Message body…"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 resize-none" />
-            <button onClick={sendBroadcast} disabled={sending}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-lime-500 hover:bg-lime-600 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50">
-              <Send size={14} /> {sending ? 'Sending…' : 'Send Broadcast'}
-            </button>
+              style={{ ...inputStyle, resize: 'none' }}
+              onFocus={e => e.target.style.borderColor = '#1E5B45'}
+              onBlur={e => e.target.style.borderColor = '#DDDBD2'} />
+            {confirmBroadcast && (
+              <div className="rounded-xl p-3 text-xs" style={{ background: '#FEF3C7', border: '1px solid #FDE68A', color: '#92400E' }}>
+                <p className="font-semibold mb-1">Are you sure?</p>
+                <p>This will notify <strong>{broadcastRole || 'all users'}</strong> on the platform. This cannot be undone.</p>
+                <div className="flex gap-2 mt-2">
+                  <button onClick={sendBroadcast} disabled={sending}
+                    className="flex-1 py-1.5 rounded-lg text-xs font-bold text-white disabled:opacity-50"
+                    style={{ background: '#D97706' }}>
+                    {sending ? 'Sending…' : 'Yes, send it'}
+                  </button>
+                  <button onClick={() => setConfirmBroadcast(false)}
+                    className="flex-1 py-1.5 rounded-lg text-xs font-semibold"
+                    style={{ background: '#fff', border: '1px solid #FDE68A', color: '#92400E' }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+            {!confirmBroadcast && (
+              <button onClick={sendBroadcast} disabled={sending}
+                className="w-full flex items-center justify-center gap-2 py-2.5 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-50"
+                style={{ background: '#1E5B45' }}
+                onMouseEnter={e => { if (!sending) e.currentTarget.style.background = '#10342A'; }}
+                onMouseLeave={e => e.currentTarget.style.background = '#1E5B45'}>
+                <Send size={14} /> Send Broadcast
+              </button>
+            )}
           </div>
         </div>
       </div>

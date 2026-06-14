@@ -1,5 +1,5 @@
 const { supabaseAdmin }      = require('../config/supabase');
-const { computeFallbackMatch } = require('./fallbackMatcher');
+const { computeMatch } = require('./matchingEngine');
 const { notify }               = require('./notifier');
 
 const isDev = process.env.NODE_ENV !== 'production';
@@ -8,7 +8,7 @@ const isDev = process.env.NODE_ENV !== 'production';
  * Fire-and-forget: score a newly-published offer against every student who
  * has offer alerts enabled and notify those who meet their threshold.
  *
- * Expects raw DB row (snake_case) so computeFallbackMatch can read it directly.
+ * Expects raw DB row (snake_case) — computeMatch handles both camelCase and snake_case.
  */
 async function fireOfferAlerts(offer) {
   try {
@@ -30,7 +30,7 @@ async function fireOfferAlerts(offer) {
     for (const student of students) {
       if (optedOut.has(student.user_id)) continue;
       const threshold = prefMap[student.user_id] ?? 50;
-      const result    = computeFallbackMatch(student, offer);
+      const result    = computeMatch(student, offer);
       if (result.score < threshold) continue;
 
       notify({

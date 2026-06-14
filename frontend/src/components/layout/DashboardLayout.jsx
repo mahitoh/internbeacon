@@ -42,7 +42,7 @@ export default function DashboardLayout({ role }) {
     ?? 'InternBeacon';
 
   return (
-    <div className="flex bg-[#0f0f0f] min-h-screen">
+    <div className="flex bg-[#F6F5F1] min-h-screen">
       {/* Mobile overlay backdrop */}
       {mobileSidebarOpen && (
         <div

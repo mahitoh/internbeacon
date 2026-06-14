@@ -28,13 +28,13 @@ export default function Avatar({ name, src, size = 'md', className }) {
         alt={name}
         referrerPolicy="no-referrer"
         onError={() => setFailed(true)}
-        className={cn('rounded-full object-cover ring-2 ring-white/10', sizes[size], className)}
+        className={cn('rounded-full object-cover ring-2 ring-black/5', sizes[size], className)}
       />
-    );
+  );
   }
   return (
     <div className={cn(
-      'rounded-full flex items-center justify-center font-semibold text-white ring-2 ring-white/10',
+      'rounded-full flex items-center justify-center font-semibold text-white ring-2 ring-black/5',
       colorFor(name),
       sizes[size],
       className

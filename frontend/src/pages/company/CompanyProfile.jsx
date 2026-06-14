@@ -12,12 +12,55 @@ const SECTORS = ['Information Technology', 'Finance & Banking', 'Telecommunicati
 const SIZES   = ['1-10', '11-50', '51-200', '201-500', '500+'];
 const CITIES  = ['Yaoundé', 'Douala', 'Bafoussam', 'Garoua', 'Bamenda', 'Multiple cities'];
 
+function Section({ title, icon: Icon, children }) {
+  return (
+    <div className="rounded-2xl p-6 space-y-4" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+      <div className="flex items-center gap-2">
+        <Icon size={16} style={{ color: '#1E5B45' }} />
+        <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>{title}</h3>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Field({ label, ...props }) {
+  return (
+    <div className="space-y-1.5">
+      {label && <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>}
+      <input
+        className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors"
+        style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+        onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+        onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
+        {...props}
+      />
+    </div>
+  );
+}
+
+function SelectField({ label, children, ...props }) {
+  return (
+    <div className="space-y-1.5">
+      {label && <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>}
+      <select
+        className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none appearance-none transition-colors"
+        style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+        onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+        onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
+        {...props}>
+        {children}
+      </select>
+    </div>
+  );
+}
+
 export default function CompanyProfile() {
   const { user, refetchUser } = useAuth();
   const p        = user?.companyProfile;
-  const [logoUrl,        setLogoUrl]        = useState(p?.logoUrl || null);
-  const [uploadingLogo,  setUploadingLogo]  = useState(false);
-  const [cropSrc,        setCropSrc]        = useState(null);
+  const [logoUrl,       setLogoUrl]       = useState(p?.logoUrl || null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [cropSrc,       setCropSrc]       = useState(null);
   const logoInputRef = useRef(null);
 
   const handleLogoChange = (e) => {
@@ -66,37 +109,42 @@ export default function CompanyProfile() {
   };
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="max-w-2xl space-y-5" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
       <div>
-        <h2 className="text-2xl font-black text-white">Company Profile</h2>
-        <p className="text-white/40 text-sm mt-0.5">Keep your profile up to date to attract the best candidates</p>
+        <h2 className="text-2xl font-black" style={{ color: '#1B1D1A' }}>Company Profile</h2>
+        <p className="text-sm mt-0.5" style={{ color: '#9A9E97' }}>Keep your profile up to date to attract the best candidates</p>
       </div>
 
-      {/* Logo upload */}
       <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
       {cropSrc && (
         <CropModal imageSrc={cropSrc} shape="rect" onConfirm={handleCropConfirm} onCancel={() => setCropSrc(null)} />
       )}
-      <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-        <div className="w-20 h-20 rounded-2xl bg-brand-800/30 flex items-center justify-center overflow-hidden flex-shrink-0">
+
+      {/* Logo card */}
+      <div className="rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-5"
+        style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+        <div className="w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0"
+          style={{ background: '#F6F5F1', border: '1px solid #E7E6DF' }}>
           {logoUrl
             ? <img src={logoUrl} alt="Company logo" className="w-full h-full object-contain" />
-            : <Building2 size={32} className="text-brand-400" />}
+            : <Building2 size={32} style={{ color: '#9A9E97' }} />}
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-white font-semibold">{p?.companyName || 'Company Logo'}</p>
+            <p className="font-semibold" style={{ color: '#1B1D1A' }}>{p?.companyName || 'Company Logo'}</p>
             {p?.isVerified && (
-              <span className="flex items-center gap-1 text-xs text-lime-400 bg-lime-500/10 px-2 py-0.5 rounded-full">
+              <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-semibold"
+                style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
                 <ShieldCheck size={11} /> Verified
               </span>
             )}
           </div>
-          {p?.isVerified
-            ? <p className="text-white/30 text-xs mt-1">Your company is verified by InternBeacon</p>
-            : <p className="text-white/30 text-xs mt-1">Complete your profile to request verification from the admin</p>
-          }
-          <p className="text-white/20 text-xs mt-0.5">Recommended: 200×200 px, PNG or JPG, max 2 MB</p>
+          <p className="text-xs mt-1" style={{ color: '#9A9E97' }}>
+            {p?.isVerified
+              ? 'Your company is verified by InternBeacon'
+              : 'Complete your profile to request verification from the admin'}
+          </p>
+          <p className="text-xs mt-0.5" style={{ color: '#C0BFBA' }}>Recommended: 200×200 px, PNG or JPG, max 2 MB</p>
           <Button variant="outline" size="sm" className="mt-3"
             loading={uploadingLogo} onClick={() => logoInputRef.current?.click()}>
             <Upload size={14} /> {uploadingLogo ? 'Uploading…' : 'Upload Logo'}
@@ -106,69 +154,51 @@ export default function CompanyProfile() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <Section title="Company Information" icon={Building2}>
-          <DarkField label="Company Name *" {...register('companyName')} placeholder="MTN Cameroon" />
+          <Field label="Company Name *" {...register('companyName')} placeholder="MTN Cameroon" />
+          <SelectField label="Industry / Sector" {...register('sector')}>
+            {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
+          </SelectField>
+          <SelectField label="Company Size" {...register('employeeSize')}>
+            <option value="">Select size…</option>
+            {SIZES.map(s => <option key={s} value={s}>{s} employees</option>)}
+          </SelectField>
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">Industry / Sector</label>
-            <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
-              {...register('sector')}>
-              {SECTORS.map(s => <option key={s} value={s} className="bg-[#1a1a1a]">{s}</option>)}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">Company Size</label>
-            <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
-              {...register('employeeSize')}>
-              <option value="" className="bg-[#1a1a1a]">Select size…</option>
-              {SIZES.map(s => <option key={s} value={s} className="bg-[#1a1a1a]">{s} employees</option>)}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">About Company</label>
+            <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>About Company</label>
             <textarea rows={4}
               placeholder="Tell students about your company, culture, and what makes you a great place to intern…"
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 resize-none"
+              className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none resize-none transition-colors"
+              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
               {...register('description')} />
           </div>
         </Section>
 
         <Section title="Location & Contact" icon={MapPin}>
+          <SelectField label="City" {...register('city')}>
+            {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </SelectField>
+          <Field label="Full Address" {...register('address')} placeholder="123 Avenue Kennedy, Yaoundé" />
+          <Field label="Phone Number" {...register('phone')} placeholder="+237 222 000 000" />
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">City</label>
-            <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
-              {...register('city')}>
-              {CITIES.map(c => <option key={c} value={c} className="bg-[#1a1a1a]">{c}</option>)}
-            </select>
+            <label className="block text-sm font-medium flex items-center gap-1.5" style={{ color: '#6B6F69' }}>
+              <Globe size={13} /> Website
+            </label>
+            <input
+              className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors"
+              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+              placeholder="https://www.company.cm"
+              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
+              {...register('websiteUrl')}
+            />
           </div>
-          <DarkField label="Full Address" {...register('address')} placeholder="123 Avenue Kennedy, Yaoundé" />
-          <DarkField label="Phone Number" {...register('phone')} placeholder="+237 222 000 000" />
-          <DarkField label="Website" {...register('websiteUrl')} placeholder="https://www.company.cm" icon={Globe} />
         </Section>
 
         <Button type="submit" variant="primary" size="lg" loading={isSubmitting}>
           <Save size={16} /> Save Profile
         </Button>
       </form>
-    </div>
-  );
-}
-
-function Section({ title, icon: Icon, children }) {
-  return (
-    <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6 space-y-4">
-      <div className="flex items-center gap-2">
-        <Icon size={16} className="text-lime-400" />
-        <h3 className="font-semibold text-white text-sm">{title}</h3>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function DarkField({ label, ...props }) {
-  return (
-    <div className="space-y-1.5">
-      {label && <label className="block text-sm font-medium text-white/60">{label}</label>}
-      <input className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 transition-colors" {...props} />
     </div>
   );
 }

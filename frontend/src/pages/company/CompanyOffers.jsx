@@ -44,29 +44,36 @@ export default function CompanyOffers() {
     : allOffers;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-2xl font-black text-white">My Internship Posts</h2>
-          <p className="text-white/40 text-sm mt-0.5">{allOffers.length} offer{allOffers.length !== 1 ? 's' : ''} posted</p>
+          <h2 className="text-2xl font-black" style={{ color: '#1B1D1A' }}>My Internship Posts</h2>
+          <p className="text-sm mt-0.5" style={{ color: '#9A9E97' }}>{allOffers.length} offer{allOffers.length !== 1 ? 's' : ''} posted</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-[#1a1a1a] border border-white/10 rounded-xl px-3 py-2 focus-within:border-lime-500/50 transition-colors">
-            <Search size={14} className="text-white/30 flex-shrink-0" />
+          <div className="flex items-center gap-2 rounded-xl px-3 py-2 transition-colors"
+            style={{ background: '#fff', border: '1px solid #DDDBD2' }}>
+            <Search size={14} style={{ color: '#9A9E97', flexShrink: 0 }} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Filter offers…"
-              className="bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none w-36"
+              className="bg-transparent text-sm focus:outline-none w-36"
+              style={{ color: '#1B1D1A' }}
             />
             {search && (
-              <button onClick={() => setSearch('')} className="text-white/20 hover:text-white transition-colors">
+              <button onClick={() => setSearch('')} style={{ color: '#9A9E97' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#1B1D1A'}
+                onMouseLeave={e => e.currentTarget.style.color = '#9A9E97'}>
                 <X size={13} />
               </button>
             )}
           </div>
           <Link to="/company/offers/post"
-            className="flex items-center gap-2 px-4 py-2.5 bg-lime-500 hover:bg-lime-600 text-white text-sm font-semibold rounded-xl transition-colors whitespace-nowrap">
+            className="flex items-center gap-2 px-4 py-2.5 text-white text-sm font-semibold rounded-xl whitespace-nowrap"
+            style={{ background: '#1E5B45', textDecoration: 'none' }}
+            onMouseEnter={e => e.currentTarget.style.background = '#10342A'}
+            onMouseLeave={e => e.currentTarget.style.background = '#1E5B45'}>
             <Plus size={16} /> Post Internship
           </Link>
         </div>
@@ -75,71 +82,91 @@ export default function CompanyOffers() {
       {isLoading ? (
         <div className="flex justify-center py-20"><Spinner /></div>
       ) : offers.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 bg-[#1a1a1a] rounded-2xl border border-white/5 text-white/30">
-          <Briefcase size={40} className="mb-3" />
+        <div className="flex flex-col items-center justify-center py-24 rounded-2xl"
+          style={{ background: '#fff', border: '1px solid #E7E6DF', color: '#C0BFBA' }}>
+          <Briefcase size={40} className="mb-3 opacity-50" />
           <p className="text-sm">No offers yet</p>
-          <Link to="/company/offers/post" className="mt-3 text-lime-400 text-xs hover:underline">Post your first internship →</Link>
+          <Link to="/company/offers/post" className="mt-3 text-xs font-semibold" style={{ color: '#1E5B45' }}>
+            Post your first internship →
+          </Link>
         </div>
       ) : (
-        <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/5">
-                {['Internship', 'Domain', 'Deadline', 'Views', 'Status', ''].map(h => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-white/30 uppercase tracking-wide">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {offers.map(offer => (
-                <tr key={offer.id} className="hover:bg-white/2 transition-colors">
-                  <td className="px-5 py-4">
-                    <p className="text-white text-sm font-medium">{offer.title}</p>
-                    <p className="text-white/40 text-xs mt-0.5">
-                      {offer.location} · {offer.durationWeeks}w ·{' '}
-                      <span className={offer.filledCount >= offer.openings ? 'text-amber-400/70' : ''}>
-                        {offer.filledCount}/{offer.openings} filled
-                      </span>
-                    </p>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className="text-xs text-white/50">{offer.domain}</span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className="text-xs text-white/50">{formatDate(offer.deadline)}</span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className="flex items-center gap-1 text-xs text-white/40"><Eye size={11} /> {offer.viewsCount}</span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <StatusBadge status={offer.status} />
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <Link to={`/company/applications?offer=${offer.id}`}
-                        className="flex items-center gap-1 text-xs text-lime-400 hover:text-lime-300">
-                        <Users size={11} /> Apps
-                      </Link>
-                      <Link to={`/company/offers/${offer.id}/edit`}
-                        className="flex items-center gap-1 text-xs text-white/40 hover:text-white transition-colors">
-                        <Edit2 size={11} /> Edit
-                      </Link>
-                      {offer.status === 'open' && (
-                        <button onClick={() => closeMutation.mutate(offer.id)}
-                          className="flex items-center gap-1 text-xs text-white/30 hover:text-orange-400 transition-colors">
-                          <X size={11} /> Close
-                        </button>
-                      )}
-                      <button onClick={() => handleDelete(offer.id)}
-                        className="flex items-center gap-1 text-xs text-white/20 hover:text-red-400 transition-colors">
-                        <Trash2 size={11} /> Delete
-                      </button>
-                    </div>
-                  </td>
+        <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr style={{ borderBottom: '1px solid #E7E6DF' }}>
+                  {['Internship', 'Domain', 'Deadline', 'Views', 'Status', ''].map(h => (
+                    <th key={h} className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide" style={{ color: '#9A9E97' }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {offers.map((offer, i) => (
+                  <tr key={offer.id} className="transition-colors"
+                    style={{ borderTop: i > 0 ? '1px solid #F0F0EA' : 'none' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#F6F5F1'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <td className="px-5 py-4">
+                      <p className="text-sm font-medium" style={{ color: '#1B1D1A' }}>{offer.title}</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#9A9E97' }}>
+                        {offer.location} · {offer.durationWeeks}w ·{' '}
+                        <span style={{ color: offer.filledCount >= offer.openings ? '#D97706' : '#9A9E97' }}>
+                          {offer.filledCount}/{offer.openings} filled
+                        </span>
+                      </p>
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="text-xs" style={{ color: '#6B6F69' }}>{offer.domain}</span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="text-xs" style={{ color: '#6B6F69' }}>{formatDate(offer.deadline)}</span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="flex items-center gap-1 text-xs" style={{ color: '#9A9E97' }}>
+                        <Eye size={11} /> {offer.viewsCount}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <StatusBadge status={offer.status} />
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <Link to={`/company/applications?offer=${offer.id}`}
+                          className="flex items-center gap-1 text-xs font-semibold"
+                          style={{ color: '#1E5B45', textDecoration: 'none' }}>
+                          <Users size={11} /> Apps
+                        </Link>
+                        <Link to={`/company/offers/${offer.id}/edit`}
+                          className="flex items-center gap-1 text-xs transition-colors"
+                          style={{ color: '#9A9E97', textDecoration: 'none' }}
+                          onMouseEnter={e => e.currentTarget.style.color = '#1B1D1A'}
+                          onMouseLeave={e => e.currentTarget.style.color = '#9A9E97'}>
+                          <Edit2 size={11} /> Edit
+                        </Link>
+                        {offer.status === 'open' && (
+                          <button onClick={() => closeMutation.mutate(offer.id)}
+                            className="flex items-center gap-1 text-xs transition-colors"
+                            style={{ color: '#9A9E97' }}
+                            onMouseEnter={e => e.currentTarget.style.color = '#D97706'}
+                            onMouseLeave={e => e.currentTarget.style.color = '#9A9E97'}>
+                            <X size={11} /> Close
+                          </button>
+                        )}
+                        <button onClick={() => handleDelete(offer.id)}
+                          className="flex items-center gap-1 text-xs transition-colors"
+                          style={{ color: '#C0BFBA' }}
+                          onMouseEnter={e => e.currentTarget.style.color = '#EF4444'}
+                          onMouseLeave={e => e.currentTarget.style.color = '#C0BFBA'}>
+                          <Trash2 size={11} /> Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

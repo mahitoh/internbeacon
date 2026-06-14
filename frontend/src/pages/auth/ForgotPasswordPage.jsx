@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Compass, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { authApi } from '../../api/auth';
-import Button from '../../components/ui/Button';
-import { DarkInput } from '../../components/ui/Input';
+import { LightInput } from '../../components/ui/Input';
 import toast from 'react-hot-toast';
 
 export default function ForgotPasswordPage() {
@@ -27,67 +26,96 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-6">
+    <div
+      className="min-h-screen flex items-center justify-center p-6"
+      style={{ background: '#F6F5F1', fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}
+    >
+      {/* Subtle dot grid */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle at 1px 1px, #DEDCD2 1px, transparent 0)',
+        backgroundSize: '26px 26px',
+        opacity: .5,
+      }} />
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className="relative w-full"
+        style={{ maxWidth: 412 }}
       >
-        <Link to="/" className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 bg-lime-500 rounded-lg flex items-center justify-center">
-            <Compass size={16} className="text-white" />
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2.5 mb-8">
+          <div className="flex items-center justify-center flex-shrink-0"
+            style={{ width: 36, height: 36, borderRadius: 9, background: '#1E5B45' }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <polygon points="16 8 11 11 8 16 13 13 16 8" fill="#9FE870" stroke="#9FE870" />
+            </svg>
           </div>
-          <span className="font-bold text-white">InternBeacon</span>
+          <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: '#1B1D1A' }}>InternBeacon</span>
         </Link>
 
         {sent ? (
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-lime-500/15 border border-lime-500/20 flex items-center justify-center mx-auto">
-              <CheckCircle2 size={28} className="text-lime-400" />
+          /* ── Success state ── */
+          <div style={{ background: '#fff', border: '1.5px solid #E7E6DF', borderRadius: 18, padding: '36px 32px', textAlign: 'center', boxShadow: '0 4px 24px rgba(24,32,24,.05)' }}>
+            <div className="flex items-center justify-center mx-auto mb-5"
+              style={{ width: 64, height: 64, borderRadius: 18, background: '#EDF2EE', border: '1.5px solid #C4DBCE' }}>
+              <CheckCircle2 size={28} style={{ color: '#1E5B45' }} />
             </div>
-            <h1 className="text-2xl font-black text-white">Check your inbox</h1>
-            <p className="text-white/50 text-sm leading-relaxed">
-              If <span className="text-white/70">{email}</span> is registered, we've sent a password reset link. Check your spam folder if it doesn't arrive within a minute.
+            <h1 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 24, fontWeight: 600, color: '#1B1D1A', margin: '0 0 10px', letterSpacing: '-0.01em' }}>
+              Check your inbox
+            </h1>
+            <p style={{ fontSize: 14, color: '#6B6F69', lineHeight: 1.6, margin: '0 0 24px' }}>
+              If <strong style={{ color: '#1B1D1A' }}>{email}</strong> is registered, we've sent a reset link. Check your spam folder if it doesn't arrive within a minute.
             </p>
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 text-sm text-lime-400 hover:text-lime-300 transition-colors mt-4"
-            >
+            <Link to="/login" className="inline-flex items-center gap-1.5"
+              style={{ fontSize: 14, fontWeight: 600, color: '#1E5B45', textDecoration: 'none' }}>
               <ArrowLeft size={14} /> Back to sign in
             </Link>
           </div>
         ) : (
-          <>
-            <h1 className="text-3xl font-black text-white">Forgot password?</h1>
-            <p className="text-white/40 mt-2 text-sm">
+          /* ── Form state ── */
+          <div style={{ background: '#fff', border: '1.5px solid #E7E6DF', borderRadius: 18, padding: '36px 32px', boxShadow: '0 4px 24px rgba(24,32,24,.05)' }}>
+            <h1 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 26, fontWeight: 600, color: '#1B1D1A', margin: '0 0 6px', letterSpacing: '-0.01em' }}>
+              Forgot your password?
+            </h1>
+            <p style={{ fontSize: 14, color: '#6B6F69', margin: '0 0 28px', lineHeight: 1.5 }}>
               Enter your email and we'll send you a reset link.
             </p>
 
-            <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-              <DarkInput
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <LightInput
                 label="Email address"
                 type="email"
                 icon={Mail}
-                placeholder="you@example.com"
+                placeholder="you@university.cm"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
               />
-              <Button type="submit" variant="primary" size="lg" loading={loading} className="w-full">
-                Send Reset Link
-              </Button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center"
+                style={{
+                  background: loading ? '#4E8A6E' : '#1E5B45',
+                  color: '#fff', border: 'none', borderRadius: 11,
+                  padding: '14px', fontSize: 15, fontWeight: 600,
+                  fontFamily: 'inherit', cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 1px 2px rgba(30,91,69,.3)',
+                }}>
+                {loading ? 'Sending…' : 'Send reset link'}
+              </button>
             </form>
-
-            <div className="mt-6 text-center">
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white transition-colors"
-              >
-                <ArrowLeft size={14} /> Back to sign in
-              </Link>
-            </div>
-          </>
+          </div>
         )}
+
+        <div className="text-center mt-6">
+          <Link to="/login" className="inline-flex items-center gap-1.5"
+            style={{ fontSize: 13.5, color: '#6B6F69', textDecoration: 'none' }}>
+            <ArrowLeft size={14} /> Back to sign in
+          </Link>
+        </div>
       </motion.div>
     </div>
   );

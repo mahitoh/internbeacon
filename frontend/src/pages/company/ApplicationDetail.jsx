@@ -14,90 +14,41 @@ import ApplicationTimeline from '../../components/ui/ApplicationTimeline';
 import { applicationsApi } from '../../api/applications';
 import { uploadApi } from '../../api/upload';
 import CvViewerModal from '../../components/ui/CvViewerModal';
-import { formatRelativeTime, formatDate } from '../../lib/utils';
+import { formatRelativeTime } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
-// ── Workflow definition ───────────────────────────────────────────────────────
 const WORKFLOW = [
-  {
-    status: 'under_review',
-    label:  'Move to Review',
-    icon:   Eye,
-    color:  'yellow',
-    from:   ['submitted'],
-  },
-  {
-    status: 'shortlisted',
-    label:  'Shortlist Candidate',
-    icon:   Star,
-    color:  'purple',
-    from:   ['submitted', 'under_review'],
-  },
-  {
-    status:  'interview_scheduled',
-    label:   'Schedule Interview',
-    icon:    Calendar,
-    color:   'indigo',
-    from:    ['submitted', 'under_review', 'shortlisted'],
-    hasForm: true,
-  },
-  {
-    status: 'interview_completed',
-    label:  'Mark Interview Done',
-    icon:   ClipboardCheck,
-    color:  'violet',
-    from:   ['interview_scheduled'],
-  },
-  {
-    status: 'final_review',
-    label:  'Move to Final Review',
-    icon:   Search,
-    color:  'orange',
-    from:   ['interview_completed', 'shortlisted'],
-  },
-  {
-    status: 'accepted',
-    label:  'Accept',
-    icon:   CheckCircle2,
-    color:  'lime',
-    from:   ['under_review', 'shortlisted', 'interview_completed', 'final_review'],
-  },
-  {
-    status: 'rejected',
-    label:  'Reject',
-    icon:   XCircle,
-    color:  'red',
-    from:   ['submitted', 'under_review', 'shortlisted',
-             'interview_scheduled', 'interview_completed', 'final_review'],
-  },
+  { status: 'under_review',        label: 'Move to Review',      icon: Eye,          color: '#D97706', from: ['submitted'] },
+  { status: 'shortlisted',         label: 'Shortlist Candidate',  icon: Star,         color: '#7C3AED', from: ['submitted', 'under_review'] },
+  { status: 'interview_scheduled', label: 'Schedule Interview',   icon: Calendar,     color: '#4338CA', from: ['submitted', 'under_review', 'shortlisted'], hasForm: true },
+  { status: 'interview_completed', label: 'Mark Interview Done',  icon: ClipboardCheck, color: '#6D28D9', from: ['interview_scheduled'] },
+  { status: 'final_review',        label: 'Move to Final Review', icon: Search,       color: '#B45309', from: ['interview_completed', 'shortlisted'] },
+  { status: 'accepted',            label: 'Accept',               icon: CheckCircle2, color: '#1E5B45', from: ['under_review', 'shortlisted', 'interview_completed', 'final_review'] },
+  { status: 'rejected',            label: 'Reject',               icon: XCircle,      color: '#DC2626', from: ['submitted', 'under_review', 'shortlisted', 'interview_scheduled', 'interview_completed', 'final_review'] },
 ];
 
-const BTN_COLORS = {
-  cyan:   'bg-cyan-500/15   hover:bg-cyan-500/25   border-cyan-500/30   text-cyan-300',
-  yellow: 'bg-yellow-500/15 hover:bg-yellow-500/25 border-yellow-500/30 text-yellow-300',
-  purple: 'bg-purple-500/15 hover:bg-purple-500/25 border-purple-500/30 text-purple-300',
-  indigo: 'bg-indigo-500/15 hover:bg-indigo-500/25 border-indigo-500/30 text-indigo-300',
-  violet: 'bg-violet-500/15 hover:bg-violet-500/25 border-violet-500/30 text-violet-300',
-  orange: 'bg-orange-500/15 hover:bg-orange-500/25 border-orange-500/30 text-orange-300',
-  lime:   'bg-lime-500/15   hover:bg-lime-500/25   border-lime-500/30   text-lime-300',
-  red:    'bg-red-500/15    hover:bg-red-500/25    border-red-500/30    text-red-300',
+const BTN_STYLES = {
+  '#D97706': { bg: '#FFFBEB', border: '#FDE68A', text: '#D97706', activeBg: '#F59E0B', activeText: '#fff' },
+  '#7C3AED': { bg: '#EDE9FE', border: '#DDD6FE', text: '#7C3AED', activeBg: '#7C3AED', activeText: '#fff' },
+  '#4338CA': { bg: '#EEF2FF', border: '#C7D2FE', text: '#4338CA', activeBg: '#4338CA', activeText: '#fff' },
+  '#6D28D9': { bg: '#EDE9FE', border: '#DDD6FE', text: '#6D28D9', activeBg: '#6D28D9', activeText: '#fff' },
+  '#B45309': { bg: '#FFFBEB', border: '#FDE68A', text: '#B45309', activeBg: '#B45309', activeText: '#fff' },
+  '#1E5B45': { bg: '#EDF2EE', border: '#C4DBCE', text: '#1E5B45', activeBg: '#1E5B45', activeText: '#fff' },
+  '#DC2626': { bg: '#FEE2E2', border: '#FCA5A5', text: '#DC2626', activeBg: '#DC2626', activeText: '#fff' },
 };
 
 const INTERVIEW_TYPES = [
-  { value: 'google_meet',  label: 'Google Meet',      icon: Video },
-  { value: 'zoom',         label: 'Zoom',             icon: Video },
-  { value: 'teams',        label: 'Microsoft Teams',  icon: Video },
-  { value: 'in_person',    label: 'In Person',        icon: MapPin },
-  { value: 'phone',        label: 'Phone Call',       icon: Phone },
+  { value: 'google_meet', label: 'Google Meet', icon: Video  },
+  { value: 'zoom',        label: 'Zoom',         icon: Video  },
+  { value: 'teams',       label: 'Microsoft Teams', icon: Video },
+  { value: 'in_person',   label: 'In Person',    icon: MapPin },
+  { value: 'phone',       label: 'Phone Call',   icon: Phone  },
 ];
 
-const TYPE_LABELS = {
-  in_person:   'In Person',
-  google_meet: 'Google Meet',
-  zoom:        'Zoom',
-  teams:       'Microsoft Teams',
-  phone:       'Phone Call',
-};
+const TYPE_LABELS = { in_person: 'In Person', google_meet: 'Google Meet', zoom: 'Zoom', teams: 'Microsoft Teams', phone: 'Phone Call' };
+
+const inputStyle = { background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none' };
+const taStyle    = { ...inputStyle, resize: 'none' };
 
 export default function ApplicationDetail() {
   const { appId }   = useParams();
@@ -115,32 +66,22 @@ export default function ApplicationDetail() {
   const [notesDraft,       setNotesDraft]       = useState({ internal: '', public: '' });
   const [notesInitialised, setNotesInitialised] = useState(false);
   const [notesSaving,      setNotesSaving]      = useState(false);
-
-  // Interview form state
-  const [interviewForm, setInterviewForm] = useState({
-    date: '', type: 'google_meet', location: '', link: '', notes: '',
-  });
+  const [interviewForm,    setInterviewForm]    = useState({ date: '', type: 'google_meet', location: '', link: '', notes: '' });
 
   const { data: app, isLoading } = useQuery({
     queryKey: ['application', appId],
     queryFn:  () => applicationsApi.getOne(appId).then(r => r.data.data),
   });
 
-  // Seed notes draft whenever app loads or reloads after a status change.
-  // notesInitialised prevents overwriting user-in-progress edits on the initial render;
-  // we reset it after each status change so the panel reflects any note sent with the transition.
   if (app && !notesInitialised) {
     setNotesDraft({ internal: app.internalNote || '', public: app.companyNote || '' });
     setNotesInitialised(true);
   }
 
-  // Use the immutable cv_snapshot_url path — not the student's current profile CV.
-  // Falls back to current CV if no snapshot was captured (legacy applications).
   const viewCv = async () => {
     setCvLoading(true);
     try {
-      const snapshotPath = app.cvSnapshotUrl;
-      const r = await uploadApi.getCvUrl(app.student?.userId, snapshotPath || undefined);
+      const r = await uploadApi.getCvUrl(app.student?.userId, app.cvSnapshotUrl || undefined);
       setCvViewerUrl(r.data.data.url);
       setCvViewerOpen(true);
     } catch { toast.error('Could not retrieve CV'); }
@@ -150,10 +91,7 @@ export default function ApplicationDetail() {
   const saveNotes = async () => {
     setNotesSaving(true);
     try {
-      await applicationsApi.patchNotes(appId, {
-        internalNote: notesDraft.internal || null,
-        companyNote:  notesDraft.public   || null,
-      });
+      await applicationsApi.patchNotes(appId, { internalNote: notesDraft.internal || null, companyNote: notesDraft.public || null });
       qc.invalidateQueries({ queryKey: ['application', appId] });
       toast.success('Notes saved');
     } catch { toast.error('Failed to save notes'); }
@@ -163,14 +101,9 @@ export default function ApplicationDetail() {
   const handleAction = async (action) => {
     setLoading(action.status);
     try {
-      const payload = {
-        status:       action.status,
-        companyNote:  companyNote  || undefined,
-        internalNote: internalNote || undefined,
-      };
+      const payload = { status: action.status, companyNote: companyNote || undefined, internalNote: internalNote || undefined };
       if (action.status === 'interview_scheduled') {
-        if (!interviewForm.date)
-          return toast.error('Please set an interview date');
+        if (!interviewForm.date) return toast.error('Please set an interview date');
         Object.assign(payload, {
           interviewDate:     interviewForm.date,
           interviewType:     interviewForm.type,
@@ -183,53 +116,46 @@ export default function ApplicationDetail() {
       qc.invalidateQueries({ queryKey: ['application', appId] });
       qc.invalidateQueries({ queryKey: ['company-apps'] });
       qc.invalidateQueries({ queryKey: ['app-history', appId] });
-      setCompanyNote('');
-      setInternalNote('');
-      setShowNoteFor(null);
-      setNotesInitialised(false); // allow notes panel to re-seed from refreshed app data
+      setCompanyNote(''); setInternalNote(''); setShowNoteFor(null); setNotesInitialised(false);
       toast.success(`Status updated to: ${action.label}`);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update status');
-    } finally { setLoading(''); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to update status'); }
+    finally { setLoading(''); }
   };
 
   if (isLoading) return <div className="flex justify-center py-20"><Spinner /></div>;
-  if (!app)      return <p className="text-white/40 text-sm">Application not found.</p>;
+  if (!app)      return <p className="text-sm" style={{ color: '#9A9E97' }}>Application not found.</p>;
 
-  const studentName  = [app.student?.firstName, app.student?.lastName].filter(Boolean).join(' ') || 'Candidate';
-  const currentStatus = app.status;
-  const isTerminal   = ['accepted', 'offer_accepted', 'offer_declined', 'rejected', 'withdrawn'].includes(currentStatus);
-
-  // Only show actions valid from the current status
+  const studentName     = [app.student?.firstName, app.student?.lastName].filter(Boolean).join(' ') || 'Candidate';
+  const currentStatus   = app.status;
+  const isTerminal      = ['accepted', 'offer_accepted', 'offer_declined', 'rejected', 'withdrawn'].includes(currentStatus);
   const availableActions = WORKFLOW.filter(a => a.from.includes(currentStatus));
 
   return (
-    <div className="max-w-3xl space-y-5">
-      <CvViewerModal
-        isOpen={cvViewerOpen}
-        onClose={() => setCvViewerOpen(false)}
-        url={cvViewerUrl}
-        candidateName={studentName}
-      />
+    <div className="max-w-3xl space-y-5" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
+      <CvViewerModal isOpen={cvViewerOpen} onClose={() => setCvViewerOpen(false)} url={cvViewerUrl} candidateName={studentName} />
 
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors">
+      <button onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-sm transition-colors"
+        style={{ color: '#9A9E97' }}
+        onMouseEnter={e => e.currentTarget.style.color = '#1B1D1A'}
+        onMouseLeave={e => e.currentTarget.style.color = '#9A9E97'}>
         <ArrowLeft size={16} /> Back to applications
       </button>
 
       {/* Candidate header */}
-      <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6">
+      <div className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             {app.student?.avatarUrl
-              ? <img src={app.student.avatarUrl} alt={studentName} className="w-14 h-14 rounded-full object-cover ring-2 ring-white/10" referrerPolicy="no-referrer" />
+              ? <img src={app.student.avatarUrl} alt={studentName} className="w-14 h-14 rounded-full object-cover" style={{ boxShadow: '0 0 0 2px #E7E6DF' }} referrerPolicy="no-referrer" />
               : <Avatar name={studentName} size="lg" />}
             <div>
-              <h2 className="text-xl font-bold text-white">{studentName}</h2>
-              <p className="text-white/50 text-sm">
+              <h2 className="text-xl font-bold" style={{ color: '#1B1D1A' }}>{studentName}</h2>
+              <p className="text-sm" style={{ color: '#6B6F69' }}>
                 {app.student?.university}{app.student?.programme ? ` · ${app.student.programme}` : ''}
                 {app.student?.studyYear ? ` · Year ${app.student.studyYear}` : ''}
               </p>
-              <p className="text-white/30 text-xs mt-0.5">Applied {formatRelativeTime(app.appliedAt)}</p>
+              <p className="text-xs mt-0.5" style={{ color: '#C0BFBA' }}>Applied {formatRelativeTime(app.appliedAt)}</p>
             </div>
           </div>
           <StatusBadge status={currentStatus} />
@@ -238,39 +164,42 @@ export default function ApplicationDetail() {
         {app.student?.skills?.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-4">
             {app.student.skills.map(s => (
-              <span key={s} className="px-2.5 py-1 bg-white/5 rounded-lg text-xs text-white/60 font-medium">{s}</span>
+              <span key={s} className="px-2.5 py-1 rounded-lg text-xs font-medium"
+                style={{ background: '#F6F5F1', border: '1px solid #E7E6DF', color: '#6B6F69' }}>{s}</span>
             ))}
           </div>
         )}
         {app.student?.bio && (
-          <p className="mt-4 text-sm text-white/50 leading-relaxed">{app.student.bio}</p>
+          <p className="mt-4 text-sm leading-relaxed" style={{ color: '#6B6F69' }}>{app.student.bio}</p>
         )}
         <div className="flex gap-3 mt-4 flex-wrap items-center">
           {(app.cvSnapshotUrl || app.student?.cvUrl) && (
-            <button
-              onClick={viewCv}
-              disabled={cvLoading}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 hover:border-white/25 transition-all group disabled:opacity-60"
-            >
-              <div className="w-9 h-10 rounded-lg bg-red-500/12 border border-red-500/20 flex items-center justify-center flex-shrink-0">
-                {cvLoading
-                  ? <Loader2 size={14} className="text-red-400 animate-spin" />
-                  : <FileText size={15} className="text-red-400" />}
+            <button onClick={viewCv} disabled={cvLoading}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all disabled:opacity-60"
+              style={{ background: '#F6F5F1', border: '1px solid #E7E6DF' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#DDDBD2'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#E7E6DF'; }}>
+              <div className="w-9 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: '#FEE2E2', border: '1px solid #FCA5A5' }}>
+                {cvLoading ? <Loader2 size={14} className="animate-spin" style={{ color: '#EF4444' }} /> : <FileText size={15} style={{ color: '#EF4444' }} />}
               </div>
               <div className="text-left">
-                <p className="text-xs font-semibold text-white leading-tight">{studentName} — CV</p>
-                <p className="text-[10px] text-white/30 mt-0.5">
-                  {app.cvSnapshotUrl ? (
-                    <span className="flex items-center gap-1"><Lock size={9} className="inline" /> Snapshot at application time</span>
-                  ) : 'PDF · Click to preview'}
+                <p className="text-xs font-semibold leading-tight" style={{ color: '#1B1D1A' }}>{studentName} — CV</p>
+                <p className="text-[10px] mt-0.5" style={{ color: '#9A9E97' }}>
+                  {app.cvSnapshotUrl
+                    ? <span className="flex items-center gap-1"><Lock size={9} className="inline" /> Snapshot at application time</span>
+                    : 'PDF · Click to preview'}
                 </p>
               </div>
-              <Eye size={12} className="text-white/60 group-hover:text-white transition-colors ml-1" />
+              <Eye size={12} style={{ color: '#9A9E97', marginLeft: 4 }} />
             </button>
           )}
           {app.student?.linkedinUrl && (
             <a href={app.student.linkedinUrl} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 text-xs text-white/50 hover:text-white transition-colors">
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors"
+              style={{ border: '1px solid #DDDBD2', color: '#6B6F69' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#1E5B45'; e.currentTarget.style.color = '#1E5B45'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#DDDBD2'; e.currentTarget.style.color = '#6B6F69'; }}>
               LinkedIn <ChevronRight size={12} />
             </a>
           )}
@@ -278,232 +207,186 @@ export default function ApplicationDetail() {
       </div>
 
       {/* Position */}
-      <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-5">
-        <h3 className="font-semibold text-white text-sm mb-2">Applied For</h3>
-        <p className="text-white/70">{app.offer?.title}</p>
-        <p className="text-white/40 text-xs mt-0.5">
+      <div className="rounded-2xl p-5" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+        <h3 className="font-semibold text-sm mb-2" style={{ color: '#1B1D1A' }}>Applied For</h3>
+        <p style={{ color: '#6B6F69' }}>{app.offer?.title}</p>
+        <p className="text-xs mt-0.5" style={{ color: '#9A9E97' }}>
           {app.offer?.location}{app.offer?.durationWeeks ? ` · ${app.offer.durationWeeks} weeks` : ''}
         </p>
       </div>
 
       {/* Cover letter */}
       {app.coverLetter && (
-        <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-5">
+        <div className="rounded-2xl p-5" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
           <div className="flex items-center gap-2 mb-3">
-            <FileText size={14} className="text-lime-400" />
-            <h3 className="font-semibold text-white text-sm">Cover Letter</h3>
+            <FileText size={14} style={{ color: '#1E5B45' }} />
+            <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Cover Letter</h3>
           </div>
-          <p className="text-white/60 text-sm leading-relaxed whitespace-pre-wrap">{app.coverLetter}</p>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: '#6B6F69' }}>{app.coverLetter}</p>
         </div>
       )}
 
-      {/* Persistent recruiter notes — save any time, independent of status changes */}
-      <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-5 space-y-4">
+      {/* Recruiter notes */}
+      <div className="rounded-2xl p-5 space-y-4" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-white text-sm">Recruiter Notes</h3>
-          <button
-            onClick={saveNotes}
-            disabled={notesSaving}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-lime-500/15 hover:bg-lime-500/25 border border-lime-500/30 text-lime-300 text-xs font-semibold transition-all disabled:opacity-40">
+          <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Recruiter Notes</h3>
+          <button onClick={saveNotes} disabled={notesSaving}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-40"
+            style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}
+            onMouseEnter={e => e.currentTarget.style.background = '#C4DBCE'}
+            onMouseLeave={e => e.currentTarget.style.background = '#EDF2EE'}>
             {notesSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
             Save Notes
           </button>
         </div>
         <div>
-          <label className="block text-xs text-yellow-400/70 mb-1.5 font-semibold uppercase tracking-wide">
-            Internal note <span className="text-white/20 normal-case font-normal">(private — only your team sees this)</span>
+          <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: '#D97706' }}>
+            Internal note <span className="font-normal normal-case" style={{ color: '#C0BFBA' }}>(private — only your team sees this)</span>
           </label>
-          <textarea
-            rows={3}
-            value={notesDraft.internal}
+          <textarea rows={3} value={notesDraft.internal}
             onChange={e => setNotesDraft(d => ({ ...d, internal: e.target.value }))}
             placeholder="Strong React skills. Weak on databases. Good communication…"
-            className="w-full rounded-lg border border-yellow-500/20 bg-yellow-500/3 px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-yellow-500/40 resize-none"
-          />
+            style={{ ...taStyle, borderColor: '#FDE68A', background: '#FFFBEB' }}
+            onFocus={e => e.target.style.borderColor = '#F59E0B'}
+            onBlur={e => e.target.style.borderColor = '#FDE68A'} />
         </div>
         <div>
-          <label className="block text-xs text-lime-400/70 mb-1.5 font-semibold uppercase tracking-wide">
-            Note for candidate <span className="text-white/20 normal-case font-normal">(student will see this)</span>
+          <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: '#1E5B45' }}>
+            Note for candidate <span className="font-normal normal-case" style={{ color: '#C0BFBA' }}>(student will see this)</span>
           </label>
-          <textarea
-            rows={2}
-            value={notesDraft.public}
+          <textarea rows={2} value={notesDraft.public}
             onChange={e => setNotesDraft(d => ({ ...d, public: e.target.value }))}
             placeholder="We were impressed with your profile and look forward to the next step…"
-            className="w-full rounded-lg border border-lime-500/15 bg-lime-500/3 px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-lime-500/30 resize-none"
-          />
+            style={{ ...taStyle, borderColor: '#C4DBCE', background: '#EDF2EE' }}
+            onFocus={e => e.target.style.borderColor = '#1E5B45'}
+            onBlur={e => e.target.style.borderColor = '#C4DBCE'} />
         </div>
       </div>
 
-      {/* Interview details (shown when scheduled) */}
+      {/* Interview details */}
       {['interview_scheduled', 'interview_completed'].includes(currentStatus) && app.interview?.date && (
-        <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-5">
+        <div className="rounded-2xl p-5" style={{ background: '#EEF2FF', border: '1px solid #C7D2FE' }}>
           <div className="flex items-center gap-2 mb-3">
-            <Calendar size={14} className="text-indigo-400" />
-            <h3 className="font-semibold text-white text-sm">Interview Details</h3>
+            <Calendar size={14} style={{ color: '#4338CA' }} />
+            <h3 className="font-semibold text-sm" style={{ color: '#4338CA' }}>Interview Details</h3>
           </div>
           <div className="space-y-1.5 text-sm">
-            <p className="text-white/60"><span className="text-white/30">Date: </span>
+            <p style={{ color: '#4338CA' }}><span style={{ opacity: 0.6 }}>Date: </span>
               {new Date(app.interview.date).toLocaleString('en-GB', { dateStyle: 'full', timeStyle: 'short' })}
             </p>
-            {app.interview.type && (
-              <p className="text-white/60"><span className="text-white/30">Format: </span>
-                {TYPE_LABELS[app.interview.type] ?? app.interview.type}
-              </p>
-            )}
-            {app.interview.location && (
-              <p className="text-white/60"><span className="text-white/30">Location: </span>{app.interview.location}</p>
-            )}
-            {app.interview.link && (
-              <p><a href={app.interview.link} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline break-all">{app.interview.link}</a></p>
-            )}
-            {app.interview.notes && (
-              <p className="text-white/50 italic mt-1">"{app.interview.notes}"</p>
-            )}
+            {app.interview.type && <p style={{ color: '#4338CA' }}><span style={{ opacity: 0.6 }}>Format: </span>{TYPE_LABELS[app.interview.type] ?? app.interview.type}</p>}
+            {app.interview.location && <p style={{ color: '#4338CA' }}><span style={{ opacity: 0.6 }}>Location: </span>{app.interview.location}</p>}
+            {app.interview.link && <p><a href={app.interview.link} target="_blank" rel="noopener noreferrer" className="hover:underline break-all" style={{ color: '#4338CA' }}>{app.interview.link}</a></p>}
+            {app.interview.notes && <p className="italic mt-1" style={{ color: '#6D28D9', opacity: 0.8 }}>"{app.interview.notes}"</p>}
           </div>
         </div>
       )}
 
-      {/* ── Workflow actions ─────────────────────────────────────────────────── */}
+      {/* Workflow actions */}
       {!isTerminal && availableActions.length > 0 && (
-        <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-5 space-y-4">
-          <h3 className="font-semibold text-white text-sm">Update Status</h3>
+        <div className="rounded-2xl p-5 space-y-4" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+          <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Update Status</h3>
 
-          {/* Interview scheduling form */}
           {showNoteFor === 'interview_scheduled' && (
-            <div className="space-y-3 p-4 bg-indigo-500/5 border border-indigo-500/15 rounded-xl">
-              <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wide">Interview Details</p>
+            <div className="space-y-3 p-4 rounded-xl" style={{ background: '#EEF2FF', border: '1px solid #C7D2FE' }}>
+              <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#4338CA' }}>Interview Details</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-white/40 mb-1">Date &amp; Time *</label>
-                  <input
-                    type="datetime-local"
-                    value={interviewForm.date}
+                  <label className="block text-xs mb-1" style={{ color: '#6B6F69' }}>Date &amp; Time *</label>
+                  <input type="datetime-local" value={interviewForm.date}
                     onChange={e => setInterviewForm(f => ({ ...f, date: e.target.value }))}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50 appearance-none"
-                  />
+                    style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = '#4338CA'}
+                    onBlur={e => e.target.style.borderColor = '#DDDBD2'} />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/40 mb-1">Format</label>
-                  <select
-                    value={interviewForm.type}
-                    onChange={e => setInterviewForm(f => ({ ...f, type: e.target.value }))}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500/50 appearance-none">
-                    {INTERVIEW_TYPES.map(t => (
-                      <option key={t.value} value={t.value} className="bg-[#1a1a1a]">{t.label}</option>
-                    ))}
+                  <label className="block text-xs mb-1" style={{ color: '#6B6F69' }}>Format</label>
+                  <select value={interviewForm.type} onChange={e => setInterviewForm(f => ({ ...f, type: e.target.value }))}
+                    style={{ ...inputStyle, appearance: 'none' }}
+                    onFocus={e => e.target.style.borderColor = '#4338CA'}
+                    onBlur={e => e.target.style.borderColor = '#DDDBD2'}>
+                    {INTERVIEW_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                   </select>
                 </div>
               </div>
               {interviewForm.type === 'in_person' ? (
                 <div>
-                  <label className="block text-xs text-white/40 mb-1">Location</label>
-                  <input
-                    value={interviewForm.location}
-                    onChange={e => setInterviewForm(f => ({ ...f, location: e.target.value }))}
-                    placeholder="Office address or meeting room…"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50"
-                  />
+                  <label className="block text-xs mb-1" style={{ color: '#6B6F69' }}>Location</label>
+                  <input value={interviewForm.location} onChange={e => setInterviewForm(f => ({ ...f, location: e.target.value }))}
+                    placeholder="Office address or meeting room…" style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = '#4338CA'}
+                    onBlur={e => e.target.style.borderColor = '#DDDBD2'} />
                 </div>
               ) : interviewForm.type !== 'phone' ? (
                 <div>
-                  <label className="block text-xs text-white/40 mb-1">Meeting Link</label>
-                  <input
-                    value={interviewForm.link}
-                    onChange={e => setInterviewForm(f => ({ ...f, link: e.target.value }))}
-                    placeholder="https://meet.google.com/…"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50"
-                  />
+                  <label className="block text-xs mb-1" style={{ color: '#6B6F69' }}>Meeting Link</label>
+                  <input value={interviewForm.link} onChange={e => setInterviewForm(f => ({ ...f, link: e.target.value }))}
+                    placeholder="https://meet.google.com/…" style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = '#4338CA'}
+                    onBlur={e => e.target.style.borderColor = '#DDDBD2'} />
                 </div>
               ) : null}
               <div>
-                <label className="block text-xs text-white/40 mb-1">Instructions for candidate (optional)</label>
-                <textarea
-                  rows={2}
-                  value={interviewForm.notes}
-                  onChange={e => setInterviewForm(f => ({ ...f, notes: e.target.value }))}
+                <label className="block text-xs mb-1" style={{ color: '#6B6F69' }}>Instructions for candidate (optional)</label>
+                <textarea rows={2} value={interviewForm.notes} onChange={e => setInterviewForm(f => ({ ...f, notes: e.target.value }))}
                   placeholder="What should the candidate prepare? Dress code? Documents to bring?"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 resize-none"
-                />
+                  style={taStyle}
+                  onFocus={e => e.target.style.borderColor = '#4338CA'}
+                  onBlur={e => e.target.style.borderColor = '#DDDBD2'} />
               </div>
             </div>
           )}
 
-          {/* Notes fields */}
-          {showNoteFor && showNoteFor !== null && (
+          {showNoteFor && (
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-white/40 mb-1.5">
-                  Internal note <span className="text-white/20">(private — only you see this)</span>
+                <label className="block text-xs mb-1.5" style={{ color: '#9A9E97' }}>
+                  Internal note <span style={{ color: '#C0BFBA' }}>(private — only you see this)</span>
                 </label>
-                <textarea
-                  rows={2}
-                  value={internalNote}
-                  onChange={e => setInternalNote(e.target.value)}
-                  placeholder="Strong React skills. Weak on databases. Consider for frontend role…"
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-yellow-500/50 resize-none"
-                />
+                <textarea rows={2} value={internalNote} onChange={e => setInternalNote(e.target.value)}
+                  placeholder="Strong React skills. Weak on databases…"
+                  style={{ ...taStyle, borderColor: '#FDE68A', background: '#FFFBEB' }}
+                  onFocus={e => e.target.style.borderColor = '#F59E0B'}
+                  onBlur={e => e.target.style.borderColor = '#FDE68A'} />
               </div>
               <div>
-                <label className="block text-xs text-white/40 mb-1.5">
-                  Note for candidate <span className="text-white/20">(optional — student will see this)</span>
+                <label className="block text-xs mb-1.5" style={{ color: '#9A9E97' }}>
+                  Note for candidate <span style={{ color: '#C0BFBA' }}>(optional — student will see this)</span>
                 </label>
-                <textarea
-                  rows={2}
-                  value={companyNote}
-                  onChange={e => setCompanyNote(e.target.value)}
+                <textarea rows={2} value={companyNote} onChange={e => setCompanyNote(e.target.value)}
                   placeholder="We were impressed with your profile…"
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-lime-500/50 resize-none"
-                />
+                  style={{ ...taStyle, borderColor: '#C4DBCE', background: '#EDF2EE' }}
+                  onFocus={e => e.target.style.borderColor = '#1E5B45'}
+                  onBlur={e => e.target.style.borderColor = '#C4DBCE'} />
               </div>
             </div>
           )}
 
-          {/* Action buttons */}
           <div className="flex flex-wrap gap-2">
             {availableActions.map(action => {
-              const isConfirming = showNoteFor === action.status;
-              const isLoading    = loading === action.status;
-              const isDestructive = action.status === 'rejected';
-              const isPrimary     = action.status === 'accepted';
-
-              let cls;
-              if (isDestructive) {
-                cls = isConfirming
-                  ? 'bg-red-500 hover:bg-red-600 border-red-500 text-white'
-                  : 'bg-red-500/15 hover:bg-red-500/30 border-red-500/40 text-red-300';
-              } else if (isPrimary) {
-                cls = isConfirming
-                  ? 'bg-lime-500 hover:bg-lime-600 border-lime-500 text-white'
-                  : 'bg-lime-500/15 hover:bg-lime-500/30 border-lime-500/40 text-lime-300';
-              } else {
-                cls = BTN_COLORS[action.color];
-              }
-
+              const isConfirming  = showNoteFor === action.status;
+              const isLoadingThis = loading === action.status;
+              const styles        = BTN_STYLES[action.color];
               return (
-                <button
-                  key={action.status}
+                <button key={action.status}
                   onClick={() => {
-                    if (isConfirming) {
-                      handleAction(action);
-                    } else {
-                      setShowNoteFor(action.status);
-                      setCompanyNote('');
-                    }
+                    if (isConfirming) handleAction(action);
+                    else { setShowNoteFor(action.status); setCompanyNote(''); }
                   }}
                   disabled={!!loading}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-all disabled:opacity-40 ${cls}`}
-                >
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
+                  style={isConfirming
+                    ? { background: styles.activeBg, border: `1px solid ${styles.activeBg}`, color: styles.activeText }
+                    : { background: styles.bg, border: `1px solid ${styles.border}`, color: styles.text }}>
                   <action.icon size={14} />
-                  {isLoading ? 'Updating…' : isConfirming ? `Confirm ${action.label}` : action.label}
+                  {isLoadingThis ? 'Updating…' : isConfirming ? `Confirm ${action.label}` : action.label}
                 </button>
               );
             })}
             {showNoteFor && (
-              <button
-                onClick={() => { setShowNoteFor(null); setCompanyNote(''); setInternalNote(''); }}
-                className="px-4 py-2 rounded-xl border border-white/10 text-sm text-white/40 hover:text-white transition-colors"
-              >
+              <button onClick={() => { setShowNoteFor(null); setCompanyNote(''); setInternalNote(''); }}
+                className="px-4 py-2 rounded-xl text-sm transition-colors"
+                style={{ border: '1px solid #DDDBD2', color: '#9A9E97' }}>
                 Cancel
               </button>
             )}
@@ -512,38 +395,35 @@ export default function ApplicationDetail() {
       )}
 
       {/* Terminal state */}
-      {isTerminal && (
-        <div className={`rounded-2xl border p-4 text-sm font-medium ${
-          currentStatus === 'offer_accepted' ? 'bg-lime-500/15  border-lime-500/30  text-lime-300'  :
-          currentStatus === 'accepted'       ? 'bg-lime-500/10  border-lime-500/20  text-lime-400'  :
-          currentStatus === 'rejected'       ? 'bg-red-500/10   border-red-500/20   text-red-400'   :
-          currentStatus === 'offer_declined' ? 'bg-gray-500/10  border-gray-500/20  text-gray-400'  :
-                                               'bg-gray-500/10  border-gray-500/20  text-gray-400'
-        }`}>
-          {currentStatus === 'offer_accepted' && '✓ The student has accepted the offer — internship confirmed.'}
-          {currentStatus === 'accepted'       && '🎉 Offer sent — awaiting student response.'}
-          {currentStatus === 'rejected'       && '✗ This application has not been selected.'}
-          {currentStatus === 'offer_declined' && '↩ The student has declined the offer.'}
-          {currentStatus === 'withdrawn'      && '↩ The student has withdrawn this application.'}
-        </div>
-      )}
+      {isTerminal && (() => {
+        const map = {
+          offer_accepted: { bg: '#EDF2EE', border: '#C4DBCE', text: '#1E5B45', msg: '✓ The student has accepted the offer — internship confirmed.' },
+          accepted:       { bg: '#EDF2EE', border: '#C4DBCE', text: '#1E5B45', msg: '🎉 Offer sent — awaiting student response.' },
+          rejected:       { bg: '#FEE2E2', border: '#FCA5A5', text: '#DC2626', msg: '✗ This application has not been selected.' },
+          offer_declined: { bg: '#F6F5F1', border: '#E7E6DF', text: '#6B6F69', msg: '↩ The student has declined the offer.' },
+          withdrawn:      { bg: '#F6F5F1', border: '#E7E6DF', text: '#6B6F69', msg: '↩ The student has withdrawn this application.' },
+        };
+        const s = map[currentStatus] || map.withdrawn;
+        return (
+          <div className="rounded-2xl p-4 text-sm font-medium" style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.text }}>
+            {s.msg}
+          </div>
+        );
+      })()}
 
-
-      {/* Application Timeline (collapsible) */}
-      <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 overflow-hidden">
-        <button
-          onClick={() => setShowTimeline(!showTimeline)}
-          className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/2 transition-colors">
-          <h3 className="font-semibold text-white text-sm">Application Timeline</h3>
-          <ChevronDown size={14} className={`text-white/30 transition-transform ${showTimeline ? 'rotate-180' : ''}`} />
+      {/* Application Timeline */}
+      <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+        <button onClick={() => setShowTimeline(!showTimeline)}
+          className="w-full flex items-center justify-between px-5 py-4 transition-colors"
+          style={{ color: '#1B1D1A' }}
+          onMouseEnter={e => e.currentTarget.style.background = '#FAFAF7'}
+          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+          <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Application Timeline</h3>
+          <ChevronDown size={14} className={`transition-transform ${showTimeline ? 'rotate-180' : ''}`} style={{ color: '#C0BFBA' }} />
         </button>
         {showTimeline && (
-          <div className="px-5 pb-5 border-t border-white/5 pt-4">
-            <ApplicationTimeline
-              applicationId={appId}
-              currentStatus={currentStatus}
-              interview={app.interview}
-            />
+          <div className="px-5 pb-5 pt-4" style={{ borderTop: '1px solid #E7E6DF' }}>
+            <ApplicationTimeline applicationId={appId} currentStatus={currentStatus} interview={app.interview} />
           </div>
         )}
       </div>

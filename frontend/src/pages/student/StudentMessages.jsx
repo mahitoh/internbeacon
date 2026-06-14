@@ -30,7 +30,6 @@ export default function StudentMessages() {
     queryFn:  () => messagesApi.threads().then(r => r.data.data),
   });
 
-  // Auto-select first thread when loaded (if no URL param)
   useEffect(() => {
     if (!activeAppId && threads?.length > 0) {
       setActiveAppId(String(threads[0].appId));
@@ -39,14 +38,12 @@ export default function StudentMessages() {
 
   const activeThread = threads?.find(t => String(t.appId) === activeAppId);
 
-  // For new threads: URL param points to an app with no messages yet — fetch app info for header
   const { data: freshApp } = useQuery({
     queryKey: ['app-for-new-thread', activeAppId],
     queryFn:  () => applicationsApi.getOne(activeAppId).then(r => r.data.data),
     enabled:  !!activeAppId && activeThread === undefined && threads !== undefined,
   });
 
-  // Load messages on thread switch — clear first to avoid stale flash
   useEffect(() => {
     if (!activeAppId) return;
     setMessages([]);
@@ -56,10 +53,8 @@ export default function StudentMessages() {
       .finally(() => setMsgLoading(false));
   }, [activeAppId]);
 
-  // Auto-scroll to bottom
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-  // Socket: join/leave room + receive messages + refresh thread list on new messages
   useEffect(() => {
     if (!socket || !activeAppId) return;
     socket.emit('join_thread', activeAppId);
@@ -114,79 +109,98 @@ export default function StudentMessages() {
     }
   };
 
-  // Header info: prefer live thread data, fall back to freshApp for new (zero-message) threads
   const headerTitle    = activeThread?.offer?.title ?? freshApp?.offer?.title ?? '…';
   const headerSubtitle = activeThread?.offer?.company_profiles?.company_name
     ?? freshApp?.offer?.company?.companyName
     ?? '';
 
   return (
-    <div className="flex h-[calc(100vh-9rem)] bg-[#1a1a1a] rounded-2xl border border-white/5 overflow-hidden">
-      {/* Conversation list — full screen on mobile, fixed sidebar on sm+ */}
-      <div className={`${showList ? 'flex' : 'hidden'} sm:flex w-full sm:w-64 flex-shrink-0 border-r border-white/5 flex-col`}>
-        <div className="px-4 py-4 border-b border-white/5">
-          <h3 className="font-semibold text-white text-sm">Messages</h3>
+    <div className="flex h-[calc(100vh-9rem)] rounded-2xl overflow-hidden"
+      style={{ background: '#fff', border: '1px solid #E7E6DF', fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
+
+      {/* Thread list sidebar */}
+      <div className={`${showList ? 'flex' : 'hidden'} sm:flex w-full sm:w-64 flex-shrink-0 flex-col`}
+        style={{ borderRight: '1px solid #E7E6DF' }}>
+        <div className="px-4 py-4" style={{ borderBottom: '1px solid #E7E6DF' }}>
+          <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Messages</h3>
         </div>
-        <div className="flex-1 overflow-y-auto divide-y divide-white/5">
+        <div className="flex-1 overflow-y-auto">
           {threads === undefined ? (
             <div className="flex justify-center py-8"><Spinner size="sm" /></div>
           ) : threads.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-white/20 text-xs text-center p-4">
-              <Briefcase size={28} className="mb-2" />
-              No conversations yet.<br />Apply to an offer to start chatting.
+            <div className="flex flex-col items-center justify-center h-full text-xs text-center p-4 space-y-2">
+              <Briefcase size={28} style={{ color: '#DDDBD2' }} />
+              <p style={{ color: '#9A9E97' }}>No conversations yet.</p>
+              <p style={{ color: '#C0BFBA' }}>Apply to an offer to start chatting.</p>
             </div>
-          ) : threads.map(thread => (
-            <button key={thread.appId}
-              onClick={() => switchThread(thread.appId)}
-              className={`w-full text-left px-4 py-3 hover:bg-white/5 transition-colors ${String(thread.appId) === activeAppId ? 'bg-lime-500/5 border-r-2 border-lime-500' : ''}`}>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 min-w-0">
-                  <p className="text-white text-xs font-medium truncate">{thread.offer?.title}</p>
-                  <p className="text-white/30 text-[11px] truncate mt-0.5">
-                    {thread.offer?.company_profiles?.company_name}
-                  </p>
-                  {thread.lastMessage && (
-                    <p className="text-white/20 text-[10px] truncate mt-0.5">{thread.lastMessage.content}</p>
+          ) : threads.map(thread => {
+            const isActive = String(thread.appId) === activeAppId;
+            return (
+              <button key={thread.appId}
+                onClick={() => switchThread(thread.appId)}
+                className="w-full text-left px-4 py-3 transition-colors"
+                style={{
+                  background: isActive ? '#EDF2EE' : 'transparent',
+                  borderLeft: isActive ? '2px solid #1E5B45' : '2px solid transparent',
+                  borderBottom: '1px solid #F0F0EA',
+                }}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = '#F6F5F1'; }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate" style={{ color: '#1B1D1A' }}>{thread.offer?.title}</p>
+                    <p className="text-[11px] truncate mt-0.5" style={{ color: '#9A9E97' }}>
+                      {thread.offer?.company_profiles?.company_name}
+                    </p>
+                    {thread.lastMessage && (
+                      <p className="text-[10px] truncate mt-0.5" style={{ color: '#C0BFBA' }}>{thread.lastMessage.content}</p>
+                    )}
+                  </div>
+                  {thread.unreadCount > 0 && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold flex-shrink-0"
+                      style={{ background: '#1E5B45', color: '#fff' }}>
+                      {thread.unreadCount}
+                    </span>
                   )}
                 </div>
-                {thread.unreadCount > 0 && (
-                  <span className="bg-lime-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold flex-shrink-0">
-                    {thread.unreadCount}
-                  </span>
-                )}
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Chat area — hidden on mobile when thread list is shown */}
+      {/* Chat area */}
       {!activeAppId ? (
-        <div className="hidden sm:flex flex-1 items-center justify-center text-white/20">
+        <div className="hidden sm:flex flex-1 items-center justify-center">
           <div className="text-center">
-            <Briefcase size={40} className="mx-auto mb-3" />
-            <p className="text-sm">Select a conversation</p>
+            <Briefcase size={40} className="mx-auto mb-3" style={{ color: '#DDDBD2' }} />
+            <p className="text-sm" style={{ color: '#9A9E97' }}>Select a conversation</p>
           </div>
         </div>
       ) : (
         <div className={`${showList ? 'hidden' : 'flex'} sm:flex flex-1 flex-col`}>
-          <div className="px-5 py-4 border-b border-white/5 flex items-center gap-3">
+          {/* Chat header */}
+          <div className="px-5 py-4 flex items-center gap-3" style={{ borderBottom: '1px solid #E7E6DF' }}>
             <button onClick={() => setShowList(true)}
-              className="sm:hidden text-white/40 hover:text-white transition-colors flex-shrink-0">
+              className="sm:hidden flex-shrink-0 transition-colors"
+              style={{ color: '#9A9E97' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#1B1D1A'}
+              onMouseLeave={e => e.currentTarget.style.color = '#9A9E97'}>
               <ArrowLeft size={18} />
             </button>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-medium text-sm truncate">{headerTitle}</p>
-              <p className="text-white/40 text-xs truncate">{headerSubtitle}</p>
+              <p className="font-semibold text-sm truncate" style={{ color: '#1B1D1A' }}>{headerTitle}</p>
+              <p className="text-xs truncate" style={{ color: '#9A9E97' }}>{headerSubtitle}</p>
             </div>
           </div>
 
+          {/* Messages */}
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 dashboard-scroll">
             {msgLoading ? (
               <div className="flex justify-center py-8"><Spinner /></div>
             ) : messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-white/20 text-sm">No messages yet. Say hello!</p>
+                <p className="text-sm" style={{ color: '#C0BFBA' }}>No messages yet. Say hello!</p>
               </div>
             ) : messages.map((msg, i) => {
               const isMe = msg.senderId === user?.id;
@@ -198,9 +212,14 @@ export default function StudentMessages() {
                       ? (user?.studentProfile?.avatarUrl || user?.avatarUrl)
                       : activeThread?.offer?.company_profiles?.logo_url}
                     size="xs" />
-                  <div className={`max-w-xs rounded-2xl px-4 py-2.5 ${isMe ? 'bg-lime-500 text-white rounded-tr-sm' : 'bg-white/5 text-white rounded-tl-sm'}`}>
+                  <div className="max-w-xs rounded-2xl px-4 py-2.5"
+                    style={isMe
+                      ? { background: '#1E5B45', color: '#fff', borderRadius: '16px 16px 4px 16px' }
+                      : { background: '#F6F5F1', color: '#1B1D1A', border: '1px solid #E7E6DF', borderRadius: '16px 16px 16px 4px' }}>
                     <p className="text-sm leading-relaxed">{msg.content}</p>
-                    <p className={`text-[10px] mt-1 ${isMe ? 'text-white/60' : 'text-white/30'}`}>{formatRelativeTime(msg.sentAt)}</p>
+                    <p className="text-[10px] mt-1" style={{ color: isMe ? 'rgba(255,255,255,0.6)' : '#9A9E97' }}>
+                      {formatRelativeTime(msg.sentAt)}
+                    </p>
                   </div>
                 </div>
               );
@@ -208,28 +227,35 @@ export default function StudentMessages() {
             {peerTyping && (
               <div className="flex gap-3">
                 <Avatar name={headerSubtitle} src={activeThread?.offer?.company_profiles?.logo_url} size="xs" />
-                <div className="bg-white/5 rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="rounded-2xl px-4 py-3 flex items-center gap-1"
+                  style={{ background: '#F6F5F1', border: '1px solid #E7E6DF' }}>
+                  <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#9A9E97', animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#9A9E97', animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#9A9E97', animationDelay: '300ms' }} />
                 </div>
               </div>
             )}
             <div ref={bottomRef} />
           </div>
 
-          <div className="px-5 py-4 border-t border-white/5">
-            <div className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-2.5">
+          {/* Input area */}
+          <div className="px-5 py-4" style={{ borderTop: '1px solid #E7E6DF' }}>
+            <div className="flex items-center gap-3 rounded-xl px-4 py-2.5"
+              style={{ background: '#F6F5F1', border: '1px solid #E7E6DF' }}>
               <input
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                 placeholder="Type a message…"
-                className="flex-1 bg-transparent text-white text-sm placeholder:text-white/30 focus:outline-none"
+                className="flex-1 bg-transparent text-sm focus:outline-none"
+                style={{ color: '#1B1D1A' }}
               />
               <button onClick={sendMessage} disabled={sending}
-                className="w-8 h-8 rounded-lg bg-lime-500 hover:bg-lime-600 flex items-center justify-center transition-colors disabled:opacity-50">
-                <Send size={14} className="text-white" />
+                className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
+                style={{ background: '#1E5B45' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#10342A'}
+                onMouseLeave={e => e.currentTarget.style.background = '#1E5B45'}>
+                <Send size={14} style={{ color: '#fff' }} />
               </button>
             </div>
           </div>

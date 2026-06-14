@@ -12,12 +12,16 @@ const SECTORS = [
 ];
 const CITIES = ['Yaoundé', 'Douala', 'Bafoussam', 'Garoua', 'Bamenda', 'Ngaoundéré', 'Bertoua', 'Maroua'];
 
-const INITIAL_COLORS = [
-  'bg-violet-500/20 text-violet-300', 'bg-blue-500/20 text-blue-300',
-  'bg-lime-500/20 text-lime-300',     'bg-orange-500/20 text-orange-300',
-  'bg-pink-500/20 text-pink-300',     'bg-indigo-500/20 text-indigo-300',
+const AVATAR_COLORS = [
+  { bg: '#EDE9FE', text: '#5B21B6' },
+  { bg: '#DBEAFE', text: '#1E40AF' },
+  { bg: '#EDF2EE', text: '#1E5B45' },
+  { bg: '#FEF3C7', text: '#92400E' },
+  { bg: '#FCE7F3', text: '#9D174D' },
+  { bg: '#EEF2FF', text: '#3730A3' },
+  { bg: '#FEE2E2', text: '#991B1B' },
 ];
-const initColor = (name) => INITIAL_COLORS[(name || '?').charCodeAt(0) % INITIAL_COLORS.length];
+const avatarColor = (name) => AVATAR_COLORS[(name || '?').charCodeAt(0) % AVATAR_COLORS.length];
 
 export default function StudentCompanies() {
   const [searchParams] = useSearchParams();
@@ -56,114 +60,135 @@ export default function StudentCompanies() {
   const hasFilter = search || sector || city || verified;
   const resetFilters = () => { setSearch(''); setSector(''); setCity(''); setVerified(false); };
 
+  const selectStyle = (hasValue) => ({
+    background: '#fff',
+    border: `1px solid ${hasValue ? '#1E5B45' : '#DDDBD2'}`,
+    borderRadius: '12px',
+    padding: '10px 12px',
+    fontSize: '14px',
+    color: hasValue ? '#1B1D1A' : '#9A9E97',
+    outline: 'none',
+    appearance: 'none',
+    WebkitAppearance: 'none',
+  });
+
   return (
-    <div className="space-y-5">
-      {/* Filters row */}
+    <div className="space-y-5" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
+      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#9A9E97' }} />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search companies…"
-            className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/40"
+            className="w-full pl-9 pr-4 py-2.5 text-sm focus:outline-none rounded-xl transition-all"
+            style={{ background: '#fff', border: `1px solid ${search ? '#1E5B45' : '#DDDBD2'}`, color: '#1B1D1A' }}
           />
         </div>
-        <select value={sector} onChange={e => setSector(e.target.value)}
-          className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-lime-500/40 appearance-none">
-          <option value="" className="bg-[#1a1a1a]">All sectors</option>
-          {SECTORS.map(s => <option key={s} value={s} className="bg-[#1a1a1a]">{s}</option>)}
+        <select value={sector} onChange={e => setSector(e.target.value)} style={selectStyle(!!sector)}>
+          <option value="">All sectors</option>
+          {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
-        <select value={city} onChange={e => setCity(e.target.value)}
-          className="bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-lime-500/40 appearance-none">
-          <option value="" className="bg-[#1a1a1a]">All cities</option>
-          {CITIES.map(c => <option key={c} value={c} className="bg-[#1a1a1a]">{c}</option>)}
+        <select value={city} onChange={e => setCity(e.target.value)} style={selectStyle(!!city)}>
+          <option value="">All cities</option>
+          {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <label className="flex items-center gap-2 cursor-pointer px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white/60 hover:text-white transition-colors select-none">
-          <input type="checkbox" checked={verified} onChange={e => setVerified(e.target.checked)} className="accent-lime-500" />
-          <ShieldCheck size={13} className={verified ? 'text-lime-400' : 'text-white/30'} />
+        <label className="flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-xl text-sm select-none transition-colors"
+          style={{ background: verified ? '#EDF2EE' : '#fff', border: `1px solid ${verified ? '#C4DBCE' : '#DDDBD2'}`, color: verified ? '#1E5B45' : '#6B6F69' }}>
+          <input type="checkbox" checked={verified} onChange={e => setVerified(e.target.checked)} className="accent-emerald-600" />
+          <ShieldCheck size={13} style={{ color: verified ? '#1E5B45' : '#9A9E97' }} />
           Verified
         </label>
         {hasFilter && (
           <button onClick={resetFilters}
-            className="px-3 py-2.5 rounded-xl border border-white/10 text-sm text-white/40 hover:text-white transition-colors">
+            className="px-3 py-2.5 rounded-xl text-sm transition-colors"
+            style={{ border: '1px solid #DDDBD2', color: '#9A9E97' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#1B1D1A'}
+            onMouseLeave={e => e.currentTarget.style.color = '#9A9E97'}>
             Clear
           </button>
         )}
       </div>
 
-      {/* Count line */}
       {!isLoading && (
-        <p className="text-white/30 text-xs">
+        <p className="text-xs" style={{ color: '#9A9E97' }}>
           {total} {total === 1 ? 'company' : 'companies'}{hasFilter ? ' matching filters' : ''}
           {isFetching && ' · refreshing…'}
         </p>
       )}
 
-      {/* Grid */}
       {isLoading ? (
         <div className="flex justify-center py-20"><Spinner /></div>
       ) : companies.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-white/30 bg-[#1a1a1a] rounded-2xl border border-white/5">
-          <Building2 size={40} className="mb-3 opacity-40" />
-          <p className="text-sm font-medium">No companies found</p>
-          {hasFilter && <button onClick={resetFilters} className="mt-3 text-lime-400 text-xs hover:underline">Clear filters</button>}
+        <div className="flex flex-col items-center justify-center py-20 rounded-2xl"
+          style={{ background: '#fff', border: '1px solid #E7E6DF', color: '#C0BFBA' }}>
+          <Building2 size={40} className="mb-3 opacity-50" />
+          <p className="text-sm font-medium" style={{ color: '#9A9E97' }}>No companies found</p>
+          {hasFilter && (
+            <button onClick={resetFilters} className="mt-3 text-xs font-semibold" style={{ color: '#1E5B45' }}>
+              Clear filters
+            </button>
+          )}
         </div>
       ) : (
         <>
           <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {companies.map(company => {
               const initial   = (company.companyName || '?')[0].toUpperCase();
-              const colorCls  = initColor(company.companyName);
+              const colors    = avatarColor(company.companyName);
               return (
                 <Link
                   key={company.id}
                   to={`/student/companies/${company.id}`}
-                  className="group bg-[#1a1a1a] border border-white/5 hover:border-lime-500/25 rounded-2xl p-5 transition-all hover:bg-white/2 space-y-3">
+                  className="group rounded-2xl p-5 space-y-3 transition-all"
+                  style={{ background: '#fff', border: '1px solid #E7E6DF', textDecoration: 'none' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#C4DBCE'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(30,91,69,.08)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#E7E6DF'; e.currentTarget.style.boxShadow = 'none'; }}>
 
-                  {/* Header */}
                   <div className="flex items-start gap-3">
                     {company.logoUrl ? (
                       <img src={company.logoUrl} alt={company.companyName}
-                        className="w-12 h-12 rounded-xl object-cover ring-1 ring-white/10 flex-shrink-0"
+                        className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
+                        style={{ border: '1px solid #E7E6DF' }}
                         referrerPolicy="no-referrer" />
                     ) : (
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0 ${colorCls}`}>
+                      <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0"
+                        style={{ background: colors.bg, color: colors.text }}>
                         {initial}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <h3 className="text-white font-semibold text-sm leading-tight truncate">{company.companyName}</h3>
-                        {company.isVerified && <ShieldCheck size={13} className="text-lime-400 flex-shrink-0" title="Verified" />}
+                        <h3 className="font-semibold text-sm leading-tight truncate" style={{ color: '#1B1D1A' }}>{company.companyName}</h3>
+                        {company.isVerified && <ShieldCheck size={13} style={{ color: '#1E5B45', flexShrink: 0 }} title="Verified" />}
                       </div>
-                      {company.sector && <p className="text-white/40 text-xs mt-0.5 truncate">{company.sector}</p>}
+                      {company.sector && <p className="text-xs mt-0.5 truncate" style={{ color: '#9A9E97' }}>{company.sector}</p>}
                     </div>
                   </div>
 
-                  {/* Description */}
                   {company.description && (
-                    <p className="text-white/40 text-xs leading-relaxed line-clamp-2">{company.description}</p>
+                    <p className="text-xs leading-relaxed line-clamp-2" style={{ color: '#6B6F69' }}>{company.description}</p>
                   )}
 
-                  {/* Meta row */}
-                  <div className="flex items-center gap-3 text-xs text-white/30 flex-wrap">
+                  <div className="flex items-center gap-3 text-xs flex-wrap" style={{ color: '#9A9E97' }}>
                     {company.city && (
                       <span className="flex items-center gap-1"><MapPin size={11} />{company.city}</span>
                     )}
-                    <span className={`flex items-center gap-1 font-semibold ml-auto ${company.openOffers > 0 ? 'text-lime-400' : 'text-white/20'}`}>
+                    <span className="flex items-center gap-1 font-semibold ml-auto"
+                      style={{ color: company.openOffers > 0 ? '#1E5B45' : '#C0BFBA' }}>
                       <Briefcase size={11} />
                       {company.openOffers > 0 ? `${company.openOffers} open` : 'No openings'}
                     </span>
                   </div>
 
-                  {/* CTA */}
-                  <div className="pt-2 border-t border-white/5 flex items-center justify-between">
-                    <span className="text-xs text-white/30 group-hover:text-lime-400 transition-colors flex items-center gap-1">
+                  <div className="pt-2 flex items-center justify-between" style={{ borderTop: '1px solid #F0F0EA' }}>
+                    <span className="text-xs flex items-center gap-1 transition-colors" style={{ color: '#9A9E97' }}>
                       View profile <ChevronRight size={11} />
                     </span>
                     {company.openOffers > 0 && (
-                      <span className="text-[10px] text-lime-400/70 bg-lime-500/8 border border-lime-500/15 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                        style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
                         Hiring
                       </span>
                     )}
@@ -173,16 +198,21 @@ export default function StudentCompanies() {
             })}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-3 pt-2">
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/10 text-sm text-white/50 hover:text-white disabled:opacity-30 transition-colors">
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-30"
+                style={{ border: '1px solid #DDDBD2', color: '#6B6F69', background: '#fff' }}
+                onMouseEnter={e => { if (page > 1) e.currentTarget.style.borderColor = '#1E5B45'; }}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#DDDBD2'}>
                 <ChevronLeft size={14} /> Prev
               </button>
-              <span className="text-sm text-white/40">Page {page} of {totalPages}</span>
+              <span className="text-sm" style={{ color: '#9A9E97' }}>Page {page} of {totalPages}</span>
               <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/10 text-sm text-white/50 hover:text-white disabled:opacity-30 transition-colors">
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm transition-colors disabled:opacity-30"
+                style={{ border: '1px solid #DDDBD2', color: '#6B6F69', background: '#fff' }}
+                onMouseEnter={e => { if (page < totalPages) e.currentTarget.style.borderColor = '#1E5B45'; }}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#DDDBD2'}>
                 Next <ChevronRight size={14} />
               </button>
             </div>

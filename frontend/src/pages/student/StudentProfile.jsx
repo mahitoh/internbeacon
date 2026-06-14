@@ -2,24 +2,51 @@ import { useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
-import { User, GraduationCap, Code2, Upload, Globe, Github, Linkedin, Save, FileText, Loader2, Sparkles, Eye, Bell } from 'lucide-react';
+import { User, GraduationCap, Code2, Upload, Globe, Github, Linkedin, Save, FileText, Loader2, Eye, Bell, MapPin } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Avatar from '../../components/ui/Avatar';
 import CropModal from '../../components/ui/CropModal';
 import CvViewerModal from '../../components/ui/CvViewerModal';
 import { profilesApi } from '../../api/profiles';
 import { uploadApi } from '../../api/upload';
-import { aiApi } from '../../api/ai';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
 const SKILLS_LIST = ['JavaScript', 'Python', 'React', 'Node.js', 'Java', 'SQL', 'Machine Learning', 'Data Analysis', 'Excel', 'Figma', 'Marketing', 'Finance'];
+const CITIES = ['Yaoundé', 'Douala', 'Bafoussam', 'Bamenda', 'Garoua', 'Maroua', 'Ngaoundéré', 'Bertoua', 'Ebolowa', 'Buea', 'Limbé'];
+
+function Section({ title, icon: Icon, children }) {
+  return (
+    <div className="rounded-2xl p-6 space-y-4" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+      <div className="flex items-center gap-2">
+        <Icon size={16} style={{ color: '#1E5B45' }} />
+        <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>{title}</h3>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Field({ label, ...props }) {
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>
+      <input
+        className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors"
+        style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+        onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+        onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
+        {...props}
+      />
+    </div>
+  );
+}
 
 export default function StudentProfile() {
   const { user, refetchUser } = useAuth();
   const queryClient = useQueryClient();
   const profile  = user?.studentProfile;
   const [selectedSkills, setSelectedSkills] = useState(profile?.skills || []);
-  const [parsingCv,      setParsingCv]      = useState(false);
   const [uploadingCv,    setUploadingCv]    = useState(false);
   const [cvViewerOpen,   setCvViewerOpen]   = useState(false);
   const [cvViewerUrl,    setCvViewerUrl]    = useState('');
@@ -32,7 +59,8 @@ export default function StudentProfile() {
   const cvInputRef    = useRef(null);
   const photoInputRef = useRef(null);
   const dragCounterRef = useRef(0);
-  const [isDraggingCv, setIsDraggingCv] = useState(false);
+  const [isDraggingCv,     setIsDraggingCv]     = useState(false);
+  const [suggestedSkills,  setSuggestedSkills]  = useState([]);
 
   const { data: prefs } = useQuery({
     queryKey: ['notification-prefs'],
@@ -51,6 +79,7 @@ export default function StudentProfile() {
       firstName:   profile?.firstName  || '',
       lastName:    profile?.lastName   || '',
       phone:       profile?.phone      || '',
+      city:        profile?.city       || '',
       university:  profile?.university || '',
       faculty:     profile?.faculty    || '',
       programme:   profile?.programme  || '',
@@ -63,23 +92,6 @@ export default function StudentProfile() {
 
   const toggleSkill = (s) => {
     setSelectedSkills(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
-  };
-
-  const handleParseCv = async () => {
-    setParsingCv(true);
-    try {
-      const r = await aiApi.parseCv();
-      const data = r.data.data;
-      if (data.skills?.length) {
-        setSelectedSkills(data.skills.slice(0, 15));
-        toast.success(`AI extracted ${data.skills.length} skills from your CV!`);
-      } else {
-        toast.success('CV analysed — no skills found. Try adding them manually.');
-      }
-    } catch (err) {
-      const msg = err.response?.data?.message || 'CV analysis failed';
-      toast.error(msg);
-    } finally { setParsingCv(false); }
   };
 
   const handlePreviewCv = async () => {
@@ -102,30 +114,26 @@ export default function StudentProfile() {
       setCvUploaded(true);
       await refetchUser();
       toast.success('CV uploaded!');
+      // Silently parse CV and suggest skills not already in the student's list
+      api.post('/ai/parse-cv').then(r => {
+        const extracted = r.data.data?.skills || [];
+        setSuggestedSkills(prev => {
+          const current = selectedSkills;
+          const newOnes = extracted.filter(s => !current.includes(s) && !prev.includes(s));
+          return newOnes.length ? newOnes : prev;
+        });
+      }).catch(() => {});
     } catch {
       toast.error('CV upload failed — max 5 MB PDF only');
     } finally { setUploadingCv(false); }
-  }, [refetchUser]);
+  }, [refetchUser, selectedSkills]);
 
   const handleCvChange = (e) => handleCvFile(e.target.files?.[0]);
 
-  const handleDragEnter = (e) => {
-    e.preventDefault();
-    dragCounterRef.current++;
-    if (dragCounterRef.current === 1) setIsDraggingCv(true);
-  };
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    dragCounterRef.current--;
-    if (dragCounterRef.current === 0) setIsDraggingCv(false);
-  };
+  const handleDragEnter = (e) => { e.preventDefault(); dragCounterRef.current++; if (dragCounterRef.current === 1) setIsDraggingCv(true); };
+  const handleDragLeave = (e) => { e.preventDefault(); dragCounterRef.current--; if (dragCounterRef.current === 0) setIsDraggingCv(false); };
   const handleDragOver  = (e) => { e.preventDefault(); };
-  const handleDrop = (e) => {
-    e.preventDefault();
-    dragCounterRef.current = 0;
-    setIsDraggingCv(false);
-    handleCvFile(e.dataTransfer.files?.[0]);
-  };
+  const handleDrop = (e) => { e.preventDefault(); dragCounterRef.current = 0; setIsDraggingCv(false); handleCvFile(e.dataTransfer.files?.[0]); };
 
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
@@ -133,7 +141,6 @@ export default function StudentProfile() {
     const reader = new FileReader();
     reader.onload = () => setCropSrc(reader.result);
     reader.readAsDataURL(file);
-    // reset so selecting same file again triggers onChange
     e.target.value = '';
   };
 
@@ -154,6 +161,11 @@ export default function StudentProfile() {
     try {
       await profilesApi.updateStudent({ ...data, skills: selectedSkills });
       await refetchUser();
+      // Invalidate all offer/recommendation caches so match scores
+      // recalculate immediately with the updated profile
+      queryClient.invalidateQueries({ queryKey: ['offers-browse'] });
+      queryClient.invalidateQueries({ queryKey: ['offers-rec'] });
+      queryClient.invalidateQueries({ queryKey: ['offer'] });
       toast.success('Profile updated!');
     } catch {
       toast.error('Failed to save profile');
@@ -161,55 +173,51 @@ export default function StudentProfile() {
   };
 
   const displayName = `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim();
-  const completion  = [profile?.bio, profile?.cvUrl, profile?.skills?.length, profile?.phone].filter(Boolean).length;
-  const pct         = Math.round((completion / 4) * 100);
+  const completion  = [profile?.bio, profile?.cvUrl, profile?.skills?.length, profile?.phone, profile?.city, profile?.programme].filter(Boolean).length;
+  const pct         = Math.round((completion / 6) * 100);
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <CvViewerModal
-        isOpen={cvViewerOpen}
-        onClose={() => setCvViewerOpen(false)}
-        url={cvViewerUrl}
-        candidateName={displayName || undefined}
-      />
+    <div className="max-w-3xl space-y-6" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
+      <CvViewerModal isOpen={cvViewerOpen} onClose={() => setCvViewerOpen(false)} url={cvViewerUrl} candidateName={displayName || undefined} />
 
-      {/* hidden inputs */}
       <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
       <input ref={cvInputRef}    type="file" accept=".pdf"    className="hidden" onChange={handleCvChange} />
 
       {cropSrc && (
-        <CropModal
-          imageSrc={cropSrc}
-          shape="round"
-          onConfirm={handleCropConfirm}
-          onCancel={() => setCropSrc(null)}
-        />
+        <CropModal imageSrc={cropSrc} shape="round" onConfirm={handleCropConfirm} onCancel={() => setCropSrc(null)} />
       )}
 
       {/* Profile header */}
-      <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6">
+      <div className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
         <div className="flex items-center gap-5">
           <div className="relative flex-shrink-0">
             {avatarUrl
-              ? <img src={avatarUrl} alt={displayName} className="w-16 h-16 rounded-full object-cover ring-2 ring-white/10" referrerPolicy="no-referrer" />
+              ? <img src={avatarUrl} alt={displayName} className="w-16 h-16 rounded-full object-cover"
+                  style={{ border: '2px solid #E7E6DF' }} referrerPolicy="no-referrer" />
               : <Avatar name={displayName} size="xl" />}
             {isGoogleAvatar && (
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-sm" title="Google profile photo">
-                <svg viewBox="0 0 24 24" className="w-3 h-3"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center shadow-sm"
+                style={{ background: '#fff', border: '1px solid #E7E6DF' }} title="Google profile photo">
+                <svg viewBox="0 0 24 24" className="w-3 h-3">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
               </div>
             )}
           </div>
           <div className="flex-1">
-            <h2 className="text-xl font-bold text-white">{displayName || 'Your Profile'}</h2>
-            <p className="text-white/40 text-sm mt-0.5">{user?.email}</p>
+            <h2 className="text-xl font-bold" style={{ color: '#1B1D1A' }}>{displayName || 'Your Profile'}</h2>
+            <p className="text-sm mt-0.5" style={{ color: '#9A9E97' }}>{user?.email}</p>
             {isGoogleAvatar && (
-              <p className="text-white/25 text-xs mt-0.5">Using Google profile photo — upload a custom photo to replace it</p>
+              <p className="text-xs mt-0.5" style={{ color: '#C0BFBA' }}>Using Google profile photo — upload a custom photo to replace it</p>
             )}
             <div className="flex items-center gap-2 mt-3">
-              <div className="flex-1 h-1.5 bg-white/10 rounded-full">
-                <div className="h-full bg-lime-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
+              <div className="flex-1 h-1.5 rounded-full" style={{ background: '#E7E6DF' }}>
+                <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: '#1E5B45' }} />
               </div>
-              <span className="text-xs text-white/40">{pct}% complete</span>
+              <span className="text-xs" style={{ color: '#9A9E97' }}>{pct}% complete</span>
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={() => photoInputRef.current?.click()} loading={uploadingPhoto}>
@@ -222,28 +230,52 @@ export default function StudentProfile() {
         {/* Personal Info */}
         <Section title="Personal Information" icon={User}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DarkField label="First Name" {...register('firstName')} />
-            <DarkField label="Last Name"  {...register('lastName')} />
+            <Field label="First Name" {...register('firstName')} />
+            <Field label="Last Name"  {...register('lastName')} />
           </div>
-          <DarkField label="Phone Number" {...register('phone')} placeholder="+237 6XX XXX XXX" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Phone Number" {...register('phone')} placeholder="+237 6XX XXX XXX" />
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium flex items-center gap-1.5" style={{ color: '#6B6F69' }}>
+                <MapPin size={12} /> City / Location
+              </label>
+              <select
+                className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors appearance-none"
+                style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+                onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+                onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
+                {...register('city')}>
+                <option value="">Select your city</option>
+                {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <p className="text-xs" style={{ color: '#9A9E97' }}>Used for location matching</p>
+            </div>
+          </div>
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">Bio</label>
+            <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>Bio</label>
             <textarea rows={3} placeholder="Tell companies a bit about yourself…"
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 resize-none"
+              className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none resize-none transition-colors"
+              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
               {...register('bio')} />
           </div>
         </Section>
 
         {/* Education */}
         <Section title="Education" icon={GraduationCap}>
-          <DarkField label="University"   {...register('university')} />
-          <DarkField label="Faculty"      {...register('faculty')}    placeholder="Faculty of Science" />
-          <DarkField label="Programme"    {...register('programme')}  placeholder="BSc Information Technology" />
+          <Field label="University" {...register('university')} />
+          <Field label="Faculty"    {...register('faculty')}    placeholder="Faculty of Science" />
+          <Field label="Programme"  {...register('programme')}  placeholder="BSc Information Technology" />
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-white/60">Year of Study</label>
-            <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
+            <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>Year of Study</label>
+            <select
+              className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors appearance-none"
+              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
               {...register('studyYear', { valueAsNumber: true })}>
-              {[1,2,3,4,5].map(y => <option key={y} value={y} className="bg-[#1a1a1a]">Year {y}</option>)}
+              {[1,2,3,4,5].map(y => <option key={y} value={y}>Year {y}</option>)}
             </select>
           </div>
         </Section>
@@ -251,46 +283,129 @@ export default function StudentProfile() {
         {/* Skills */}
         <Section title="Skills" icon={Code2}>
           <div className="flex flex-wrap gap-2">
-            {SKILLS_LIST.map(s => (
-              <button type="button" key={s} onClick={() => toggleSkill(s)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${selectedSkills.includes(s) ? 'bg-lime-500 text-white' : 'bg-white/5 text-white/50 hover:text-white hover:bg-white/10'}`}>
-                {s}
-              </button>
-            ))}
+            {SKILLS_LIST.map(s => {
+              const isSelected = selectedSkills.includes(s);
+              return (
+                <button type="button" key={s} onClick={() => toggleSkill(s)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                  style={isSelected
+                    ? { background: '#1E5B45', color: '#fff', border: '1px solid #10342A' }
+                    : { background: '#F6F5F1', color: '#6B6F69', border: '1px solid #E7E6DF' }}>
+                  {s}
+                </button>
+              );
+            })}
           </div>
           <div className="flex gap-2 mt-2">
             <input placeholder="Add custom skill…"
-              className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50"
-              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); const v = e.target.value.trim(); if (v && !selectedSkills.includes(v)) { setSelectedSkills(p => [...p, v]); e.target.value = ''; } } }}
+              className="flex-1 rounded-lg px-3 py-2 text-sm focus:outline-none transition-colors"
+              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const v = e.target.value.trim();
+                  if (v && !selectedSkills.includes(v)) { setSelectedSkills(p => [...p, v]); e.target.value = ''; }
+                }
+              }}
             />
           </div>
+          {selectedSkills.filter(s => !SKILLS_LIST.includes(s)).length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {selectedSkills.filter(s => !SKILLS_LIST.includes(s)).map(s => (
+                <span key={s} className="px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1"
+                  style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
+                  {s}
+                  <button type="button" onClick={() => setSelectedSkills(p => p.filter(x => x !== s))}
+                    className="ml-0.5 opacity-60 hover:opacity-100">×</button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* CV-extracted skill suggestions */}
+          {suggestedSkills.length > 0 && (
+            <div className="rounded-xl p-3 space-y-2" style={{ background: '#EDF2EE', border: '1px solid #C4DBCE' }}>
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold" style={{ color: '#1E5B45' }}>
+                  Skills detected in your CV — click to add
+                </p>
+                <button type="button" onClick={() => setSuggestedSkills([])}
+                  className="text-xs" style={{ color: '#6B6F69' }}>
+                  Dismiss
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {suggestedSkills.map(s => (
+                  <button type="button" key={s}
+                    onClick={() => {
+                      if (!selectedSkills.includes(s)) setSelectedSkills(p => [...p, s]);
+                      setSuggestedSkills(p => p.filter(x => x !== s));
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-all"
+                    style={{ background: '#fff', border: '1px solid #C4DBCE', color: '#1E5B45' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#F5FAF7'}
+                    onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                    + {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </Section>
 
         {/* Links */}
         <Section title="Links & Social" icon={Globe}>
-          <DarkField label="LinkedIn" icon={Linkedin} {...register('linkedinUrl')} placeholder="https://linkedin.com/in/yourprofile" />
-          <DarkField label="GitHub"   icon={Github}   {...register('githubUrl')}   placeholder="https://github.com/yourusername" />
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium flex items-center gap-1.5" style={{ color: '#6B6F69' }}>
+              <Linkedin size={13} /> LinkedIn
+            </label>
+            <input
+              className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors"
+              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+              placeholder="https://linkedin.com/in/yourprofile"
+              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
+              {...register('linkedinUrl')}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium flex items-center gap-1.5" style={{ color: '#6B6F69' }}>
+              <Github size={13} /> GitHub
+            </label>
+            <input
+              className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors"
+              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+              placeholder="https://github.com/yourusername"
+              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
+              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
+              {...register('githubUrl')}
+            />
+          </div>
         </Section>
 
         {/* CV Upload */}
         <Section title="CV / Resume" icon={Upload}>
           {cvUploaded ? (
-            <div className="flex items-center gap-3 p-3 rounded-xl border border-white/8 bg-white/3">
-              <div className="w-10 h-12 rounded-lg bg-red-500/12 border border-red-500/20 flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#F6F5F1', border: '1px solid #E7E6DF' }}>
+              <div className="w-10 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: '#FEE2E2', border: '1px solid #FECACA' }}>
                 {uploadingCv
-                  ? <Loader2 size={16} className="text-red-400 animate-spin" />
-                  : <FileText size={18} className="text-red-400" />}
+                  ? <Loader2 size={16} className="animate-spin" style={{ color: '#DC2626' }} />
+                  : <FileText size={18} style={{ color: '#DC2626' }} />}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">
+                <p className="text-sm font-semibold truncate" style={{ color: '#1B1D1A' }}>
                   {displayName ? `${displayName} — CV.pdf` : 'Resume.pdf'}
                 </p>
-                <p className="text-xs text-white/30 mt-0.5">PDF document · uploaded</p>
+                <p className="text-xs mt-0.5" style={{ color: '#9A9E97' }}>PDF document · uploaded</p>
               </div>
-              <button
-                type="button"
-                onClick={() => cvInputRef.current?.click()}
-                className="text-xs text-white/40 hover:text-white/70 transition-colors px-2.5 py-1.5 rounded-lg border border-white/10 hover:border-white/20 flex-shrink-0">
+              <button type="button" onClick={() => cvInputRef.current?.click()}
+                className="text-xs px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-colors"
+                style={{ color: '#6B6F69', border: '1px solid #DDDBD2', background: '#fff' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#1E5B45'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#DDDBD2'}>
                 Replace
               </button>
             </div>
@@ -301,50 +416,41 @@ export default function StudentProfile() {
               onDragLeave={handleDragLeave}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer select-none
-                ${isDraggingCv
-                  ? 'border-lime-400/60 bg-lime-500/8 scale-[1.01]'
-                  : 'border-white/10 hover:border-lime-500/30 hover:bg-white/2'
-                }`}>
+              className="border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer select-none"
+              style={isDraggingCv
+                ? { borderColor: '#1E5B45', background: '#EDF2EE', transform: 'scale(1.01)' }
+                : { borderColor: '#DDDBD2', background: '#F6F5F1' }}>
               {uploadingCv ? (
-                <Loader2 size={28} className="text-lime-400 mx-auto mb-3 animate-spin" />
+                <Loader2 size={28} className="mx-auto mb-3 animate-spin" style={{ color: '#1E5B45' }} />
               ) : isDraggingCv ? (
-                <div className="w-12 h-12 rounded-2xl bg-lime-500/15 border border-lime-500/30 flex items-center justify-center mx-auto mb-3">
-                  <Upload size={22} className="text-lime-400" />
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                  style={{ background: '#EDF2EE', border: '1px solid #C4DBCE' }}>
+                  <Upload size={22} style={{ color: '#1E5B45' }} />
                 </div>
               ) : (
-                <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3">
-                  <Upload size={22} className="text-white/30" />
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                  style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+                  <Upload size={22} style={{ color: '#9A9E97' }} />
                 </div>
               )}
-              <p className={`text-sm font-medium transition-colors ${isDraggingCv ? 'text-lime-400' : 'text-white/50'}`}>
+              <p className="text-sm font-medium" style={{ color: isDraggingCv ? '#1E5B45' : '#6B6F69' }}>
                 {uploadingCv ? 'Uploading…' : isDraggingCv ? 'Drop your PDF here' : 'Drag & drop your CV here'}
               </p>
               {!uploadingCv && (
-                <p className="text-white/30 text-xs mt-1">
+                <p className="text-xs mt-1" style={{ color: '#9A9E97' }}>
                   {isDraggingCv ? '' : 'or click to browse — '}PDF only, max 5 MB
                 </p>
               )}
             </div>
           )}
           {cvUploaded && (
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleParseCv}
-                disabled={parsingCv}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-lime-500/10 hover:bg-lime-500/20 border border-lime-500/20 text-lime-400 text-sm font-semibold transition-all disabled:opacity-50">
-                {parsingCv
-                  ? <><Loader2 size={15} className="animate-spin" /> Analysing CV…</>
-                  : <><Sparkles size={15} /> Analyse with AI</>}
-              </button>
-              <button
-                type="button"
-                onClick={handlePreviewCv}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-sm font-semibold transition-all">
-                <Eye size={15} /> Preview
-              </button>
-            </div>
+            <button type="button" onClick={handlePreviewCv}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
+              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#6B6F69' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#1B1D1A'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#F6F5F1'; e.currentTarget.style.color = '#6B6F69'; }}>
+              <Eye size={15} /> Preview CV
+            </button>
           )}
         </Section>
 
@@ -352,25 +458,29 @@ export default function StudentProfile() {
         <Section title="Offer Alerts" icon={Bell}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-white/80">Notify me about matching internships</p>
-              <p className="text-xs text-white/35 mt-0.5">Get in-app alerts when new offers match your profile</p>
+              <p className="text-sm font-medium" style={{ color: '#1B1D1A' }}>Notify me about matching internships</p>
+              <p className="text-xs mt-0.5" style={{ color: '#9A9E97' }}>Get in-app alerts when new offers match your profile</p>
             </div>
-            <button
-              type="button"
+            <button type="button"
               onClick={() => prefsMutation.mutate({ offerAlerts: !(prefs?.offerAlerts ?? true) })}
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${(prefs?.offerAlerts ?? true) ? 'bg-lime-500' : 'bg-white/10'}`}>
-              <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ${(prefs?.offerAlerts ?? true) ? 'translate-x-5' : 'translate-x-0'}`} />
+              className="relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
+              style={{ background: (prefs?.offerAlerts ?? true) ? '#1E5B45' : '#E7E6DF' }}>
+              <span className="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200"
+                style={{ transform: (prefs?.offerAlerts ?? true) ? 'translateX(20px)' : 'translateX(0)' }} />
             </button>
           </div>
           {(prefs?.offerAlerts ?? true) && (
             <div className="flex items-center justify-between pt-1">
-              <label className="text-sm text-white/50">Minimum match score</label>
+              <label className="text-sm" style={{ color: '#6B6F69' }}>Minimum match score</label>
               <select
                 value={prefs?.minMatchScore ?? 50}
                 onChange={e => prefsMutation.mutate({ minMatchScore: Number(e.target.value) })}
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none">
+                className="rounded-lg px-3 py-1.5 text-sm focus:outline-none appearance-none transition-colors"
+                style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+                onFocus={e => e.target.style.borderColor = '#1E5B45'}
+                onBlur={e => e.target.style.borderColor = '#DDDBD2'}>
                 {[40, 50, 60, 70, 80].map(v => (
-                  <option key={v} value={v} className="bg-[#1a1a1a]">{v}% or higher</option>
+                  <option key={v} value={v}>{v}% or higher</option>
                 ))}
               </select>
             </div>
@@ -381,27 +491,6 @@ export default function StudentProfile() {
           <Save size={16} /> Save Profile
         </Button>
       </form>
-    </div>
-  );
-}
-
-function Section({ title, icon: Icon, children }) {
-  return (
-    <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6 space-y-4">
-      <div className="flex items-center gap-2">
-        <Icon size={16} className="text-lime-400" />
-        <h3 className="font-semibold text-white text-sm">{title}</h3>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function DarkField({ label, ...props }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-white/60">{label}</label>
-      <input className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-lime-500/50 transition-colors" {...props} />
     </div>
   );
 }

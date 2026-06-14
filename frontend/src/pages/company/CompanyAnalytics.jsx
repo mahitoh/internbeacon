@@ -1,32 +1,46 @@
 import { useMemo, useState } from 'react';
-import { useTheme } from '../../context/ThemeContext';
 import { useQuery } from '@tanstack/react-query';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { offersApi } from '../../api/offers';
 import { applicationsApi } from '../../api/applications';
 import Spinner from '../../components/ui/Spinner';
 
-// Grouped for display — each entry maps to one or more real statuses
 const PIE_GROUPS = [
-  { key: 'New',         statuses: ['submitted'],                                          color: '#f97316' },
-  { key: 'Reviewing',   statuses: ['under_review', 'final_review'],                       color: '#3b82f6' },
-  { key: 'Shortlisted', statuses: ['shortlisted'],                                        color: '#a855f7' },
-  { key: 'Interview',   statuses: ['interview_scheduled', 'interview_completed'],         color: '#6366f1' },
-  { key: 'Accepted',    statuses: ['accepted', 'offer_accepted'],                         color: '#84cc16' },
-  { key: 'Rejected',    statuses: ['rejected', 'withdrawn', 'offer_declined'],            color: '#ef4444' },
+  { key: 'New',         statuses: ['submitted'],                                                  color: '#F97316' },
+  { key: 'Reviewing',   statuses: ['under_review', 'final_review'],                               color: '#3B82F6' },
+  { key: 'Shortlisted', statuses: ['shortlisted'],                                                color: '#A855F7' },
+  { key: 'Interview',   statuses: ['interview_scheduled', 'interview_completed'],                 color: '#6366F1' },
+  { key: 'Accepted',    statuses: ['accepted', 'offer_accepted'],                                 color: '#1E5B45' },
+  { key: 'Rejected',    statuses: ['rejected', 'withdrawn', 'offer_declined'],                   color: '#EF4444' },
 ];
 
 const DATE_RANGES = [
-  { key: '30d',  label: '30 days',  days: 30  },
-  { key: '90d',  label: '3 months', days: 90  },
-  { key: 'all',  label: 'All time', days: null },
+  { key: '30d', label: '30 days',  days: 30   },
+  { key: '90d', label: '3 months', days: 90   },
+  { key: 'all', label: 'All time', days: null  },
 ];
 
+const tooltipStyle = { background: '#fff', border: '1px solid #E7E6DF', borderRadius: 8, fontSize: 12, color: '#1B1D1A', boxShadow: '0 4px 12px rgba(24,32,24,.08)' };
+
+function Stat({ label, value, highlight }) {
+  return (
+    <div className="rounded-2xl p-5" style={{
+      background: highlight ? '#FFFBEB' : '#fff',
+      border: `1px solid ${highlight ? '#FDE68A' : '#E7E6DF'}`,
+    }}>
+      <p className="text-xs uppercase tracking-wide font-semibold" style={{ color: highlight ? '#D97706' : '#9A9E97' }}>{label}</p>
+      <p className="text-3xl font-black mt-1" style={{ fontFamily: "'Source Serif 4', Georgia, serif", color: highlight ? '#D97706' : '#1B1D1A' }}>{value}</p>
+    </div>
+  );
+}
+
+function EmptyChart({ message }) {
+  return (
+    <div className="h-44 flex items-center justify-center text-sm" style={{ color: '#C0BFBA' }}>{message}</div>
+  );
+}
+
 export default function CompanyAnalytics() {
-  const { isDark } = useTheme();
-  const tooltipStyle = isDark
-    ? { background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12, color: '#fff' }
-    : { background: '#ffffff', border: '1px solid #e7e4d5', borderRadius: 8, fontSize: 12, color: '#0f2d20' };
   const [range, setRange] = useState('all');
 
   const { data: offersData, isLoading: offersLoading } = useQuery({
@@ -51,129 +65,99 @@ export default function CompanyAnalytics() {
   }, [allApps, range]);
 
   const stats = useMemo(() => {
-    const total        = apps.length;
-    const accepted     = apps.filter(a => ['accepted', 'offer_accepted'].includes(a.status)).length;
-    const open         = offers.filter(o => o.status === 'open').length;
-    const awaitReview  = apps.filter(a => a.status === 'submitted').length;
-    const acceptRate   = total > 0 ? Math.round((accepted / total) * 100) : 0;
+    const total       = apps.length;
+    const accepted    = apps.filter(a => ['accepted', 'offer_accepted'].includes(a.status)).length;
+    const open        = offers.filter(o => o.status === 'open').length;
+    const awaitReview = apps.filter(a => a.status === 'submitted').length;
+    const acceptRate  = total > 0 ? Math.round((accepted / total) * 100) : 0;
     return { total, accepted, open, awaitReview, acceptRate };
   }, [apps, offers]);
 
-  // Applications grouped by month (last 6 months)
   const appsByMonth = useMemo(() => {
     const months = [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date();
       d.setMonth(d.getMonth() - i);
-      months.push({
-        month: d.toLocaleString('default', { month: 'short' }),
-        key:   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
-        apps:  0,
-      });
+      months.push({ month: d.toLocaleString('default', { month: 'short' }), key: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`, apps: 0 });
     }
-    apps.forEach(a => {
-      const key    = a.appliedAt?.slice(0, 7);
-      const bucket = months.find(m => m.key === key);
-      if (bucket) bucket.apps++;
-    });
+    apps.forEach(a => { const key = a.appliedAt?.slice(0, 7); const bucket = months.find(m => m.key === key); if (bucket) bucket.apps++; });
     return months;
   }, [apps]);
 
-  // Status breakdown pie — grouped into meaningful stages
-  const statusPie = useMemo(() => {
-    return PIE_GROUPS
-      .map(g => ({
-        name:  g.key,
-        value: apps.filter(a => g.statuses.includes(a.status)).length,
-        color: g.color,
-      }))
-      .filter(d => d.value > 0);
-  }, [apps]);
+  const statusPie = useMemo(() =>
+    PIE_GROUPS.map(g => ({ name: g.key, value: apps.filter(a => g.statuses.includes(a.status)).length, color: g.color })).filter(d => d.value > 0),
+  [apps]);
 
-  // Top offers by applications
   const topOffers = useMemo(() => {
     const map = {};
-    apps.forEach(a => {
-      const key = a.offerId;
-      if (!map[key]) map[key] = { title: a.offer?.title || 'Unknown', count: 0 };
-      map[key].count++;
-    });
+    apps.forEach(a => { const key = a.offerId; if (!map[key]) map[key] = { title: a.offer?.title || 'Unknown', count: 0 }; map[key].count++; });
     return Object.values(map).sort((a, b) => b.count - a.count).slice(0, 5);
   }, [apps]);
 
-  // Interview conversion: interview / (shortlisted + interview + beyond)
   const interviewConvRate = useMemo(() => {
-    const interviewed = apps.filter(a =>
-      ['interview_scheduled', 'interview_completed', 'final_review', 'accepted', 'offer_accepted'].includes(a.status)
-    ).length;
-    const shortlistedPlus = apps.filter(a =>
-      ['shortlisted', 'interview_scheduled', 'interview_completed', 'final_review', 'accepted', 'offer_accepted', 'rejected'].includes(a.status)
-    ).length;
+    const interviewed    = apps.filter(a => ['interview_scheduled','interview_completed','final_review','accepted','offer_accepted'].includes(a.status)).length;
+    const shortlistedPlus = apps.filter(a => ['shortlisted','interview_scheduled','interview_completed','final_review','accepted','offer_accepted','rejected'].includes(a.status)).length;
     return shortlistedPlus > 0 ? Math.round((interviewed / shortlistedPlus) * 100) : 0;
   }, [apps]);
 
-  if (offersLoading || appsLoading) {
-    return <div className="flex justify-center py-20"><Spinner /></div>;
-  }
+  if (offersLoading || appsLoading) return <div className="flex justify-center py-20"><Spinner /></div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="text-2xl font-black text-white">Recruitment Analytics</h2>
-          <p className="text-white/40 text-sm mt-0.5">Track your internship hiring performance</p>
+          <h2 className="text-2xl font-black" style={{ color: '#1B1D1A' }}>Recruitment Analytics</h2>
+          <p className="text-sm mt-0.5" style={{ color: '#9A9E97' }}>Track your internship hiring performance</p>
         </div>
-        <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-xl p-1 border border-white/5">
-          {DATE_RANGES.map(r => (
-            <button key={r.key} onClick={() => setRange(r.key)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${r.key === range ? 'bg-lime-500 text-white' : 'text-white/40 hover:text-white'}`}>
-              {r.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: '#EFEEE8' }}>
+          {DATE_RANGES.map(r => {
+            const isActive = r.key === range;
+            return (
+              <button key={r.key} onClick={() => setRange(r.key)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                style={isActive
+                  ? { background: '#fff', color: '#1B1D1A', boxShadow: '0 1px 3px rgba(24,32,24,.08)', border: '1px solid #E7E6DF' }
+                  : { color: '#6B6F69' }}>
+                {r.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Stats grid */}
+      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Stat label="Total Applications"  value={stats.total} />
-        <Stat label="Open Positions"      value={stats.open} />
-        <Stat label="Acceptance Rate"     value={`${stats.acceptRate}%`} />
-        <Stat label="Awaiting Review"     value={stats.awaitReview} highlight={stats.awaitReview > 0} />
+        <Stat label="Total Applications" value={stats.total} />
+        <Stat label="Open Positions"     value={stats.open} />
+        <Stat label="Acceptance Rate"    value={`${stats.acceptRate}%`} />
+        <Stat label="Awaiting Review"    value={stats.awaitReview} highlight={stats.awaitReview > 0} />
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Applications over time */}
-        <div className="lg:col-span-2 bg-[#1a1a1a] rounded-2xl border border-white/5 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-semibold text-white">Applications Over Time</h3>
-            <span className="text-xs text-white/30">Last 6 months</span>
+      <div className="grid lg:grid-cols-3 gap-5">
+        {/* Chart */}
+        <div className="lg:col-span-2 rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Applications Over Time</h3>
+            <span className="text-xs" style={{ color: '#C0BFBA' }}>Last 6 months</span>
           </div>
-          {apps.length === 0 ? (
-            <EmptyChart message="No applications yet" />
-          ) : (
+          {apps.length === 0 ? <EmptyChart message="No applications yet" /> : (
             <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={appsByMonth} barSize={28}>
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(15,45,32,0.45)', fontSize: 11 }} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#9A9E97', fontSize: 11 }} />
                   <YAxis hide allowDecimals={false} />
-                  <Tooltip
-                    cursor={{ fill: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(15,45,32,0.04)' }}
-                    contentStyle={tooltipStyle}
-                    formatter={(v) => [v, 'Applications']}
-                  />
-                  <Bar dataKey="apps" fill="#84cc16" radius={[6, 6, 0, 0]} opacity={0.9} />
+                  <Tooltip cursor={{ fill: 'rgba(30,91,69,0.04)' }} contentStyle={tooltipStyle} formatter={v => [v, 'Applications']} />
+                  <Bar dataKey="apps" fill="#1E5B45" radius={[6, 6, 0, 0]} opacity={0.9} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           )}
         </div>
 
-        {/* Status breakdown */}
-        <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6">
-          <h3 className="font-semibold text-white mb-4">Pipeline Breakdown</h3>
-          {statusPie.length === 0 ? (
-            <EmptyChart message="No data yet" />
-          ) : (
+        {/* Pie */}
+        <div className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+          <h3 className="font-semibold text-sm mb-4" style={{ color: '#1B1D1A' }}>Pipeline Breakdown</h3>
+          {statusPie.length === 0 ? <EmptyChart message="No data yet" /> : (
             <>
               <div className="h-44">
                 <ResponsiveContainer width="100%" height="100%">
@@ -190,9 +174,9 @@ export default function CompanyAnalytics() {
                   <div key={d.name} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: d.color }} />
-                      <span className="text-xs text-white/50">{d.name}</span>
+                      <span className="text-xs" style={{ color: '#6B6F69' }}>{d.name}</span>
                     </div>
-                    <span className="text-xs font-semibold text-white">{d.value}</span>
+                    <span className="text-xs font-semibold" style={{ color: '#1B1D1A' }}>{d.value}</span>
                   </div>
                 ))}
               </div>
@@ -202,25 +186,21 @@ export default function CompanyAnalytics() {
       </div>
 
       {/* Bottom row */}
-      <div className="grid sm:grid-cols-2 gap-6">
-        {/* Top offers */}
+      <div className="grid sm:grid-cols-2 gap-5">
         {topOffers.length > 0 && (
-          <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6">
-            <h3 className="font-semibold text-white mb-4">Most Applied Positions</h3>
+          <div className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+            <h3 className="font-semibold text-sm mb-4" style={{ color: '#1B1D1A' }}>Most Applied Positions</h3>
             <div className="space-y-3">
               {topOffers.map((o, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <span className="text-xs text-white/20 w-4 text-right flex-shrink-0">{i + 1}</span>
+                  <span className="text-xs w-4 text-right flex-shrink-0" style={{ color: '#C0BFBA' }}>{i + 1}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-white/80 truncate">{o.title}</span>
-                      <span className="text-xs text-white/40 ml-2 flex-shrink-0">{o.count} app{o.count !== 1 ? 's' : ''}</span>
+                      <span className="text-sm truncate" style={{ color: '#1B1D1A' }}>{o.title}</span>
+                      <span className="text-xs ml-2 flex-shrink-0" style={{ color: '#9A9E97' }}>{o.count} app{o.count !== 1 ? 's' : ''}</span>
                     </div>
-                    <div className="h-1.5 bg-white/5 rounded-full">
-                      <div
-                        className="h-full bg-lime-500 rounded-full transition-all"
-                        style={{ width: `${Math.round((o.count / (topOffers[0]?.count || 1)) * 100)}%` }}
-                      />
+                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#F0F0EA' }}>
+                      <div className="h-full rounded-full transition-all" style={{ width: `${Math.round((o.count / (topOffers[0]?.count || 1)) * 100)}%`, background: '#1E5B45' }} />
                     </div>
                   </div>
                 </div>
@@ -229,54 +209,40 @@ export default function CompanyAnalytics() {
           </div>
         )}
 
-        {/* Funnel metrics */}
-        <div className="bg-[#1a1a1a] rounded-2xl border border-white/5 p-6">
-          <h3 className="font-semibold text-white mb-4">Hiring Funnel</h3>
+        <div className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+          <h3 className="font-semibold text-sm mb-4" style={{ color: '#1B1D1A' }}>Hiring Funnel</h3>
           <div className="space-y-4">
             {[
-              { label: 'Applied',        value: apps.length,                                                                                                           color: 'bg-blue-500' },
-              { label: 'Shortlisted',    value: apps.filter(a => ['shortlisted','interview_scheduled','interview_completed','final_review','accepted','offer_accepted'].includes(a.status)).length, color: 'bg-purple-500' },
-              { label: 'Interviewed',    value: apps.filter(a => ['interview_scheduled','interview_completed','final_review','accepted','offer_accepted'].includes(a.status)).length, color: 'bg-indigo-500' },
-              { label: 'Offer Extended', value: apps.filter(a => ['accepted','offer_accepted','offer_declined'].includes(a.status)).length,                            color: 'bg-lime-500' },
-              { label: 'Offer Accepted', value: apps.filter(a => a.status === 'offer_accepted').length,                                                                color: 'bg-lime-400' },
+              { label: 'Applied',        value: apps.length,                                                                                                                            color: '#3B82F6' },
+              { label: 'Shortlisted',    value: apps.filter(a => ['shortlisted','interview_scheduled','interview_completed','final_review','accepted','offer_accepted'].includes(a.status)).length, color: '#A855F7' },
+              { label: 'Interviewed',    value: apps.filter(a => ['interview_scheduled','interview_completed','final_review','accepted','offer_accepted'].includes(a.status)).length,             color: '#6366F1' },
+              { label: 'Offer Extended', value: apps.filter(a => ['accepted','offer_accepted','offer_declined'].includes(a.status)).length,                                             color: '#1E5B45' },
+              { label: 'Offer Accepted', value: apps.filter(a => a.status === 'offer_accepted').length,                                                                                 color: '#10342A' },
             ].map(item => {
               const pct = apps.length > 0 ? Math.round((item.value / apps.length) * 100) : 0;
               return (
                 <div key={item.label}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-white/50">{item.label}</span>
+                    <span className="text-xs" style={{ color: '#6B6F69' }}>{item.label}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-white/30">{pct}%</span>
-                      <span className="text-xs font-semibold text-white w-6 text-right">{item.value}</span>
+                      <span className="text-xs" style={{ color: '#9A9E97' }}>{pct}%</span>
+                      <span className="text-xs font-semibold w-6 text-right" style={{ color: '#1B1D1A' }}>{item.value}</span>
                     </div>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full">
-                    <div className={`h-full rounded-full ${item.color} transition-all`} style={{ width: `${pct}%` }} />
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#F0F0EA' }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: item.color }} />
                   </div>
                 </div>
               );
             })}
             {apps.length > 0 && (
-              <p className="text-xs text-white/20 pt-1">Interview-to-offer conversion: <span className="text-white/40 font-semibold">{interviewConvRate}%</span></p>
+              <p className="text-xs pt-1" style={{ color: '#9A9E97' }}>
+                Interview-to-offer conversion: <span className="font-semibold" style={{ color: '#6B6F69' }}>{interviewConvRate}%</span>
+              </p>
             )}
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-function Stat({ label, value, highlight }) {
-  return (
-    <div className={`rounded-2xl border p-5 ${highlight ? 'bg-orange-500/5 border-orange-500/20' : 'bg-[#1a1a1a] border-white/5'}`}>
-      <p className={`text-xs uppercase tracking-wide ${highlight ? 'text-orange-400/70' : 'text-white/40'}`}>{label}</p>
-      <p className={`text-3xl font-black mt-1 ${highlight ? 'text-orange-400' : 'text-white'}`}>{value}</p>
-    </div>
-  );
-}
-
-function EmptyChart({ message }) {
-  return (
-    <div className="h-44 flex items-center justify-center text-white/20 text-sm">{message}</div>
   );
 }

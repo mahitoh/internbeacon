@@ -1,6 +1,15 @@
 const { supabaseAdmin } = require('../config/supabase');
-const { computeRecommendationReasons } = require('../utils/fallbackMatcher');
+const { computeRecommendationReasons, computeMatch } = require('../utils/matchingEngine');
 const { fireOfferAlerts } = require('../utils/offerAlerts');
+
+async function getStudentProfile(userId) {
+  const { data } = await supabaseAdmin
+    .from('student_profiles')
+    .select('skills, ai_summary, programme, faculty, city, study_year, languages')
+    .eq('user_id', userId)
+    .single();
+  return data || null;
+}
 
 // ── GET /api/offers ────────────────────────────────────────────────────────────
 exports.list = async (req, res, next) => {
@@ -12,6 +21,7 @@ exports.list = async (req, res, next) => {
       .select(`
         id, title, domain, location, duration_weeks, is_paid, stipend_amount,
         stipend_currency, openings, deadline, start_date, status, views_count, created_at,
+        required_skills, requirements,
         company_profiles ( id, company_name, sector, city, logo_url, is_verified )
       `, { count: 'exact' })
       .eq('status', status)
@@ -21,7 +31,6 @@ exports.list = async (req, res, next) => {
     if (location) query = query.ilike('location', `%${location}%`);
     if (req.query.paid === 'true') query = query.eq('is_paid', true);
     if (search) {
-      // Find matching company IDs first, then merge into the OR filter
       const { data: matchingCompanies } = await supabaseAdmin
         .from('company_profiles')
         .select('id')
@@ -39,9 +48,24 @@ exports.list = async (req, res, next) => {
     const { data, error, count } = await query;
     if (error) throw error;
 
+    // Compute match scores for authenticated students in one pass
+    let studentProfile = null;
+    if (req.user?.role === 'student') {
+      studentProfile = await getStudentProfile(req.user.userId);
+    }
+
+    const offers = data.map(o => {
+      const normalised = normaliseOffer(o);
+      if (studentProfile) {
+        const result = computeMatch(studentProfile, o);
+        normalised.match = { score: result.score, verdict: result.verdict, breakdown: result.breakdown };
+      }
+      return normalised;
+    });
+
     res.json({
       success: true,
-      data: data.map(normaliseOffer),
+      data: offers,
       meta: { total: count, page: Number(page), limit: Number(limit) },
     });
   } catch (err) {
@@ -74,7 +98,12 @@ exports.get = async (req, res, next) => {
       .eq('id', id)
       .then(() => {});
 
-    res.json({ success: true, data: normaliseOffer(data) });
+    const normalised = normaliseOffer(data);
+    if (req.user?.role === 'student') {
+      const sp = await getStudentProfile(req.user.userId);
+      if (sp) normalised.match = computeMatch(sp, data);
+    }
+    res.json({ success: true, data: normalised });
   } catch (err) {
     next(err);
   }

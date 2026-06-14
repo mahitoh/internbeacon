@@ -7,7 +7,7 @@ exports.updateStudent = async (req, res, next) => {
       firstName: 'first_name', lastName: 'last_name', phone: 'phone',
       university: 'university', faculty: 'faculty', programme: 'programme',
       studyYear: 'study_year', bio: 'bio', skills: 'skills',
-      languages: 'languages', cvUrl: 'cv_url', avatarUrl: 'avatar_url',
+      languages: 'languages', city: 'city', cvUrl: 'cv_url', avatarUrl: 'avatar_url',
       linkedinUrl: 'linkedin_url', githubUrl: 'github_url',
     };
 
@@ -288,6 +288,7 @@ function normaliseStudentProfile(p) {
     bio:              p.bio,
     skills:           p.skills,
     languages:        p.languages,
+    city:             p.city,
     cvUrl:            p.cv_url,
     avatarUrl:        p.avatar_url,
     linkedinUrl:      p.linkedin_url,

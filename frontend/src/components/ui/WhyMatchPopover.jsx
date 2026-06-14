@@ -1,31 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, Sparkles, Cpu, Check, X } from 'lucide-react';
-
-/**
- * "Why this match?" — explainable matching popover.
- *
- * Fed ONLY by the unified { breakdown, method } object that both the AI path
- * and the algorithmic fallback return. No conditional rendering on method
- * except the footer attribution line.
- *
- * breakdown shape:
- * {
- *   skills:   { score: 0-1, matched: [...], missing: [...] },
- *   domain:   { score: 0-1 },
- *   level:    { score: 0-1 },
- *   language: { score: 0-1 },
- * }
- */
+import { HelpCircle, Cpu, Check, X } from 'lucide-react';
 
 const FACTORS = [
-  { key: 'skills',   label: 'Skills',         weight: '45%' },
-  { key: 'domain',   label: 'Domain',          weight: '25%' },
-  { key: 'level',    label: 'Study level',     weight: '15%' },
-  { key: 'language', label: 'Language',        weight: '15%' },
+  { key: 'skills',   label: 'Skills',       weight: '40%' },
+  { key: 'domain',   label: 'Programme',    weight: '20%' },
+  { key: 'location', label: 'Location',     weight: '15%' },
+  { key: 'level',    label: 'Study level',  weight: '15%' },
+  { key: 'language', label: 'Language',     weight: '10%' },
 ];
 
-const barColor = (v) => v >= 0.75 ? 'bg-lime-500' : v >= 0.5 ? 'bg-yellow-500' : v >= 0.3 ? 'bg-orange-500' : 'bg-red-500';
+const barColor = (v) => v >= 0.75 ? 'bg-emerald-500' : v >= 0.5 ? 'bg-yellow-500' : v >= 0.3 ? 'bg-orange-500' : 'bg-red-500';
 
 export default function WhyMatchPopover({ breakdown, method, children, align = 'left' }) {
   const [open, setOpen] = useState(false);
@@ -51,7 +36,9 @@ export default function WhyMatchPopover({ breakdown, method, children, align = '
         title="Why this match?"
       >
         {children || (
-          <span className="flex items-center gap-1 text-[11px] text-white/40 group-hover/why:text-white/70 transition-colors">
+          <span className="flex items-center gap-1 text-[11px] transition-colors" style={{ color: '#9A9E97' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#1B1D1A'}
+            onMouseLeave={e => e.currentTarget.style.color = '#9A9E97'}>
             <HelpCircle size={11} /> Why?
           </span>
         )}
@@ -65,11 +52,10 @@ export default function WhyMatchPopover({ breakdown, method, children, align = '
             exit={{ opacity: 0, y: 6, scale: 0.97 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
             onClick={e => e.stopPropagation()}
-            className={`absolute top-full mt-2 z-50 w-72 rounded-2xl bg-[#1a1a1a] border border-white/10 shadow-2xl p-4 space-y-3 ${
-              align === 'right' ? 'right-0' : 'left-0'
-            }`}
+            className={`absolute top-full mt-2 z-50 w-72 rounded-2xl p-4 space-y-3 ${align === 'right' ? 'right-0' : 'left-0'}`}
+            style={{ background: '#fff', border: '1px solid #E7E6DF', boxShadow: '0 8px 32px rgba(24,32,24,.10)' }}
           >
-            <p className="text-xs font-semibold text-white">Why this match?</p>
+            <p className="text-xs font-semibold" style={{ color: '#1B1D1A' }}>Why this match?</p>
 
             {/* Per-factor bars */}
             <div className="space-y-2">
@@ -78,10 +64,12 @@ export default function WhyMatchPopover({ breakdown, method, children, align = '
                 return (
                   <div key={key}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[11px] text-white/50">{label} <span className="text-white/25">· {weight}</span></span>
-                      <span className="text-[11px] font-semibold text-white/70">{Math.round(v * 100)}%</span>
+                      <span className="text-[11px]" style={{ color: '#6B6F69' }}>
+                        {label} <span style={{ color: '#BDBBB3' }}>· {weight}</span>
+                      </span>
+                      <span className="text-[11px] font-semibold" style={{ color: '#1B1D1A' }}>{Math.round(v * 100)}%</span>
                     </div>
-                    <div className="h-1.5 bg-white/8 rounded-full overflow-hidden">
+                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#F0F0EA' }}>
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${v * 100}%` }}
@@ -96,14 +84,16 @@ export default function WhyMatchPopover({ breakdown, method, children, align = '
 
             {/* Matched / missing skill chips */}
             {(breakdown.skills?.matched?.length > 0 || breakdown.skills?.missing?.length > 0) && (
-              <div className="flex flex-wrap gap-1.5 pt-1 border-t border-white/5">
+              <div className="flex flex-wrap gap-1.5 pt-1" style={{ borderTop: '1px solid #F0F0EA' }}>
                 {(breakdown.skills.matched || []).map(s => (
-                  <span key={`m-${s}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-lime-500/15 border border-lime-500/25 text-lime-400 text-[10px] font-semibold">
+                  <span key={`m-${s}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                    style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
                     <Check size={9} /> {s}
                   </span>
                 ))}
                 {(breakdown.skills.missing || []).map(s => (
-                  <span key={`x-${s}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-white/15 text-white/40 text-[10px] font-medium">
+                  <span key={`x-${s}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
+                    style={{ border: '1px solid #DDDBD2', color: '#9A9E97' }}>
                     <X size={9} /> {s}
                   </span>
                 ))}
@@ -111,12 +101,10 @@ export default function WhyMatchPopover({ breakdown, method, children, align = '
             )}
 
             {/* Method attribution */}
-            <div className="flex items-center gap-1.5 pt-2 border-t border-white/5">
-              {method === 'ai'
-                ? <Sparkles size={10} className="text-violet-400" />
-                : <Cpu size={10} className="text-yellow-400" />}
-              <span className="text-[10px] text-white/35">
-                {method === 'ai' ? 'Scored by AI' : 'Scored locally (AI unavailable)'}
+            <div className="flex items-center gap-1.5 pt-2" style={{ borderTop: '1px solid #F0F0EA' }}>
+              <Cpu size={10} style={{ color: '#1E5B45', opacity: 0.6 }} />
+              <span className="text-[10px]" style={{ color: '#9A9E97' }}>
+                5-factor weighted matching engine
               </span>
             </div>
           </motion.div>
