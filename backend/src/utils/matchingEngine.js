@@ -446,4 +446,106 @@ function computeRecommendationReasons(student, offer) {
   };
 }
 
-module.exports = { computeMatch, computeRecommendationReasons, getVerdict, normalizeSkill };
+// ── Deterministic CV skill extraction (no-AI fallback) ──────────────────────────
+// Scans raw CV text for known skills/languages so CV parsing degrades gracefully
+// when every AI provider is unavailable. Output names mirror how offers list
+// required_skills, so they match cleanly after normalizeSkill().
+
+const SKILL_VOCAB = [
+  ['JavaScript', /\bjavascript\b|\bjs\b/],
+  ['TypeScript', /\btypescript\b/],
+  ['React', /\breact(\.?js)?\b/],
+  ['Node.js', /\bnode(\.?js)?\b/],
+  ['Express', /\bexpress(\.?js)?\b/],
+  ['Vue', /\bvue(\.?js)?\b/],
+  ['Next.js', /\bnext\.?js\b/],
+  ['HTML', /\bhtml5?\b/],
+  ['CSS', /\bcss3?\b/],
+  ['Tailwind', /\btailwind(\s?css)?\b/],
+  ['PostgreSQL', /\bpostgre(sql)?\b|\bpsql\b/],
+  ['PostGIS', /\bpostgis\b/],
+  ['SQL', /\bsql\b/],
+  ['MongoDB', /\bmongo(db)?\b/],
+  ['Python', /\bpython\b/],
+  ['Java', /\bjava\b/],
+  ['C#', /\bc#|\bc sharp\b|\bcsharp\b/],
+  ['C++', /\bc\+\+/],
+  ['Git', /\bgit(hub)?\b/],
+  ['AWS', /\baws\b|amazon web services/],
+  ['Docker', /\bdocker\b/],
+  ['Flutter', /\bflutter\b/],
+  ['Dart', /\bdart\b/],
+  ['REST APIs', /\brest ?apis?\b|\brestful\b/],
+  ['Figma', /\bfigma\b/],
+  ['Excel', /\bexcel\b/],
+  ['PowerPoint', /\bpower ?point\b/],
+  ['Office 365', /\boffice ?365\b|\bms office\b|microsoft office/],
+  ['Windows', /\bwindows\b/],
+  ['Active Directory', /\bactive directory\b/],
+  ['IT Support', /\bit support\b|help ?desk|technical support/],
+  ['Networking', /\bnetworking\b|\bnetworks?\b/],
+  ['TCP/IP', /\btcp\/?ip\b/],
+  ['Cisco', /\bcisco\b/],
+  ['Fibre Optics', /\bfib(re|er) optics?\b/],
+  ['QGIS', /\bqgis\b/],
+  ['GIS', /\bgis\b/],
+  ['Remote Sensing', /\bremote sensing\b/],
+  ['Statistics', /\bstatistic(s|al)?\b/],
+  ['Epidemiology', /\bepidemiolog(y|ical)\b/],
+  ['Data Visualization', /\bdata vis(ualization|ualisation)\b|power ?bi|tableau/],
+  ['Data Collection', /\bdata collection\b/],
+  ['Machine Learning', /\bmachine learning\b/],
+  ['Agronomy', /\bagronom(y|ist)\b/],
+  ['Accounting', /\baccounting\b|\bcomptabilit/],
+  ['Financial Analysis', /\bfinancial analysis\b/],
+  ['Finance', /\bfinance\b/],
+  ['Logistics', /\blogistics\b/],
+  ['Supply Chain', /\bsupply chain\b/],
+  ['Documentation', /\bdocumentation\b/],
+  ['Maintenance Planning', /\bmaintenance planning\b/],
+  ['Mechanical Engineering', /\bmechanical engineering\b/],
+  ['AutoCAD', /\bautocad\b/],
+  ['Product Research', /\bproduct research\b/],
+  ['UX Research', /\bux research\b/],
+  ['UI-UX Design', /\bui[\/ -]?ux\b|\bux[\/ -]?ui\b|user experience|user interface/],
+  ['Prototyping', /\bprototyp(e|es|ing)\b/],
+  ['Wireframing', /\bwireframe?(ing|s)?\b/],
+  ['Video Editing', /\bvideo editing\b/],
+  ['Premiere Pro', /\bpremiere( pro)?\b/],
+  ['Videography', /\bvideograph(y|er)\b/],
+  ['Storytelling', /\bstorytelling\b/],
+  ['Social Media', /\bsocial media\b/],
+  ['Content Creation', /\bcontent creat(ion|or)\b/],
+  ['Canva', /\bcanva\b/],
+  ['Copywriting', /\bcopywrit(ing|er)\b/],
+  ['Marketing', /\bmarketing\b/],
+  ['Adobe Photoshop', /\bphotoshop\b/],
+  ['Adobe Illustrator', /\billustrator\b/],
+  ['Teaching', /\bteaching\b|\bteacher\b/],
+  ['Linux', /\blinux\b/],
+];
+
+function extractSkillsFromText(text) {
+  const t = ` ${String(text || '').toLowerCase()} `;
+  const found = [];
+  for (const [name, re] of SKILL_VOCAB) {
+    if (re.test(t)) found.push(name);
+  }
+  return found;
+}
+
+function extractLanguagesFromText(text) {
+  const t = String(text || '').toLowerCase();
+  const langs = [];
+  if (/\benglish\b|\banglais\b/.test(t))        langs.push('English');
+  if (/\bfrench\b|\bfran[çc]ais\b/.test(t))      langs.push('French');
+  if (/\bfulfulde\b|\bfulani\b/.test(t))         langs.push('Fulfulde');
+  if (/\bspanish\b|\bespagnol\b/.test(t))        langs.push('Spanish');
+  if (/\bgerman\b|\ballemand\b/.test(t))         langs.push('German');
+  return langs;
+}
+
+module.exports = {
+  computeMatch, computeRecommendationReasons, getVerdict, normalizeSkill,
+  extractSkillsFromText, extractLanguagesFromText,
+};

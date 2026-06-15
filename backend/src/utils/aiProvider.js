@@ -9,9 +9,11 @@
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-// Hard ceiling per provider attempt — a slow provider must fail fast so the
-// chain (next provider → algorithmic fallback) keeps the UI responsive.
-const PROVIDER_TIMEOUT_MS = 10_000;
+// Hard ceiling per provider attempt. Large CV-parsing prompts (~8k chars in +
+// ~1k tokens out) legitimately take 10-15s on Groq/Gemini, so this must be
+// generous enough not to abort a healthy-but-slow call before it returns.
+const PROVIDER_TIMEOUT_MS = 30_000;
+const FETCH_TIMEOUT_MS    = 28_000;
 
 function withTimeout(promise, ms, label = 'AI call') {
   let timer;
@@ -21,7 +23,7 @@ function withTimeout(promise, ms, label = 'AI call') {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
-async function fetchWithTimeout(url, options, ms = 8000) {
+async function fetchWithTimeout(url, options, ms = FETCH_TIMEOUT_MS) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ms);
   try {
@@ -122,7 +124,8 @@ function buildGrokProvider() {
           'Authorization': `Bearer ${key}`,
         },
         body: JSON.stringify({
-          model:      'grok-beta',
+          // grok-beta was retired by xAI; grok-2-1212 is the current stable id
+          model:      'grok-2-1212',
           messages:   [{ role: 'user', content: prompt }],
           max_tokens: maxTokens,
         }),

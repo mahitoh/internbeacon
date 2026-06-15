@@ -74,10 +74,10 @@ export default function RegisterStudentPage() {
             Start your internship journey today
           </h2>
           <p style={{ fontSize: 14, color: '#A9C4B8', margin: '0 0 24px' }}>
-            Join 2,400+ students who found their dream internship through InternBeacon.
+            Join students across Cameroon finding their internship.
           </p>
           <ul className="space-y-2">
-            {['Free to join, forever', 'Access 500+ verified offers', 'Apply in 60 seconds', 'Real-time application tracking', 'Chat directly with recruiters'].map(p => (
+            {['Free to join, forever', 'Access verified internship offers', 'Apply in 60 seconds', 'Real-time application tracking', 'Chat directly with recruiters'].map(p => (
               <li key={p} className="flex items-center gap-2" style={{ fontSize: 13.5, color: '#D7E5DE' }}>
                 <span style={{ color: '#9FE870', fontWeight: 700 }}>✓</span> {p}
               </li>
@@ -86,10 +86,10 @@ export default function RegisterStudentPage() {
         </div>
 
         <div className="relative flex gap-10" style={{ paddingTop: 28, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
-          {[['2,400+', 'Students placed'], ['850+', 'Companies'], ['12 days', 'Avg. to offer']].map(([num, label]) => (
-            <div key={label}>
-              <div style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 26, fontWeight: 600 }}>{num}</div>
-              <div style={{ fontSize: 12.5, color: '#A9C4B8', marginTop: 3 }}>{label}</div>
+          {['Free for students', 'Verified companies', 'Real-time tracking'].map(text => (
+            <div key={text} className="flex items-center gap-2" style={{ fontSize: 13.5 }}>
+              <span style={{ color: '#9FE870', fontWeight: 700 }}>✓</span>
+              <span style={{ color: '#D7E5DE' }}>{text}</span>
             </div>
           ))}
         </div>

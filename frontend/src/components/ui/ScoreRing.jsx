@@ -18,11 +18,13 @@ const SIZE_MAP = {
   lg: { diameter: 72, stroke: 4.5, textSize: '18px', fontWeight: 800 },
 };
 
+// Thresholds mirror the matching engine's getVerdict tiers so the ring colour
+// always agrees with the verdict label shown next to it.
 function scoreColor(score) {
   if (score === undefined || score === null) return { ring: '#DDDBD2', text: 'text-[#9A9E97]' };
-  if (score >= 75) return { ring: '#22c55e', text: 'text-emerald-600' };  // Excellent
-  if (score >= 55) return { ring: '#eab308', text: 'text-yellow-600' };   // Good
-  if (score >= 35) return { ring: '#f97316', text: 'text-orange-600' };   // Partial
+  if (score >= 85) return { ring: '#22c55e', text: 'text-emerald-600' };  // Excellent
+  if (score >= 70) return { ring: '#eab308', text: 'text-yellow-600' };   // Good
+  if (score >= 50) return { ring: '#f97316', text: 'text-orange-600' };   // Moderate
   return { ring: '#ef4444', text: 'text-red-600' };                       // Low
 }
 

@@ -70,28 +70,18 @@ export default function LoginPage() {
           <blockquote style={{
             fontFamily: "'Source Serif 4', Georgia, serif",
             fontSize: 27, lineHeight: 1.42, fontWeight: 500,
-            margin: '0 0 28px', letterSpacing: '-0.01em',
+            margin: 0, letterSpacing: '-0.01em',
           }}>
-            "I tracked every application in one place and landed my internship at MTN Cameroon within three weeks of joining."
+            Cameroon's dedicated internship platform — connecting students with opportunities that match their skills and goals.
           </blockquote>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center rounded-full flex-shrink-0"
-              style={{ width: 46, height: 46, background: '#9FE870', color: '#10342A', fontWeight: 800, fontSize: 15 }}>
-              AB
-            </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 15 }}>Amina Bello</div>
-              <div style={{ fontSize: 13, color: '#A9C4B8' }}>Computer Science · ICT University</div>
-            </div>
-          </div>
         </div>
 
         {/* Stats */}
         <div className="relative flex gap-10" style={{ paddingTop: 28, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
-          {[['2,400+', 'Students placed'], ['850+', 'Partner companies'], ['12 days', 'Avg. time to offer']].map(([num, label]) => (
-            <div key={label}>
-              <div style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 27, fontWeight: 600 }}>{num}</div>
-              <div style={{ fontSize: 12.5, color: '#A9C4B8', marginTop: 3 }}>{label}</div>
+          {['Free for students', 'Verified companies', 'Real-time tracking'].map(text => (
+            <div key={text} className="flex items-center gap-2" style={{ fontSize: 13.5 }}>
+              <span style={{ color: '#9FE870', fontWeight: 700 }}>✓</span>
+              <span style={{ color: '#D7E5DE' }}>{text}</span>
             </div>
           ))}
         </div>

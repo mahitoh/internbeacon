@@ -42,31 +42,49 @@ exports.list = async (req, res, next) => {
       query = query.or(filter);
     }
 
-    const offset = (Number(page) - 1) * Number(limit);
-    query = query.range(offset, offset + Number(limit) - 1);
+    const pageNum  = Number(page);
+    const limitNum = Number(limit);
+    const offset   = (pageNum - 1) * limitNum;
 
-    const { data, error, count } = await query;
-    if (error) throw error;
-
-    // Compute match scores for authenticated students in one pass
+    // Authenticated students get a match score on every card AND the feed is ranked
+    // best-match-first. That requires scoring the whole result set, so we fetch all
+    // matching offers (capped) and paginate in memory. Anonymous visitors keep the
+    // cheap DB-level pagination ordered by recency.
     let studentProfile = null;
     if (req.user?.role === 'student') {
       studentProfile = await getStudentProfile(req.user.userId);
     }
 
-    const offers = data.map(o => {
-      const normalised = normaliseOffer(o);
-      if (studentProfile) {
-        const result = computeMatch(studentProfile, o);
-        normalised.match = { score: result.score, verdict: result.verdict, breakdown: result.breakdown };
-      }
-      return normalised;
-    });
+    let offers, total;
+    if (studentProfile) {
+      query = query.range(0, 199); // cap — thesis dataset is small
+      const { data, error, count } = await query;
+      if (error) throw error;
+      total = count;
+      offers = data
+        .map(o => {
+          const normalised = normaliseOffer(o);
+          const result = computeMatch(studentProfile, o);
+          normalised.match = {
+            score: result.score, verdict: result.verdict,
+            breakdown: result.breakdown, strengths: result.strengths,
+          };
+          return normalised;
+        })
+        .sort((a, b) => b.match.score - a.match.score)
+        .slice(offset, offset + limitNum);
+    } else {
+      query = query.range(offset, offset + limitNum - 1);
+      const { data, error, count } = await query;
+      if (error) throw error;
+      total = count;
+      offers = data.map(normaliseOffer);
+    }
 
     res.json({
       success: true,
       data: offers,
-      meta: { total: count, page: Number(page), limit: Number(limit) },
+      meta: { total, page: pageNum, limit: limitNum },
     });
   } catch (err) {
     next(err);

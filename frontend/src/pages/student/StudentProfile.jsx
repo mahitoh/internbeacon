@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
@@ -61,6 +61,7 @@ export default function StudentProfile() {
   const dragCounterRef = useRef(0);
   const [isDraggingCv,     setIsDraggingCv]     = useState(false);
   const [suggestedSkills,  setSuggestedSkills]  = useState([]);
+  const [analyzingCv,      setAnalyzingCv]      = useState(false);
 
   const { data: prefs } = useQuery({
     queryKey: ['notification-prefs'],
@@ -74,7 +75,7 @@ export default function StudentProfile() {
     onError:    () => toast.error('Failed to save alert preferences'),
   });
 
-  const { register, handleSubmit, formState: { isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm({
     defaultValues: {
       firstName:   profile?.firstName  || '',
       lastName:    profile?.lastName   || '',
@@ -90,6 +91,31 @@ export default function StudentProfile() {
     },
   });
 
+  // The profile arrives asynchronously (AuthContext fetch). useState/useForm only
+  // read their initial value on first render, so when the profile loads later we
+  // must sync it into local state — otherwise the editor opens blank and saving
+  // would wipe existing skills/fields back to empty.
+  useEffect(() => {
+    if (!profile) return;
+    setSelectedSkills(profile.skills || []);
+    setCvUploaded(!!profile.cvUrl);
+    setAvatarUrl(profile.avatarUrl || googleAvatarUrl || null);
+    reset({
+      firstName:   profile.firstName  || '',
+      lastName:    profile.lastName   || '',
+      phone:       profile.phone      || '',
+      city:        profile.city       || '',
+      university:  profile.university || '',
+      faculty:     profile.faculty    || '',
+      programme:   profile.programme  || '',
+      studyYear:   profile.studyYear  || 1,
+      bio:         profile.bio        || '',
+      linkedinUrl: profile.linkedinUrl || '',
+      githubUrl:   profile.githubUrl  || '',
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
   const toggleSkill = (s) => {
     setSelectedSkills(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
   };
@@ -104,6 +130,37 @@ export default function StudentProfile() {
     }
   };
 
+  // Parse the stored CV, merge the detected skills into the profile, and surface
+  // clear feedback. The backend persists the merge, so it works even before Save.
+  const analyzeCv = useCallback(async () => {
+    setAnalyzingCv(true);
+    const tid = toast.loading('Analyzing your CV…');
+    try {
+      const r = await api.post('/ai/parse-cv');
+      const extracted = r.data.data?.skills || [];
+      if (extracted.length) {
+        // Replace with the CV's skills (the backend does the same) so each upload
+        // reflects THAT CV instead of piling skills up across uploads.
+        const deduped = [];
+        const lower = new Set();
+        extracted.forEach(s => {
+          const k = String(s).toLowerCase().trim();
+          if (k && !lower.has(k)) { lower.add(k); deduped.push(s); }
+        });
+        setSelectedSkills(deduped);
+        await refetchUser();
+        toast.success(`Loaded ${deduped.length} skill${deduped.length !== 1 ? 's' : ''} from your CV`, { id: tid });
+      } else {
+        toast('No skills detected — add them manually below', { id: tid, icon: 'ℹ️' });
+      }
+    } catch (err) {
+      const busy = err?.response?.status === 503;
+      toast.error(busy ? 'CV analysis is busy right now — click "Re-analyze CV" in a moment' : 'Could not analyze CV', { id: tid });
+    } finally {
+      setAnalyzingCv(false);
+    }
+  }, [refetchUser]);
+
   const handleCvFile = useCallback(async (file) => {
     if (!file) return;
     if (file.type !== 'application/pdf') { toast.error('Only PDF files are accepted'); return; }
@@ -114,19 +171,11 @@ export default function StudentProfile() {
       setCvUploaded(true);
       await refetchUser();
       toast.success('CV uploaded!');
-      // Silently parse CV and suggest skills not already in the student's list
-      api.post('/ai/parse-cv').then(r => {
-        const extracted = r.data.data?.skills || [];
-        setSuggestedSkills(prev => {
-          const current = selectedSkills;
-          const newOnes = extracted.filter(s => !current.includes(s) && !prev.includes(s));
-          return newOnes.length ? newOnes : prev;
-        });
-      }).catch(() => {});
+      await analyzeCv();
     } catch {
       toast.error('CV upload failed — max 5 MB PDF only');
     } finally { setUploadingCv(false); }
-  }, [refetchUser, selectedSkills]);
+  }, [refetchUser, analyzeCv]);
 
   const handleCvChange = (e) => handleCvFile(e.target.files?.[0]);
 
@@ -444,13 +493,21 @@ export default function StudentProfile() {
             </div>
           )}
           {cvUploaded && (
-            <button type="button" onClick={handlePreviewCv}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
-              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#6B6F69' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#1B1D1A'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#F6F5F1'; e.currentTarget.style.color = '#6B6F69'; }}>
-              <Eye size={15} /> Preview CV
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" onClick={handlePreviewCv}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
+                style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#6B6F69' }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#1B1D1A'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#F6F5F1'; e.currentTarget.style.color = '#6B6F69'; }}>
+                <Eye size={15} /> Preview CV
+              </button>
+              <button type="button" onClick={analyzeCv} disabled={analyzingCv}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-60"
+                style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
+                {analyzingCv ? <Loader2 size={15} className="animate-spin" /> : <Code2 size={15} />}
+                {analyzingCv ? 'Analyzing…' : 'Re-analyze CV'}
+              </button>
+            </div>
           )}
         </Section>
 

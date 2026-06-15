@@ -87,10 +87,10 @@ export default function RegisterCompanyPage() {
         </div>
 
         <div className="relative flex gap-10" style={{ paddingTop: 28, borderTop: '1px solid rgba(255,255,255,0.12)' }}>
-          {[['850+', 'Partner companies'], ['248', 'Avg. applicants/role'], ['5 days', 'Avg. to interview']].map(([num, label]) => (
-            <div key={label}>
-              <div style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 26, fontWeight: 600 }}>{num}</div>
-              <div style={{ fontSize: 12.5, color: '#A9C4B8', marginTop: 3 }}>{label}</div>
+          {['Post in minutes', 'Ranked applicants', 'Direct chat'].map(text => (
+            <div key={text} className="flex items-center gap-2" style={{ fontSize: 13.5 }}>
+              <span style={{ color: '#9FE870', fontWeight: 700 }}>✓</span>
+              <span style={{ color: '#D7E5DE' }}>{text}</span>
             </div>
           ))}
         </div>

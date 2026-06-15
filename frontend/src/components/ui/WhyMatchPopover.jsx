@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HelpCircle, Cpu, Check, X } from 'lucide-react';
 
 const FACTORS = [
-  { key: 'skills',   label: 'Skills',       weight: '40%' },
-  { key: 'domain',   label: 'Programme',    weight: '20%' },
+  { key: 'skills',   label: 'Skills',       weight: '35%' },
+  { key: 'domain',   label: 'Programme',    weight: '30%' },
   { key: 'location', label: 'Location',     weight: '15%' },
   { key: 'level',    label: 'Study level',  weight: '15%' },
-  { key: 'language', label: 'Language',     weight: '10%' },
+  { key: 'language', label: 'Language',     weight: '5%'  },
 ];
 
 const barColor = (v) => v >= 0.75 ? 'bg-emerald-500' : v >= 0.5 ? 'bg-yellow-500' : v >= 0.3 ? 'bg-orange-500' : 'bg-red-500';

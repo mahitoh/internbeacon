@@ -1,7 +1,9 @@
 const { PDFParse } = require('pdf-parse'); // v2 class API — calling the module as a function throws
 const { supabaseAdmin } = require('../config/supabase');
 const { callAI, extractJSON, getActiveProviders } = require('../utils/aiProvider');
-const { computeMatch } = require('../utils/matchingEngine');
+const { computeMatch, extractSkillsFromText, extractLanguagesFromText } = require('../utils/matchingEngine');
+
+const isDev = process.env.NODE_ENV !== 'production';
 
 // ── GET /api/ai/providers ─────────────────────────────────────────────────────
 exports.providers = (req, res) => {
@@ -55,45 +57,62 @@ Rules:
 - languages: spoken languages only
 - summary: written in third person`;
 
-    let aiText;
+    // Try AI first (richest output); if every provider is down OR the response
+    // can't be parsed, fall back to deterministic keyword extraction so CV parsing
+    // never fully fails. The matching engine only needs skills + languages.
+    let extracted = null;
+    let method = 'ai';
     try {
       const { text } = await callAI(prompt, 1024);
-      aiText = text;
+      extracted = extractJSON(text);
     } catch (aiErr) {
-      if (aiErr.status === 503) {
-        return res.status(503).json({
-          success: false,
-          message: 'AI analysis is currently unavailable. Please try again in a few minutes.',
-        });
-      }
-      throw aiErr;
+      if (isDev) console.warn('[parse-cv] AI unavailable, using keyword fallback:', aiErr.message);
     }
 
-    let extracted;
-    try {
-      extracted = extractJSON(aiText);
-    } catch {
-      return res.status(500).json({ success: false, message: 'Failed to parse AI response' });
+    if (!extracted || !Array.isArray(extracted.skills) || extracted.skills.length === 0) {
+      method = 'keyword';
+      extracted = {
+        skills:     extractSkillsFromText(cvText),
+        languages:  (extracted?.languages?.length ? extracted.languages : extractLanguagesFromText(cvText)),
+        education:  extracted?.education  || [],
+        experience: extracted?.experience || [],
+        summary:    extracted?.summary    || '',
+      };
     }
 
     const updatePayload = {
-      ai_summary: extracted,
+      ai_summary: { ...extracted, method },
       updated_at: new Date().toISOString(),
     };
 
     const { data: current } = await supabaseAdmin
-      .from('student_profiles').select('skills').eq('user_id', req.user.userId).single();
+      .from('student_profiles').select('skills, languages').eq('user_id', req.user.userId).single();
 
-    if (!current?.skills?.length || current.skills.length < 3) {
-      updatePayload.skills = extracted.skills || [];
-    }
-    if (extracted.languages?.length) {
-      updatePayload.languages = extracted.languages;
-    }
+    // REPLACE the profile's skills with this CV's skills (de-duplicated).
+    // Merging/union caused every uploaded CV to pile its skills on top of the last
+    // one, so a profile ended up matching every domain and all offers scored the
+    // same. A CV should define the candidate's skills, not accumulate forever.
+    // If extraction found nothing, keep the existing skills rather than wiping them.
+    const dedupe = (arr) => {
+      const out = [], seen = new Set();
+      for (const x of (arr || [])) {
+        const key = String(x).toLowerCase().trim();
+        if (key && !seen.has(key)) { seen.add(key); out.push(x); }
+      }
+      return out;
+    };
+    const extractedSkills = dedupe(extracted.skills);
+    const mergedSkills = extractedSkills.length ? extractedSkills : (current?.skills || []);
+    updatePayload.skills = mergedSkills;
+
+    const extractedLangs = dedupe(extracted.languages);
+    const mergedLangs = extractedLangs.length ? extractedLangs : (current?.languages || []);
+    if (mergedLangs.length) updatePayload.languages = mergedLangs;
 
     await supabaseAdmin.from('student_profiles').update(updatePayload).eq('user_id', req.user.userId);
 
-    res.json({ success: true, data: extracted });
+    // Return the merged skills/languages so the client can reflect them immediately
+    res.json({ success: true, data: { ...extracted, skills: mergedSkills, languages: mergedLangs, method } });
   } catch (err) { next(err); }
 };
 
