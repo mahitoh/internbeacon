@@ -67,3 +67,8 @@ references/
 # local dev / demo seed scripts & test fixtures (not part of the app)
 test-cvs/
 backend/seed_demo_student.js
+
+# local working artifacts (thesis source + algorithm doc snippet, not part of the app)
+thesis_extract.txt
+matchingEngine.snippet.js
+*.snippet.js

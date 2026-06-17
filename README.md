@@ -239,7 +239,7 @@ stateDiagram-v2
 
 ### Prerequisites
 
-- Node.js 18+ and npm 9+
+- Node.js 20+ and npm 9+
 - A [Supabase](https://supabase.com) project (free tier works)
 - At least one AI provider key — [Gemini](https://aistudio.google.com) recommended (free tier works)
 
