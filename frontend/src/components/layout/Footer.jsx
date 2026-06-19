@@ -10,31 +10,30 @@ const SOCIALS = [
   { Icon: Youtube,  href: '', label: 'YouTube' },
 ];
 
+// Every link points at a page that actually exists (see App.jsx routes) — no
+// placeholder destinations, so nothing in the footer leads somewhere surprising.
 const COLS = [
-  {
-    label: 'Solutions',
-    links: [
-      { label: 'Why InternBeacon', href: '/about' },
-      { label: 'Features',         href: '/' },
-      { label: 'Careers',          href: '/about' },
-      { label: 'Security',         href: '/' },
-    ],
-  },
   {
     label: 'Platform',
     links: [
       { label: 'Find Internships', href: '/offers' },
       { label: 'For Companies',    href: '/for-companies' },
       { label: 'Pricing',          href: '/pricing' },
-      { label: 'Partners',         href: '/about' },
     ],
   },
   {
-    label: 'Resources',
+    label: 'Company',
     links: [
-      { label: 'Pricing',       href: '/pricing' },
-      { label: 'Contact Sales', href: '/contact' },
-      { label: 'FAQ',           href: '/pricing' },
+      { label: 'About Us', href: '/about' },
+      { label: 'Contact',  href: '/contact' },
+    ],
+  },
+  {
+    label: 'Get Started',
+    links: [
+      { label: 'Student Sign Up', href: '/register/student' },
+      { label: 'Company Sign Up', href: '/register/company' },
+      { label: 'Log In',          href: '/login' },
     ],
   },
 ];

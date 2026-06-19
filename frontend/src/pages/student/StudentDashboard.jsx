@@ -487,7 +487,9 @@ export default function StudentDashboard() {
           {interviews.length > 0 && (
             <div className="rounded-2xl p-5" style={{ background: '#10342A', border: '1px solid #0D2820' }}>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-sm" style={{ color: '#fff' }}>Upcoming Interview</h3>
+                <h3 className="font-semibold text-sm" style={{ color: '#fff' }}>
+                  {interviews.length === 1 ? 'Upcoming Interview' : 'Upcoming Interviews'}
+                </h3>
                 <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
                   style={{ background: '#9FE870', color: '#10342A' }}>
                   {interviews.length}
