@@ -193,7 +193,7 @@ export default function RegisterCompanyPage() {
 
             <p style={{ fontSize: 12, color: '#8A8E86' }}>
               By registering you agree to our{' '}
-              <a href="#" style={{ color: '#1E5B45' }}>Terms of Service</a>.
+              <span style={{ color: '#1E5B45', fontWeight: 600 }}>Terms of Service</span>.
             </p>
 
             <button

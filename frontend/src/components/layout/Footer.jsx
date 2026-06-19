@@ -1,6 +1,15 @@
 import { Link } from 'react-router-dom';
 import { Compass, Twitter, Linkedin, Github, Youtube } from 'lucide-react';
 
+// `href: ''` = placeholder (icon shows but click is a no-op) until a real URL
+// is added. GitHub points at the public repo.
+const SOCIALS = [
+  { Icon: Github,   href: 'https://github.com/mahitoh/internbeacon', label: 'GitHub' },
+  { Icon: Linkedin, href: '', label: 'LinkedIn' },
+  { Icon: Twitter,  href: '', label: 'Twitter' },
+  { Icon: Youtube,  href: '', label: 'YouTube' },
+];
+
 const COLS = [
   {
     label: 'Solutions',
@@ -28,13 +37,6 @@ const COLS = [
       { label: 'FAQ',           href: '/pricing' },
     ],
   },
-];
-
-const SOCIALS = [
-  { Icon: Twitter,  href: '#', label: 'Twitter' },
-  { Icon: Linkedin, href: '#', label: 'LinkedIn' },
-  { Icon: Github,   href: '#', label: 'GitHub' },
-  { Icon: Youtube,  href: '#', label: 'YouTube' },
 ];
 
 export default function Footer() {
@@ -97,10 +99,11 @@ export default function Footer() {
             {SOCIALS.map(({ Icon, href, label }) => (
               <a
                 key={label}
-                href={href}
+                href={href || undefined}
+                {...(href ? { target: '_blank', rel: 'noopener noreferrer' } : { onClick: e => e.preventDefault() })}
                 aria-label={label}
                 className="transition-colors duration-200"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
+                style={{ color: 'rgba(255,255,255,0.35)', cursor: href ? 'pointer' : 'default' }}
                 onMouseOver={e => e.currentTarget.style.color = '#b4f05b'}
                 onMouseOut={e => e.currentTarget.style.color = 'rgba(255,255,255,0.35)'}
               >

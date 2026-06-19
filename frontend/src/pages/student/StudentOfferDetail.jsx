@@ -12,6 +12,7 @@ import { applicationsApi }  from '../../api/applications';
 import { uploadApi }        from '../../api/upload';
 import { useAuth }          from '../../context/AuthContext';
 import Spinner              from '../../components/ui/Spinner';
+import { StatusBadge }       from '../../components/ui/Badge';
 import { formatDate }       from '../../lib/utils';
 import toast                from 'react-hot-toast';
 import { motion }           from 'framer-motion';
@@ -288,7 +289,7 @@ export default function StudentOfferDetail() {
             {existingApp ? (
               <div className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold"
                 style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
-                <CheckCircle2 size={16} /> Applied — {existingApp.status}
+                <CheckCircle2 size={16} /> Applied <StatusBadge status={existingApp.status} />
               </div>
             ) : !showForm ? (
               <button onClick={() => setShowForm(true)}
@@ -315,11 +316,7 @@ export default function StudentOfferDetail() {
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-medium border transition-all"
               style={{ background: '#F6F5F1', borderColor: '#DDDBD2', color: '#6B6F69' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#EFEEE8'; e.currentTarget.style.color = '#1B1D1A'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#F6F5F1'; e.currentTarget.style.color = '#6B6F69'; }}
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                toast.success('Link copied to clipboard');
-              }}>
+              onMouseLeave={e => { e.currentTarget.style.background = '#F6F5F1'; e.currentTarget.style.color = '#6B6F69'; }}>
               <Share2 size={15} /> Share
             </button>
 

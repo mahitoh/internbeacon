@@ -201,8 +201,8 @@ export default function RegisterStudentPage() {
 
             <p style={{ fontSize: 12, color: '#8A8E86' }}>
               By registering you agree to our{' '}
-              <a href="#" style={{ color: '#1E5B45' }}>Terms of Service</a>{' '}and{' '}
-              <a href="#" style={{ color: '#1E5B45' }}>Privacy Policy</a>.
+              <span style={{ color: '#1E5B45', fontWeight: 600 }}>Terms of Service</span>{' '}and{' '}
+              <span style={{ color: '#1E5B45', fontWeight: 600 }}>Privacy Policy</span>.
             </p>
 
             <button

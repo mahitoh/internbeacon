@@ -8,11 +8,17 @@ import Spinner from '../../components/ui/Spinner';
 import toast from 'react-hot-toast';
 
 const TYPE_META = {
-  application: { label: 'Application', bg: '#DBEAFE', text: '#1E40AF', border: '#BFDBFE' },
-  message:     { label: 'Message',     bg: '#EDF2EE', text: '#1E5B45', border: '#C4DBCE' },
-  offer:       { label: 'Offer',       bg: '#EDE9FE', text: '#6D28D9', border: '#DDD6FE' },
-  status:      { label: 'Status',      bg: '#EEF2FF', text: '#4338CA', border: '#C7D2FE' },
-  system:      { label: 'System',      bg: '#F6F5F1', text: '#6B6F69', border: '#E7E6DF' },
+  // Keys must match the `type` strings the backend actually emits.
+  new_application: { label: 'Application', bg: '#DBEAFE', text: '#1E40AF', border: '#BFDBFE' },
+  new_message:     { label: 'Message',     bg: '#EDF2EE', text: '#1E5B45', border: '#C4DBCE' },
+  status_update:   { label: 'Status',      bg: '#EEF2FF', text: '#4338CA', border: '#C7D2FE' },
+  offer_closed:    { label: 'Offer',       bg: '#EDE9FE', text: '#6D28D9', border: '#DDD6FE' },
+  offer:           { label: 'Offer',       bg: '#EDE9FE', text: '#6D28D9', border: '#DDD6FE' },
+  system:          { label: 'System',      bg: '#F6F5F1', text: '#6B6F69', border: '#E7E6DF' },
+  // Legacy/back-compat aliases
+  application:     { label: 'Application', bg: '#DBEAFE', text: '#1E40AF', border: '#BFDBFE' },
+  message:         { label: 'Message',     bg: '#EDF2EE', text: '#1E5B45', border: '#C4DBCE' },
+  status:          { label: 'Status',      bg: '#EEF2FF', text: '#4338CA', border: '#C7D2FE' },
 };
 
 function typeMeta(type) {

@@ -214,12 +214,18 @@ function resolveDomainMap(offerDomain) {
   if (!offerDomain) return null;
   const key = offerDomain.trim();
   if (DOMAIN_FIELD_MAP[key]) return DOMAIN_FIELD_MAP[key];
-  // Fuzzy match
+  // Fuzzy match — pick the LONGEST overlapping taxonomy key so a multi-word
+  // domain isn't hijacked by a short partial match that happens to appear
+  // earlier in object order (e.g. "Finance" winning over "Finance & Banking").
   const lower = key.toLowerCase();
+  let best = null, bestLen = 0;
   for (const [k, v] of Object.entries(DOMAIN_FIELD_MAP)) {
-    if (k.toLowerCase().includes(lower) || lower.includes(k.toLowerCase())) return v;
+    const kl = k.toLowerCase();
+    if ((kl.includes(lower) || lower.includes(kl)) && kl.length > bestLen) {
+      best = v; bestLen = kl.length;
+    }
   }
-  return null;
+  return best;
 }
 
 // ── Cameroonian region groups ──────────────────────────────────────────────────
@@ -290,10 +296,11 @@ function studyLevelScore(studentYear, requirements) {
   if (!studentYear) return 50;
   const req = (requirements || '').toLowerCase();
   const patterns = [
-    { re: /final[- ]?year|last[- ]?year|5[eè]me ann[ée]e|licence\s*3\b|master/i, min: 4 },
-    { re: /4[eè]me|4th[- ]?year|year\s*4\b/i,                                    min: 4 },
-    { re: /3[eè]me|3rd[- ]?year|year\s*3\b/i,                                    min: 3 },
-    { re: /bachelor|licence\s*[12]\b|undergraduate/i,                             min: 2 },
+    { re: /final[- ]?year|last[- ]?year|5[eè]me ann[ée]e|master/i, min: 4 },
+    { re: /4[eè]me|4th[- ]?year|year\s*4\b/i,                      min: 4 },
+    // Licence 3 (LMD) is the 3rd / final bachelor year — not a 4th-year requirement.
+    { re: /3[eè]me|3rd[- ]?year|year\s*3\b|licence\s*3\b/i,        min: 3 },
+    { re: /bachelor|licence\s*[12]\b|undergraduate/i,             min: 2 },
   ];
   let required = 2;
   for (const { re, min } of patterns) {
@@ -308,11 +315,16 @@ function studyLevelScore(studentYear, requirements) {
 function languageScore(studentLangs, requirements, description) {
   const text = `${requirements || ''} ${description || ''}`.toLowerCase();
   const needed = [];
-  if (/\benglish\b/.test(text))              needed.push('english');
-  if (/\bfrench\b|\bfrançais\b/.test(text))  needed.push('french');
+  if (/\benglish\b|\banglais\b/.test(text))          needed.push('english');
+  if (/\bfrench\b|\bfran[çc]ais\b/.test(text))        needed.push('french');
   if (needed.length === 0) return 100;
+  // Match either the English name or the French label a student may have typed.
   const have = (studentLangs || []).map(l => l.toLowerCase());
-  const covered = needed.filter(l => have.some(h => h.includes(l)));
+  const speaks = {
+    english: have.some(h => h.includes('english') || h.includes('anglais')),
+    french:  have.some(h => h.includes('french')  || h.includes('fran')),
+  };
+  const covered = needed.filter(l => speaks[l]);
   return Math.round((covered.length / needed.length) * 100);
 }
 
@@ -327,7 +339,7 @@ function getVerdict(score) {
 // Prevents disqualifying hard mismatches from being masked by other perfect scores.
 
 function applyBlockingConditions(score, verdict, ls, lc) {
-  // Study year hard requirement not met — cap verdict at "Moderate"
+  // Study year hard requirement not met — flag for review and cap the score at 64.
   if (ls <= 40) {
     return {
       score:   Math.min(score, 64),
@@ -428,17 +440,19 @@ function computeRecommendationReasons(student, offer) {
   const match = computeMatch(student, offer);
   const reasons = [];
 
-  if (student.programme) {
-    const ds = domainScore(student.programme, student.faculty, offer.domain);
-    if (ds !== null && ds >= 65) reasons.push(`Matches your ${student.programme} programme`);
-  }
-  const matched = match.breakdown.skills.matched;
+  // Reuse the breakdown already computed by computeMatch — no recomputation.
+  const { domain, skills, level } = match.breakdown;
+
+  if (student.programme && !domain.unknown && domain.score >= 0.65)
+    reasons.push(`Matches your ${student.programme} programme`);
+
+  const matched = skills.matched;
   if (matched.length > 0)
     reasons.push(`Matches ${matched.slice(0, 2).join(', ')} skill${matched.length !== 1 ? 's' : ''}`);
-  if (student.study_year) {
-    const ls = studyLevelScore(student.study_year, offer.requirements);
-    if (ls >= 75) reasons.push(`Suitable for Year ${student.study_year} students`);
-  }
+
+  const studyYear = student.study_year ?? student.studyYear;
+  if (studyYear && level.score >= 0.75)
+    reasons.push(`Suitable for Year ${studyYear} students`);
 
   return {
     ...match,

@@ -11,19 +11,48 @@ const { supabaseAdmin } = require('../src/config/supabase');
 
 const PASSWORD = 'InternBeacon!Dev1';
 
-// ── Minimal PDF generator (text-based, parseable by pdf-parse & Chrome) ──────
-function buildSimplePdf(lines) {
-  const esc = s => String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
-  let content = 'BT /F1 11 Tf 50 770 Td 16 TL\n';
-  for (const line of lines) content += `(${esc(line)}) Tj T*\n`;
-  content += 'ET';
+// ── CV PDF generator — full-page, structured layout (Helvetica + Bold) ───────
+// Produces a proper-looking one-page CV: large name header, contact line,
+// section headings with rules, and bullet/body lines with real spacing.
+// Output stays text-based so pdf-parse extracts it cleanly for CV parsing.
+//   cv = { name, title, contact, sections: [{ heading, lines: ['- bullet', 'body'] }] }
+function buildCvPdf(cv) {
+  const W = 612, H = 792, L = 56, R = W - 56;
+  // PDF content stream is written as latin1, so map smart punctuation to ASCII
+  // and drop anything outside latin1 — otherwise glyphs render as blanks/boxes.
+  const sanitize = s => String(s)
+    .replace(/[—–]/g, '-').replace(/[’‘]/g, "'").replace(/[“”]/g, '"')
+    .replace(/[•·]/g, '-').replace(/[^\x00-\xFF]/g, '');
+  const esc = s => sanitize(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+  const ops = [];
+  const text = (s, x, y, font, size) => ops.push(`BT /${font} ${size} Tf ${x} ${y} Td (${esc(s)}) Tj ET`);
+  const rule = (y, w = 0.5) => ops.push(`${w} w ${L} ${y} m ${R} ${y} l S`);
 
+  let y = H - 64;
+  text(cv.name, L, y, 'F2', 22);                 y -= 18;
+  if (cv.title)   { text(cv.title, L, y, 'F1', 11.5); y -= 15; }
+  if (cv.contact) { text(cv.contact, L, y, 'F1', 9.5); y -= 10; }
+  rule(y, 0.8);                                   y -= 22;
+
+  for (const sec of cv.sections) {
+    text(sec.heading.toUpperCase(), L, y, 'F2', 11); y -= 5;
+    rule(y, 0.4);                                    y -= 15;
+    for (const line of sec.lines) {
+      if (line === '') { y -= 7; continue; }
+      const bullet = line.startsWith('- ');
+      text(line, bullet ? L + 12 : L, y, 'F1', 9.8); y -= 13.5;
+    }
+    y -= 13;
+  }
+
+  const content = ops.join('\n');
   const objs = [
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>',
     `<< /Length ${Buffer.byteLength(content)} >>\nstream\n${content}\nendstream`,
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>',
   ];
 
   let pdf = '%PDF-1.4\n';
@@ -104,7 +133,7 @@ const OFFERS = [
     responsibilities: '- Build and document REST endpoints with Node.js/Express\n- Write integration tests for mobile-money sandbox flows\n- Participate in daily stand-ups and bi-weekly demos\n- Investigate production issues with your mentor',
     requirements: 'For 3rd year students and above in Computer Science or Software Engineering. Solid JavaScript fundamentals required; English working proficiency (team is bilingual).',
     required_skills: ['JavaScript', 'Node.js', 'PostgreSQL', 'REST APIs', 'Git'],
-    location: 'Douala (Akwa) — hybrid', duration_weeks: 12, is_paid: true, stipend_amount: 75000, openings: 2, deadlineDays: 21,
+    location: 'Douala (Akwa) — hybrid', duration_weeks: 12, is_paid: true, stipend_amount: 50000, openings: 2, deadlineDays: 21,
   },
   {
     companyEmail: 'paylink@internbeacon.dev',
@@ -113,7 +142,7 @@ const OFFERS = [
     responsibilities: '- Write SQL for ad-hoc analyses and dashboards\n- Maintain Metabase dashboards used by ops daily\n- Document data definitions in the team wiki',
     requirements: 'Year 3+ students in Computer Science, Statistics or related. SQL is the core requirement.',
     required_skills: ['SQL', 'Excel', 'Python', 'Data Visualization'],
-    location: 'Douala (Akwa) — on-site', duration_weeks: 10, is_paid: true, stipend_amount: 60000, openings: 1, deadlineDays: 14,
+    location: 'Douala (Akwa) — on-site', duration_weeks: 10, is_paid: true, stipend_amount: 30000, openings: 1, deadlineDays: 14,
   },
   // Silicon Mountain Labs
   {
@@ -123,7 +152,7 @@ const OFFERS = [
     responsibilities: '- Build UI components from Figma designs\n- Write unit tests with Vitest\n- Join client demo calls (listen-in first month, present after)',
     requirements: 'Open to Year 2 and above. Bachelor students in any computing programme. Portfolio or GitHub link strongly preferred.',
     required_skills: ['React', 'JavaScript', 'Tailwind', 'Git', 'HTML', 'CSS'],
-    location: 'Buea (Molyko) — on-site', duration_weeks: 12, is_paid: true, stipend_amount: 50000, openings: 3, deadlineDays: 30,
+    location: 'Buea (Molyko) — on-site', duration_weeks: 12, is_paid: false, openings: 3, deadlineDays: 30,
   },
   {
     companyEmail: 'siliconmountain@internbeacon.dev',
@@ -132,7 +161,7 @@ const OFFERS = [
     responsibilities: '- Implement screens and flows in Flutter\n- Integrate REST APIs\n- Test on low-end Android devices (we have a device lab)',
     requirements: 'Year 3+ preferred. Any mobile experience (Flutter, React Native, or native) acceptable — we teach Flutter.',
     required_skills: ['Flutter', 'Dart', 'REST APIs', 'Git'],
-    location: 'Buea (Molyko) — on-site', duration_weeks: 16, is_paid: true, stipend_amount: 50000, openings: 1, deadlineDays: 10,
+    location: 'Buea (Molyko) — on-site', duration_weeks: 16, is_paid: false, openings: 1, deadlineDays: 10,
   },
   {
     companyEmail: 'siliconmountain@internbeacon.dev',
@@ -151,7 +180,7 @@ const OFFERS = [
     responsibilities: '- Collect and log soil/plant samples with our mobile app\n- Assist farmer training sessions (French required, Ewondo a plus)\n- Enter and clean field data, basic analysis in Excel',
     requirements: 'Year 3+ in Agronomy, Agriculture, Environmental Science or Biology. Must be comfortable with 2-3 field days per week. French fluency required.',
     required_skills: ['Agronomy', 'Excel', 'Data Collection', 'French'],
-    location: 'Yaoundé (Bastos) + field, Centre region', duration_weeks: 16, is_paid: true, stipend_amount: 55000, openings: 2, deadlineDays: 18,
+    location: 'Yaoundé (Bastos) + field, Centre region', duration_weeks: 16, is_paid: false, openings: 2, deadlineDays: 18,
   },
   {
     companyEmail: 'agrovision@internbeacon.dev',
@@ -160,7 +189,7 @@ const OFFERS = [
     responsibilities: '- Process imagery in QGIS / Python (rasterio)\n- Maintain the farm-boundary database (PostGIS)\n- Produce monthly NDVI report maps',
     requirements: 'Year 4+ in Geomatics, Computer Science, Geography or related. QGIS experience required, Python strongly preferred.',
     required_skills: ['QGIS', 'Python', 'PostGIS', 'Remote Sensing'],
-    location: 'Yaoundé (Bastos) — on-site', duration_weeks: 12, is_paid: true, stipend_amount: 65000, openings: 1, deadlineDays: 35,
+    location: 'Yaoundé (Bastos) — on-site', duration_weeks: 12, is_paid: true, stipend_amount: 35000, openings: 1, deadlineDays: 35,
   },
   // Sahel Telecom
   {
@@ -170,7 +199,7 @@ const OFFERS = [
     responsibilities: '- Monitor network alarms and open tickets per runbook\n- Shadow field teams on fibre-cut interventions (day shifts only)\n- Update network documentation and diagrams',
     requirements: 'Year 3+ in Telecommunications, Networks or Electrical Engineering. CCNA coursework a strong plus. Shift work (day shifts only for interns).',
     required_skills: ['Networking', 'TCP/IP', 'Cisco', 'Fibre Optics'],
-    location: 'Yaoundé (Centre-ville) — on-site', duration_weeks: 24, is_paid: true, stipend_amount: 70000, openings: 4, deadlineDays: 28,
+    location: 'Yaoundé (Centre-ville) — on-site', duration_weeks: 24, is_paid: true, stipend_amount: 40000, openings: 4, deadlineDays: 28,
   },
   {
     companyEmail: 'saheltelecom@internbeacon.dev',
@@ -179,7 +208,7 @@ const OFFERS = [
     responsibilities: '- Resolve helpdesk tickets (hardware, accounts, printers)\n- Image and deploy laptops\n- Maintain asset inventory',
     requirements: 'Year 2+ in any IT programme. Customer-friendly attitude matters as much as technical skill.',
     required_skills: ['Windows', 'Active Directory', 'IT Support', 'Office 365'],
-    location: 'Yaoundé (Centre-ville) — on-site', duration_weeks: 12, is_paid: true, stipend_amount: 45000, openings: 2, deadlineDays: 7,
+    location: 'Yaoundé (Centre-ville) — on-site', duration_weeks: 12, is_paid: false, openings: 2, deadlineDays: 7,
   },
   // BlueHealth
   {
@@ -189,7 +218,7 @@ const OFFERS = [
     responsibilities: '- Ship features across React frontend and Node API\n- Write tests; participate in code review\n- Join weekly clinical-staff feedback sessions',
     requirements: 'Year 3+ in Software Engineering or Computer Science. JavaScript across the stack required.',
     required_skills: ['React', 'Node.js', 'PostgreSQL', 'JavaScript', 'AWS'],
-    location: 'Douala (Bonapriso) — hybrid', duration_weeks: 12, is_paid: true, stipend_amount: 80000, openings: 1, deadlineDays: 20,
+    location: 'Douala (Bonapriso) — hybrid', duration_weeks: 12, is_paid: true, stipend_amount: 50000, openings: 1, deadlineDays: 20,
   },
   {
     companyEmail: 'bluehealth@internbeacon.dev',
@@ -198,7 +227,7 @@ const OFFERS = [
     responsibilities: '- Clean and analyse consultation datasets (Excel/Python)\n- Draft charts and summaries for quarterly health reports\n- Support clinic onboarding data audits',
     requirements: 'Year 3+ in Public Health, Medicine, Statistics or related. Strong Excel; Python a plus. Bilingual FR/EN preferred.',
     required_skills: ['Excel', 'Statistics', 'Python', 'Epidemiology'],
-    location: 'Douala (Bonapriso) — on-site', duration_weeks: 10, is_paid: true, stipend_amount: 55000, openings: 1, deadlineDays: 12,
+    location: 'Douala (Bonapriso) — on-site', duration_weeks: 10, is_paid: false, openings: 1, deadlineDays: 12,
   },
   // Mont Fébé Finance
   {
@@ -208,7 +237,7 @@ const OFFERS = [
     responsibilities: '- Pre-analyse loan applications against policy checklist\n- Join field verification visits (2 per week, transport covered)\n- Prepare files for credit committee',
     requirements: 'Year 3+ in Banking & Finance, Accounting, Economics or Management. Comfortable with Excel. French and English both used daily.',
     required_skills: ['Excel', 'Financial Analysis', 'Accounting', 'French'],
-    location: 'Yaoundé (Centre-ville) — on-site', duration_weeks: 12, is_paid: true, stipend_amount: 50000, openings: 2, deadlineDays: 15,
+    location: 'Yaoundé (Centre-ville) — on-site', duration_weeks: 12, is_paid: false, openings: 2, deadlineDays: 15,
   },
   {
     companyEmail: 'montfebe@internbeacon.dev',
@@ -217,7 +246,7 @@ const OFFERS = [
     responsibilities: '- Run user-testing sessions at branches (script provided)\n- Document requirements and edge cases for the dev vendor\n- Track competitor USSD/app features monthly',
     requirements: 'Year 3+, programme flexible (Business, IT, or Finance). Curiosity about fintech required; bilingual a strong plus.',
     required_skills: ['Product Research', 'Excel', 'Documentation', 'UX Research'],
-    location: 'Yaoundé (Centre-ville) — on-site', duration_weeks: 10, is_paid: true, stipend_amount: 45000, openings: 1, deadlineDays: 40,
+    location: 'Yaoundé (Centre-ville) — on-site', duration_weeks: 10, is_paid: false, openings: 1, deadlineDays: 40,
   },
   // Kribi Logistics
   {
@@ -227,7 +256,7 @@ const OFFERS = [
     responsibilities: '- Update shipment milestones in the TMS daily\n- Reconcile customs documentation packs\n- Build the weekly dwell-time report (Excel)',
     requirements: 'Year 3+ in Logistics, Industrial Engineering, Transport or Management. Rigour with paperwork is essential — customs errors cost money.',
     required_skills: ['Excel', 'Logistics', 'Supply Chain', 'Documentation'],
-    location: 'Douala (Bonanjo) + Kribi port visits', duration_weeks: 16, is_paid: true, stipend_amount: 60000, openings: 2, deadlineDays: 22,
+    location: 'Douala (Bonanjo) + Kribi port visits', duration_weeks: 16, is_paid: false, openings: 2, deadlineDays: 22,
   },
   {
     companyEmail: 'kribilogistics@internbeacon.dev',
@@ -236,7 +265,7 @@ const OFFERS = [
     responsibilities: '- Maintain the preventive-maintenance calendar\n- Track parts stock and reorder points\n- Analyse breakdown causes monthly',
     requirements: 'Year 3+ in Mechanical Engineering or Electromechanics. Hands-on attitude; workshop days are workshop days.',
     required_skills: ['Mechanical Engineering', 'Excel', 'Maintenance Planning'],
-    location: 'Douala (Bonanjo workshop)', duration_weeks: 12, is_paid: true, stipend_amount: 50000, openings: 1, deadlineDays: 2,
+    location: 'Douala (Bonanjo workshop)', duration_weeks: 12, is_paid: false, openings: 1, deadlineDays: 2,
   },
   // Limbe Creative Hub
   {
@@ -255,7 +284,7 @@ const OFFERS = [
     responsibilities: '- Second-camera on client shoots\n- Edit reels and 60-90s brand cuts (Premiere/CapCut)\n- Organise and back up footage library',
     requirements: 'Year 2+. Portfolio decides — programme is irrelevant if the cut is clean.',
     required_skills: ['Video Editing', 'Premiere Pro', 'Videography', 'Storytelling'],
-    location: 'Limbe (Down Beach) + client locations', duration_weeks: 12, is_paid: true, stipend_amount: 40000, openings: 1, deadlineDays: 26,
+    location: 'Limbe (Down Beach) + client locations', duration_weeks: 12, is_paid: false, openings: 1, deadlineDays: 26,
   },
   // One closing-today offer for the deadline chip demo
   {
@@ -265,7 +294,7 @@ const OFFERS = [
     responsibilities: '- Execute and document regression test packs\n- Write Postman collections for new endpoints\n- Log and triage bugs with severity tags',
     requirements: 'Year 2+ in any computing programme. Attention to detail is the whole job.',
     required_skills: ['Software Testing', 'Postman', 'Test Cases', 'JIRA'],
-    location: 'Douala (Akwa) — on-site', duration_weeks: 10, is_paid: true, stipend_amount: 50000, openings: 1, deadlineDays: 0,
+    location: 'Douala (Akwa) — on-site', duration_weeks: 10, is_paid: false, openings: 1, deadlineDays: 0,
   },
 ];
 
@@ -278,19 +307,42 @@ const STUDENTS = [
     skills: ['JavaScript', 'React', 'Node.js', 'PostgreSQL', 'Git', 'Tailwind', 'REST APIs'],
     bio: 'Final-year software engineering student passionate about fintech. Built a campus marketplace app used by 300+ students. Looking for a backend or full-stack internship in Douala.',
     github_url: 'https://github.com/bricefotso-demo', linkedin_url: 'https://linkedin.com/in/bricefotso-demo',
-    cv: [
-      'BRICE FOTSO', 'Douala, Cameroon | +237 690 111 001 | brice.fotso@internbeacon.dev', '',
-      'EDUCATION',
-      'BSc Software Engineering - ICT University, Yaounde (Year 4, expected 2027)',
-      'GCE A-Levels - Lycee de Bonaberi, Douala (2023)', '',
-      'EXPERIENCE',
-      'Freelance Web Developer (2025-present): built campus marketplace app',
-      'with React, Node.js and PostgreSQL, serving 300+ student users.',
-      'IT Club Vice-President, ICT University (2025): organised 4 hackathons.', '',
-      'SKILLS',
-      'JavaScript, React, Node.js, Express, PostgreSQL, Git, Tailwind CSS, REST APIs', '',
-      'LANGUAGES', 'English (fluent), French (fluent)',
-    ],
+    cv: {
+      name: 'BRICE FOTSO',
+      title: 'Full-Stack Software Engineering Student — Backend & Web',
+      contact: 'Douala, Cameroon  |  +237 690 111 001  |  brice.fotso@internbeacon.dev  |  github.com/bricefotso-demo',
+      sections: [
+        { heading: 'Professional Summary', lines: [
+          'Final-year Software Engineering student at ICT University with hands-on',
+          'experience building production web applications in JavaScript, React and',
+          'Node.js. Shipped a campus marketplace used by 300+ students. Seeking a',
+          'backend or full-stack internship in Douala or remote.',
+        ] },
+        { heading: 'Education', lines: [
+          '- BSc Software Engineering — ICT University, Yaounde   (2023 - 2027, Year 4)',
+          '  Coursework: Data Structures, Databases, Web Engineering, OOP, Networks.',
+          '- GCE Advanced Level — Lycee de Bonaberi, Douala   (2023)',
+        ] },
+        { heading: 'Experience', lines: [
+          '- Freelance Web Developer   (Jan 2025 - present)',
+          '  Built a campus marketplace (React, Node.js, Express, PostgreSQL) serving',
+          '  300+ students; integrated MTN MoMo sandbox payments and JWT auth.',
+          '- Vice-President, ICT University IT Club   (2025)',
+          '  Organised 4 hackathons and weekly coding sessions for 60+ members.',
+        ] },
+        { heading: 'Projects', lines: [
+          '- CampusMarket — peer-to-peer marketplace, 300+ users (React / Node / PostgreSQL)',
+          '- StudyBuddy — exam revision scheduler with reminders (React, Supabase)',
+        ] },
+        { heading: 'Technical Skills', lines: [
+          'Languages:    JavaScript, SQL, HTML, CSS',
+          'Frameworks:   React, Node.js, Express, Tailwind CSS',
+          'Tools:        Git, GitHub, PostgreSQL, REST APIs, Postman',
+        ] },
+        { heading: 'Languages', lines: ['English (fluent), French (fluent)'] },
+        { heading: 'References', lines: ['Available on request.'] },
+      ],
+    },
   },
   {
     email: 'aisha.bello@internbeacon.dev', first_name: 'Aisha', last_name: 'Bello',
@@ -299,19 +351,39 @@ const STUDENTS = [
     skills: ['Python', 'SQL', 'Excel', 'Data Visualization', 'Statistics'],
     bio: 'Third-year CS student focused on data analysis. Kaggle bronze medalist. Seeking a data internship where numbers meet real decisions.',
     github_url: 'https://github.com/aishabello-demo',
-    cv: [
-      'AISHA BELLO', 'Yaounde, Cameroon | +237 690 111 002 | aisha.bello@internbeacon.dev', '',
-      'EDUCATION',
-      'BSc Computer Science - University of Yaounde I (Year 3)',
-      'Baccalaureat C - Lycee de Garoua (2023)', '',
-      'PROJECTS & EXPERIENCE',
-      'Kaggle competitions: bronze medal, retail-forecasting challenge (2025)',
-      'Market-price tracker: scraped and visualised Mfoundi market prices',
-      'with Python and Plotly; cited by a local radio programme.', '',
-      'SKILLS',
-      'Python (pandas, matplotlib), SQL, Excel, statistics, data visualization', '',
-      'LANGUAGES', 'English (fluent), French (fluent), Fulfulde (native)',
-    ],
+    cv: {
+      name: 'AISHA BELLO',
+      title: 'Computer Science Student — Data Analysis & Statistics',
+      contact: 'Yaounde, Cameroon  |  +237 690 111 002  |  aisha.bello@internbeacon.dev  |  github.com/aishabello-demo',
+      sections: [
+        { heading: 'Professional Summary', lines: [
+          'Third-year Computer Science student at the University of Yaounde I,',
+          'focused on data analysis and statistics. Kaggle bronze medalist. Strong',
+          'in Python and SQL, with a track record of turning messy local data into',
+          'decisions. Seeking a data analyst or data science internship.',
+        ] },
+        { heading: 'Education', lines: [
+          '- BSc Computer Science — University of Yaounde I   (2023 - 2026, Year 3)',
+          '  Coursework: Probability & Statistics, Algorithms, Databases, Machine Learning.',
+          '- Baccalaureat C (Mathematics & Physics) — Lycee de Garoua   (2023)',
+        ] },
+        { heading: 'Projects & Experience', lines: [
+          '- Kaggle — Retail Forecasting Challenge   (2025)',
+          '  Bronze medal; gradient-boosted model, top 10% of 2,400 teams.',
+          '- Mfoundi Market Price Tracker   (2024 - 2025)',
+          '  Scraped and visualised daily market prices with Python and Plotly;',
+          '  dashboard cited on a local radio consumer programme.',
+          '- Teaching Assistant (volunteer), Intro to Python   (2025)',
+        ] },
+        { heading: 'Technical Skills', lines: [
+          'Languages:    Python (pandas, numpy, matplotlib), SQL, R (basic)',
+          'Analytics:    Excel (pivot tables, VLOOKUP), data visualization, statistics',
+          'Tools:        Jupyter, Git, Plotly, Power BI (basic)',
+        ] },
+        { heading: 'Languages', lines: ['English (fluent), French (fluent), Fulfulde (native)'] },
+        { heading: 'References', lines: ['Available on request.'] },
+      ],
+    },
   },
   {
     email: 'kevin.ngu@internbeacon.dev', first_name: 'Kevin', last_name: 'Ngu',
@@ -319,19 +391,38 @@ const STUDENTS = [
     phone: '+237 690 111 003', languages: ['English', 'French'],
     skills: ['Networking', 'TCP/IP', 'Cisco', 'Linux', 'Python'],
     bio: 'Telecoms engineering student, CCNA in progress. Home lab with three salvaged routers. I want to live inside a NOC.',
-    cv: [
-      'KEVIN NGU', 'Buea, Cameroon | +237 690 111 003 | kevin.ngu@internbeacon.dev', '',
-      'EDUCATION',
-      'BEng Telecommunications - University of Buea (Year 4)',
-      'CCNA coursework in progress (Cisco NetAcad, 2026)', '',
-      'EXPERIENCE',
-      'Network volunteer, UB campus IT (2025): assisted WiFi AP deployment',
-      'across 2 faculties; documented switch configurations.',
-      'Home lab: OSPF/VLAN practice on salvaged Cisco 2960 switches.', '',
-      'SKILLS',
-      'Networking, TCP/IP, Cisco IOS, VLANs, OSPF basics, Linux, Python scripting', '',
-      'LANGUAGES', 'English (fluent), French (working)',
-    ],
+    cv: {
+      name: 'KEVIN NGU',
+      title: 'Telecommunications Engineering Student — Networks & NOC',
+      contact: 'Buea, Cameroon  |  +237 690 111 003  |  kevin.ngu@internbeacon.dev',
+      sections: [
+        { heading: 'Professional Summary', lines: [
+          'Final-year Telecommunications Engineering student at the University of',
+          'Buea with CCNA coursework in progress and a hands-on home lab. Comfortable',
+          'with routing, switching and fibre fundamentals. Goal: a Network Operations',
+          'Centre (NOC) internship on live infrastructure.',
+        ] },
+        { heading: 'Education', lines: [
+          '- BEng Telecommunications — University of Buea, College of Technology',
+          '  (2022 - 2026, Year 4). Coursework: Networks, Signals, Fibre Optics, Antennas.',
+          '- Cisco CCNA — NetAcad coursework in progress   (2026)',
+        ] },
+        { heading: 'Experience', lines: [
+          '- Network Volunteer, UB Campus IT   (2025)',
+          '  Assisted WiFi access-point deployment across 2 faculties; documented',
+          '  switch configurations and VLAN assignments.',
+          '- Home Lab — self-directed   (ongoing)',
+          '  OSPF and VLAN practice on salvaged Cisco 2960 switches and pfSense.',
+        ] },
+        { heading: 'Technical Skills', lines: [
+          'Networking:   TCP/IP, OSI model, VLANs, OSPF basics, subnetting',
+          'Vendors:      Cisco IOS, MikroTik (basic), fibre-optic fundamentals',
+          'Systems:      Linux (Ubuntu, CLI), Python scripting, Wireshark',
+        ] },
+        { heading: 'Languages', lines: ['English (fluent), French (working proficiency)'] },
+        { heading: 'References', lines: ['Available on request.'] },
+      ],
+    },
   },
   {
     email: 'marie.essomba@internbeacon.dev', first_name: 'Marie', last_name: 'Essomba',
@@ -339,20 +430,38 @@ const STUDENTS = [
     phone: '+237 690 111 004', languages: ['French', 'English'],
     skills: ['Excel', 'Accounting', 'Financial Analysis', 'PowerPoint'],
     bio: 'Banking & finance student at ESSEC. Treasurer of the junior enterprise. Aiming for credit analysis or digital banking internships in Yaoundé or Douala.',
-    cv: [
-      'MARIE ESSOMBA', 'Douala, Cameroon | +237 690 111 004 | marie.essomba@internbeacon.dev', '',
-      'EDUCATION',
-      'BSc Banking & Finance - ESSEC Douala (Year 3)',
-      'Baccalaureat G2 - College de la Retraite, Yaounde (2023)', '',
-      'EXPERIENCE',
-      'Treasurer, ESSEC Junior Enterprise (2025-present): manage a 1.2M FCFA',
-      'annual budget; produced monthly statements adopted by the board.',
-      'Sales assistant (holidays), Santa Lucia supermarket: cash reconciliation.', '',
-      'SKILLS',
-      'Excel (advanced: pivot tables, VLOOKUP), accounting fundamentals,',
-      'financial statement analysis, PowerPoint', '',
-      'LANGUAGES', 'French (native), English (working proficiency)',
-    ],
+    cv: {
+      name: 'MARIE ESSOMBA',
+      title: 'Banking & Finance Student — Credit & Financial Analysis',
+      contact: 'Douala, Cameroon  |  +237 690 111 004  |  marie.essomba@internbeacon.dev',
+      sections: [
+        { heading: 'Professional Summary', lines: [
+          'Third-year Banking & Finance student at ESSEC Douala and treasurer of the',
+          'school junior enterprise, where I manage a real annual budget. Strong with',
+          'Excel and financial-statement analysis. Targeting a credit analysis or',
+          'digital banking internship in Yaounde or Douala.',
+        ] },
+        { heading: 'Education', lines: [
+          '- BSc Banking & Finance — ESSEC Douala   (2023 - 2026, Year 3)',
+          '  Coursework: Financial Analysis, Accounting, Microfinance, Corporate Finance.',
+          '- Baccalaureat G2 (Accounting) — College de la Retraite, Yaounde   (2023)',
+        ] },
+        { heading: 'Experience', lines: [
+          '- Treasurer, ESSEC Junior Enterprise   (2025 - present)',
+          '  Manage a 1.2M FCFA annual budget; produce monthly financial statements',
+          '  adopted by the board; track receivables and reconcile accounts.',
+          '- Sales Assistant (holiday job), Santa Lucia Supermarket   (2024)',
+          '  Daily cash reconciliation and till reporting.',
+        ] },
+        { heading: 'Technical Skills', lines: [
+          'Finance:      Financial statement analysis, budgeting, credit assessment',
+          'Tools:        Excel (advanced: pivot tables, VLOOKUP), PowerPoint, Sage (basic)',
+          'Accounting:   OHADA accounting fundamentals, bookkeeping',
+        ] },
+        { heading: 'Languages', lines: ['French (native), English (working proficiency)'] },
+        { heading: 'References', lines: ['Available on request.'] },
+      ],
+    },
   },
 ];
 
@@ -439,17 +548,27 @@ async function findOrCreateUser(email, role, label) {
   // listUsers is paginated; demo project is small so one page suffices
   const { data: list } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
   const existing = list?.users?.find(u => u.email === email);
+  let userId;
   if (existing) {
-    await supabaseAdmin.auth.admin.updateUserById(existing.id, { password: PASSWORD, app_metadata: { role } });
+    // Set role in BOTH app_metadata (authz) and user_metadata so they never drift.
+    await supabaseAdmin.auth.admin.updateUserById(existing.id, {
+      password: PASSWORD, app_metadata: { role }, user_metadata: { ...existing.user_metadata, role },
+    });
+    userId = existing.id;
     console.log(`  = ${label} exists (password reset): ${email}`);
-    return existing.id;
+  } else {
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      email, password: PASSWORD, email_confirm: true, app_metadata: { role }, user_metadata: { role },
+    });
+    if (error) throw new Error(`createUser ${email}: ${error.message}`);
+    userId = data.user.id;
+    console.log(`  + ${label} created: ${email}`);
   }
-  const { data, error } = await supabaseAdmin.auth.admin.createUser({
-    email, password: PASSWORD, email_confirm: true, app_metadata: { role },
-  });
-  if (error) throw new Error(`createUser ${email}: ${error.message}`);
-  console.log(`  + ${label} created: ${email}`);
-  return data.user.id;
+  // Keep public.profiles.role in sync — the handle_new_user trigger defaults it
+  // to 'student' when user_metadata.role is unset, which silently breaks the
+  // post-login redirect for companies. Force it to match the assigned role.
+  await supabaseAdmin.from('profiles').update({ role }).eq('id', userId);
+  return userId;
 }
 
 async function main() {
@@ -482,8 +601,18 @@ async function main() {
     const { data: existing } = await supabaseAdmin
       .from('internship_offers').select('id').eq('company_id', companyId).eq('title', o.title).maybeSingle();
     if (existing) {
+      // Sync pricing so re-running reflects the rebalanced paid/unpaid mix.
+      // stipend_currency is NOT NULL in the schema — keep 'XAF' even when unpaid
+      // (it's ignored by the UI when is_paid is false) rather than nulling it.
+      const paid = o.is_paid && o.stipend_amount;
+      const { error: upErr } = await supabaseAdmin.from('internship_offers').update({
+        is_paid: o.is_paid,
+        stipend_amount:   paid ? o.stipend_amount : null,
+        stipend_currency: 'XAF',
+      }).eq('id', existing.id);
+      if (upErr) throw new Error(`pricing sync ${o.title}: ${upErr.message}`);
       offerIdByTitle[o.title] = existing.id;
-      console.log(`  = offer exists: ${o.title}`);
+      console.log(`  = offer exists (pricing synced): ${o.title}`);
       continue;
     }
     const row = {
@@ -507,7 +636,7 @@ async function main() {
     const userId = await findOrCreateUser(s.email, 'student', `${s.first_name} ${s.last_name}`);
 
     const cvPath = `${userId}.pdf`;
-    const pdf = buildSimplePdf(s.cv);
+    const pdf = buildCvPdf(s.cv);
     const { error: upErr } = await supabaseAdmin.storage.from('cvs')
       .upload(cvPath, pdf, { contentType: 'application/pdf', upsert: true });
     if (upErr) throw new Error(`CV upload ${s.email}: ${upErr.message}`);
@@ -564,4 +693,8 @@ async function main() {
   console.log('\n✔ Done. All accounts use password: ' + PASSWORD + '\n');
 }
 
-main().catch(err => { console.error('\n✖ Seed failed:', err.message); process.exit(1); });
+if (require.main === module) {
+  main().catch(err => { console.error('\n✖ Seed failed:', err.message); process.exit(1); });
+}
+
+module.exports = { buildCvPdf };

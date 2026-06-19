@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { FileText, MessageSquare, Briefcase, ChevronRight, ChevronDown, Trash2, Calendar, CheckCircle2, XCircle } from 'lucide-react';
 import { applicationsApi } from '../../api/applications';
 import { messagesApi } from '../../api/messages';
@@ -49,6 +49,8 @@ export default function StudentApplications() {
   const [withdrawing, setWithdrawing] = useState(null);
   const [responding,  setResponding]  = useState(null);
   const [confirm,     setConfirm]     = useState(null); // { type: 'withdraw'|'offer', appId, response? }
+  const [searchParams] = useSearchParams();
+  const focusId = searchParams.get('app'); // deep-link target from the dashboard
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -105,10 +107,13 @@ export default function StudentApplications() {
   const filtered  = apps.filter(activeTab.filter);
 
   useEffect(() => {
-    if (expanded !== null || !apps.length) return;
+    if (!apps.length) return;
+    // Arriving via /student/applications?app=<id> from the dashboard: open that one.
+    if (focusId && apps.some(a => a.id === focusId)) { setExpanded(focusId); return; }
+    if (expanded !== null) return;
     const first = apps.find(a => !TERMINAL_STATUSES.includes(a.status)) ?? apps[0];
     if (first) setExpanded(first.id);
-  }, [apps]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [apps, focusId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="space-y-5" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>

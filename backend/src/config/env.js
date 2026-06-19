@@ -15,14 +15,21 @@ if (missing.length > 0) {
 
 // Warn (not crash) for optional vars — app starts but affected features won't work
 const optional = {
-  CLIENT_URL:        'CORS will use localhost fallback — set this in production',
-  ANTHROPIC_API_KEY: 'AI CV parsing will return 503',
-  SMTP_USER:         'Email notifications will be silently skipped',
-  SMTP_PASS:         'Email notifications will be silently skipped',
+  CLIENT_URL: 'CORS will use localhost fallback — set this in production',
+  SMTP_USER:  'Email notifications will be silently skipped',
+  SMTP_PASS:  'Email notifications will be silently skipped',
 };
 
 for (const [key, hint] of Object.entries(optional)) {
   if (!process.env[key]) console.warn(`[ENV] ${key} not set — ${hint}`);
+}
+
+// AI CV parsing tries Gemini → Groq → Grok in order. Only warn if NONE is
+// configured — any single provider is enough, and CV parsing also degrades to
+// deterministic keyword extraction, so a missing key is never fatal.
+const aiKeys = ['GEMINI_API_KEY', 'GROQ_API_KEY', 'XAI_API_KEY', 'ANTHROPIC_API_KEY', 'OPENAI_API_KEY'];
+if (!aiKeys.some((k) => process.env[k])) {
+  console.warn('[ENV] No AI provider key set — CV parsing will use keyword extraction only');
 }
 
 module.exports = {

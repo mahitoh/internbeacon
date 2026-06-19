@@ -41,8 +41,11 @@ api.interceptors.response.use(
       try {
         const rt = localStorage.getItem('refreshToken');
         const res = await axios.post('/api/auth/refresh', { refreshToken: rt });
-        const { accessToken } = res.data;
+        const { accessToken, refreshToken } = res.data;
         localStorage.setItem('accessToken', accessToken);
+        // Supabase rotates refresh tokens — persist the new one or the next
+        // refresh will fail with the now-revoked token and force a logout.
+        if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
         window.dispatchEvent(new CustomEvent('token:refreshed', { detail: { accessToken } }));
         processQueue(null, accessToken);
         original.headers['Authorization'] = `Bearer ${accessToken}`;

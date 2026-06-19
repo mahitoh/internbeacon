@@ -230,6 +230,12 @@ exports.me = async (req, res, next) => {
       success: true,
       data: {
         ...rest,
+        // Use the role the backend authorizes with (app_metadata) as the single
+        // source of truth. profiles.role can drift (e.g. the handle_new_user
+        // trigger defaults companies to 'student' when user_metadata.role is
+        // unset), which would make ProtectedRoute disagree with the backend and
+        // bounce a logged-in user to the landing page after login.
+        role:           req.user.role || rest.role,
         email:          req.user.email,
         isActive:       is_active,
         createdAt:      created_at,

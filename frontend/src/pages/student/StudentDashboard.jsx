@@ -269,7 +269,7 @@ export default function StudentDashboard() {
             ) : (
               <div>
                 {apps.slice(0, 5).map((app, i) => (
-                  <Link key={app.id} to={`/student/applications/${app.id}`}
+                  <Link key={app.id} to={`/student/applications?app=${app.id}`}
                     className="flex items-center gap-4 px-5 py-3.5 cursor-pointer"
                     style={{ borderTop: i > 0 ? '1px solid #F6F5F1' : undefined, textDecoration: 'none', display: 'flex' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#FAFAF7'}
@@ -395,8 +395,8 @@ export default function StudentDashboard() {
                   onMouseLeave={e => e.currentTarget.style.background = '#EDF2EE'}>
                   <Lightbulb size={14} style={{ color: '#1E5B45', flexShrink: 0 }} />
                   <p className="text-xs" style={{ color: '#6B6F69' }}>
-                    Add <span className="font-bold" style={{ color: '#1E5B45' }}>{skillGap.skill}</span> to improve your match on{' '}
-                    <span className="font-semibold" style={{ color: '#1B1D1A' }}>{skillGap.offers} offer{skillGap.offers !== 1 ? 's' : ''}</span>
+                    <span className="font-bold" style={{ color: '#1E5B45' }}>{skillGap.skill}</span> is in demand —{' '}
+                    <span className="font-semibold" style={{ color: '#1B1D1A' }}>{skillGap.offers} of your top offer{skillGap.offers !== 1 ? 's' : ''}</span> ask{skillGap.offers === 1 ? 's' : ''} for it
                   </p>
                   <span className="ml-auto text-xs flex-shrink-0" style={{ color: '#9A9E97' }}>Update profile →</span>
                 </Link>
@@ -495,7 +495,7 @@ export default function StudentDashboard() {
               </div>
               <div className="space-y-2">
                 {interviews.map(app => (
-                  <Link key={app.id} to={`/student/applications/${app.id}`}
+                  <Link key={app.id} to="/student/interviews"
                     className="flex items-start gap-3 rounded-xl p-3"
                     style={{ background: 'rgba(255,255,255,0.07)', textDecoration: 'none' }}
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}

@@ -152,9 +152,12 @@ exports.send = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Access denied' });
     }
 
-    const receiverId = userId === thread.studentUserId
-      ? thread.companyUserId
-      : thread.studentUserId;
+    const senderIsStudent = userId === thread.studentUserId;
+    const receiverId   = senderIsStudent ? thread.companyUserId : thread.studentUserId;
+    // Notification link must be role-prefixed to match the frontend routes
+    // (/student/messages/:appId or /company/messages/:appId); a bare
+    // /messages/:appId has no route and falls through to the home wildcard.
+    const receiverBase = senderIsStudent ? '/company' : '/student';
 
     const { data, error } = await supabaseAdmin
       .from('messages')
@@ -180,7 +183,7 @@ exports.send = async (req, res, next) => {
       type:   'new_message',
       title:  'New message',
       body:   `You have a new message about "${thread.offerTitle}"`,
-      link:   `/messages/${appId}`,
+      link:   `${receiverBase}/messages/${appId}`,
     });
 
     res.status(201).json({ success: true, data: msg });
