@@ -154,8 +154,14 @@ export default function StudentProfile() {
         toast('No skills detected — add them manually below', { id: tid, icon: 'ℹ️' });
       }
     } catch (err) {
-      const busy = err?.response?.status === 503;
-      toast.error(busy ? 'CV analysis is busy right now — click "Re-analyze CV" in a moment' : 'Could not analyze CV', { id: tid });
+      // Surface the backend's specific guidance (e.g. "scanned image — upload a
+      // text-based PDF") instead of a generic failure. 503 = all AI providers busy.
+      const status    = err?.response?.status;
+      const serverMsg = err?.response?.data?.message;
+      const msg = status === 503
+        ? 'CV analysis is busy right now — click "Re-analyze CV" in a moment'
+        : (serverMsg || 'Could not analyze CV');
+      toast.error(msg, { id: tid });
     } finally {
       setAnalyzingCv(false);
     }
@@ -331,6 +337,10 @@ export default function StudentProfile() {
 
         {/* Skills */}
         <Section title="Skills" icon={Code2}>
+          <p className="text-xs mb-3 leading-relaxed" style={{ color: '#9A9E97' }}>
+            Your <span style={{ color: '#1E5B45', fontWeight: 600 }}>CV</span> fills in your skills and languages.
+            Your <span style={{ fontWeight: 600, color: '#6B6F69' }}>programme, city, and study year</span> complete your match score.
+          </p>
           <div className="flex flex-wrap gap-2">
             {SKILLS_LIST.map(s => {
               const isSelected = selectedSkills.includes(s);

@@ -34,7 +34,7 @@ exports.parseCv = async (req, res, next) => {
     const parsed = await parser.getText();
     const cvText = parsed.text?.slice(0, 8000) || '';
 
-    if (!cvText.trim()) return res.status(400).json({ success: false, message: 'Could not extract text from CV. Make sure your CV is a text-based PDF.' });
+    if (!cvText.trim()) return res.status(400).json({ success: false, message: 'We couldn’t read any text from this CV — it looks like a scanned image or photo. Please upload a text-based PDF (exported from Word or Google Docs, not a scan).' });
 
     const prompt = `You are a CV parser for an internship platform in Cameroon. Extract structured information from this CV.
 
