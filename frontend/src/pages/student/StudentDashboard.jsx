@@ -95,8 +95,8 @@ export default function StudentDashboard() {
   const aiSummary  = user?.studentProfile?.aiSummary;
   const profile    = user?.studentProfile;
 
-  const { data: appsData }    = useQuery({ queryKey: ['my-apps'],         queryFn: () => applicationsApi.my({ limit: 100 }).then(r => r.data.data) });
-  const { data: recData }     = useQuery({ queryKey: ['offers-rec'],      queryFn: () => offersApi.recommended(6).then(r => r.data.data) });
+  const { data: appsData, isLoading: appsLoading } = useQuery({ queryKey: ['my-apps'],         queryFn: () => applicationsApi.my({ limit: 100 }).then(r => r.data.data) });
+  const { data: recData, isLoading: recLoading } = useQuery({ queryKey: ['offers-rec'],      queryFn: () => offersApi.recommended(6).then(r => r.data.data) });
   const { data: threadsData } = useQuery({ queryKey: ['message-threads'], queryFn: () => messagesApi.threads().then(r => r.data.data) });
 
   const apps      = appsData  || [];
@@ -182,7 +182,7 @@ export default function StudentDashboard() {
       </div>
 
       {/* ── Onboarding (empty state) ──────────────────────── */}
-      {apps.length === 0 && !profile?.cvUrl && (
+      {!appsLoading && apps.length === 0 && !profile?.cvUrl && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1,  y: 0  }}
@@ -216,10 +216,10 @@ export default function StudentDashboard() {
 
       {/* ── Stat cards ───────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard label="Applications" value={counts.total}     icon={FileText}     color="blue"  />
-        <StatCard label="In Review"    value={counts.active}    icon={Clock}        color="purple"/>
-        <StatCard label="Interviews"   value={counts.interview} icon={Calendar}     color="green" />
-        <StatCard label="Accepted"     value={counts.accepted}  icon={CheckCircle2} color="green" />
+        <StatCard label="Applications" value={counts.total}     icon={FileText}     color="blue"   loading={appsLoading} />
+        <StatCard label="In Review"    value={counts.active}    icon={Clock}        color="purple" loading={appsLoading} />
+        <StatCard label="Interviews"   value={counts.interview} icon={Calendar}     color="green"  loading={appsLoading} />
+        <StatCard label="Accepted"     value={counts.accepted}  icon={CheckCircle2} color="green"  loading={appsLoading} />
       </div>
 
       {/* ── Main 2-column layout ─────────────────────────── */}
@@ -236,7 +236,9 @@ export default function StudentDashboard() {
               action={<span className="text-xs" style={{ color: '#C0BFBA' }}>Last 8 weeks</span>}
             />
             <div className="p-5">
-              {apps.length === 0 ? (
+              {appsLoading ? (
+                <div className="h-40 rounded-xl animate-pulse" style={{ background: '#F6F5F1' }} />
+              ) : apps.length === 0 ? (
                 <EmptyState icon={TrendingUp} label="No activity yet" cta="Start applying" to="/student/offers" />
               ) : (
                 <div className="h-40">
@@ -264,7 +266,19 @@ export default function StudentDashboard() {
                 </Link>
               }
             />
-            {apps.length === 0 ? (
+            {appsLoading ? (
+              <div className="p-5 space-y-3">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div className="w-9 h-9 rounded-xl animate-pulse flex-shrink-0" style={{ background: '#F0F0EA' }} />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-2/3 rounded animate-pulse" style={{ background: '#F0F0EA' }} />
+                      <div className="h-2.5 w-1/3 rounded animate-pulse" style={{ background: '#F6F5F1' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : apps.length === 0 ? (
               <EmptyState icon={FileText} label="No applications yet" cta="Browse internships" to="/student/offers" />
             ) : (
               <div>
@@ -355,7 +369,7 @@ export default function StudentDashboard() {
           )}
 
           {/* Recommended offers */}
-          {recOffers.length === 0 && (
+          {!recLoading && recOffers.length === 0 && (
             <div className="rounded-2xl p-6 flex flex-col items-center text-center gap-3"
               style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#EDF2EE', border: '1px solid #C4DBCE' }}>

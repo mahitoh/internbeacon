@@ -11,7 +11,7 @@ export default function AdminUsers() {
   const qc = useQueryClient();
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState(() => searchParams.get('search') || '');
-  const [role,   setRole]   = useState('');
+  const [role,   setRole]   = useState(() => searchParams.get('role') || '');
   const [page,   setPage]   = useState(1);
 
   const { data, isLoading } = useQuery({

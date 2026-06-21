@@ -1,4 +1,4 @@
-import { Search, Bell, Menu } from 'lucide-react';
+import { Search, Bell, Menu, CheckCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { notificationsApi } from '../../api/notifications';
@@ -31,16 +31,39 @@ export default function DashboardTopbar({ title, role, onMenuToggle }) {
     return () => socket.off('new_notification', handler);
   }, [socket]);
 
+  // Opening the panel should NOT mark everything read — a glance must not
+  // destroy unread state. We only fetch; reads happen on click-through or via
+  // the explicit "Mark all read" action.
   const openNotifs = async () => {
     setNotifOpen(true);
     try {
       const r = await notificationsApi.list({ limit: 8 });
       setNotifs(r.data.data || []);
+    } catch {}
+  };
+
+  const markAllRead = async () => {
+    try {
       await notificationsApi.markAllRead();
+      setNotifs(prev => prev.map(n => ({ ...n, isRead: true })));
       setNotifCount(0);
       qc.invalidateQueries({ queryKey: ['notif-unread-sidebar'] });
       qc.invalidateQueries({ queryKey: ['notifications'] });
     } catch {}
+  };
+
+  const handleNotifClick = async (n) => {
+    if (!n.isRead) {
+      setNotifs(prev => prev.map(x => x.id === n.id ? { ...x, isRead: true } : x));
+      setNotifCount(c => Math.max(0, c - 1));
+      try {
+        await notificationsApi.markRead(n.id);
+        qc.invalidateQueries({ queryKey: ['notif-unread-sidebar'] });
+        qc.invalidateQueries({ queryKey: ['notifications'] });
+      } catch {}
+    }
+    setNotifOpen(false);
+    if (n.link) navigate(n.link);
   };
 
   const SEARCH_ROUTES = {
@@ -113,29 +136,48 @@ export default function DashboardTopbar({ title, role, onMenuToggle }) {
               <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
               <div className="absolute right-0 top-11 w-80 rounded-xl z-50 overflow-hidden"
                 style={{ background: '#fff', border: '1px solid #E7E6DF', boxShadow: '0 8px 32px rgba(24,32,24,.10)' }}>
-                <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid #F0F0EA' }}>
+                <div className="px-4 py-3 flex items-center justify-between gap-2" style={{ borderBottom: '1px solid #F0F0EA' }}>
                   <span className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Notifications</span>
-                  <Link
-                    to={`/${role}/notifications`}
-                    onClick={() => setNotifOpen(false)}
-                    className="text-xs font-semibold"
-                    style={{ color: '#1E5B45', textDecoration: 'none' }}
-                  >
-                    View all →
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    {notifs.some(n => !n.isRead) && (
+                      <button onClick={markAllRead}
+                        className="flex items-center gap-1 text-xs font-semibold"
+                        style={{ color: '#6B6F69', background: 'transparent' }}
+                        onMouseEnter={e => e.currentTarget.style.color = '#1E5B45'}
+                        onMouseLeave={e => e.currentTarget.style.color = '#6B6F69'}>
+                        <CheckCheck size={12} /> Mark all read
+                      </button>
+                    )}
+                    <Link
+                      to={`/${role}/notifications`}
+                      onClick={() => setNotifOpen(false)}
+                      className="text-xs font-semibold"
+                      style={{ color: '#1E5B45', textDecoration: 'none' }}
+                    >
+                      View all →
+                    </Link>
+                  </div>
                 </div>
                 {notifs.length === 0 ? (
                   <p className="px-4 py-6 text-center text-sm" style={{ color: '#9A9E97' }}>No new notifications</p>
-                ) : notifs.map(n => (
-                  <div key={n.id} className="px-4 py-3 cursor-pointer"
-                    style={{ borderBottom: '1px solid #F6F5F1' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#FAFAF7'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                    <p className="text-sm font-medium" style={{ color: '#1B1D1A' }}>{n.title}</p>
-                    <p className="text-xs mt-0.5" style={{ color: '#6B6F69' }}>{n.body}</p>
-                    <p className="text-xs mt-1" style={{ color: '#A4A89F' }}>{formatRelativeTime(n.createdAt)}</p>
-                  </div>
-                ))}
+                ) : notifs.map(n => {
+                  const isUnread = !n.isRead;
+                  return (
+                    <div key={n.id} onClick={() => handleNotifClick(n)}
+                      className="px-4 py-3 cursor-pointer flex items-start gap-2.5"
+                      style={{ borderBottom: '1px solid #F6F5F1', background: isUnread ? '#FAFDF9' : 'transparent' }}
+                      onMouseEnter={e => e.currentTarget.style.background = isUnread ? '#F2F8F0' : '#FAFAF7'}
+                      onMouseLeave={e => e.currentTarget.style.background = isUnread ? '#FAFDF9' : 'transparent'}>
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        style={{ background: isUnread ? '#1E5B45' : 'transparent' }} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium" style={{ color: isUnread ? '#1B1D1A' : '#6B6F69' }}>{n.title}</p>
+                        <p className="text-xs mt-0.5" style={{ color: '#6B6F69' }}>{n.body}</p>
+                        <p className="text-xs mt-1" style={{ color: '#A4A89F' }}>{formatRelativeTime(n.createdAt)}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </>
           )}

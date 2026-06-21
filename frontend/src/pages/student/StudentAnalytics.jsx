@@ -39,7 +39,7 @@ function pct(count, total) {
 // Light-theme card for stats
 function StatCard({ label, value, sub, icon: Icon, iconBg, iconColor }) {
   return (
-    <div className="rounded-2xl p-5" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+    <div className="rounded-2xl p-5 h-full" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9A9E97' }}>{label}</p>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: iconBg }}>
@@ -75,8 +75,9 @@ export default function StudentAnalytics() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const mostAppliedDomain = insightsData?.mostAppliedDomain ?? null;
-  const missingSkills     = insightsData?.missingSkills     ?? [];
+  const mostAppliedDomain = insightsData?.mostAppliedDomain  ?? null;
+  const missingSkills     = insightsData?.missingSkills      ?? [];
+  const avgReviewHours    = insightsData?.avgReviewTimeHours ?? null;
 
   const apps = useMemo(() => {
     if (!rawApps) return [];
@@ -105,14 +106,14 @@ export default function StudentAnalytics() {
     );
   }
 
-  const { totalApplications, shortlistRate, interviewRate, acceptanceRate, avgReviewTimeHours, statusBreakdown } = data;
+  const { totalApplications, shortlistRate, interviewRate, acceptanceRate, statusBreakdown } = data;
 
   const statCards = [
     { label: 'Total Applications', value: totalApplications, icon: Briefcase,    iconBg: '#EDF2EE', iconColor: '#1E5B45' },
     { label: 'Shortlist Rate',     value: `${shortlistRate}%`,  icon: Star,      iconBg: '#F3EEFB', iconColor: '#7C4EC0', sub: 'of applications advanced' },
     { label: 'Interview Rate',     value: `${interviewRate}%`,  icon: Calendar,  iconBg: '#EEF2FF', iconColor: '#4338CA', sub: 'reached interview stage' },
     { label: 'Acceptance Rate',    value: `${acceptanceRate}%`, icon: CheckCircle2, iconBg: '#EDF2EE', iconColor: '#1E5B45', sub: 'received offers' },
-    { label: 'Avg. Review Time',   value: avgReviewTimeHours !== null ? `${avgReviewTimeHours}h` : '—', icon: Clock, iconBg: '#FFFBEB', iconColor: '#D97706', sub: avgReviewTimeHours !== null ? 'median time to first action' : 'not enough data' },
+    { label: 'Avg. Review Time',   value: avgReviewHours !== null ? `${avgReviewHours}h` : '—', icon: Clock, iconBg: '#FFFBEB', iconColor: '#D97706', sub: avgReviewHours !== null ? 'median time to first action' : 'not enough data' },
   ];
 
   const breakdown = [
@@ -124,7 +125,7 @@ export default function StudentAnalytics() {
   ];
 
   return (
-    <div className="space-y-6 max-w-3xl" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
+    <div className="space-y-6" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
@@ -155,44 +156,81 @@ export default function StudentAnalytics() {
       )}
 
       {/* Stat grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {statCards.map((s, i) => (
-          <motion.div key={s.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
+          <motion.div key={s.label} className="h-full" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
             <StatCard {...s} />
           </motion.div>
         ))}
       </div>
 
-      {/* Funnel */}
-      <div className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
-        <div className="flex items-center gap-2 mb-5">
-          <TrendingUp size={16} style={{ color: '#1E5B45' }} />
-          <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Application Funnel</h3>
+      {/* Funnel + Tips */}
+      <div className="grid lg:grid-cols-3 gap-5 items-start">
+        {/* Funnel */}
+        <div className="lg:col-span-2 rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+          <div className="flex items-center gap-2 mb-5">
+            <TrendingUp size={16} style={{ color: '#1E5B45' }} />
+            <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Application Funnel</h3>
+          </div>
+          <div className="space-y-3">
+            {breakdown.map((b, i) => (
+              <motion.div key={b.label} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-medium" style={{ color: '#6B6F69' }}>{b.label}</span>
+                  <span className="text-xs font-semibold" style={{ color: '#9A9E97' }}>{b.value} ({b.pct}%)</span>
+                </div>
+                <div className="h-2 rounded-full overflow-hidden" style={{ background: '#F0F0EA' }}>
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: b.color }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${b.pct}%` }}
+                    transition={{ duration: 0.7, delay: i * 0.07 + 0.2 }}
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-        <div className="space-y-3">
-          {breakdown.map((b, i) => (
-            <motion.div key={b.label} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-medium" style={{ color: '#6B6F69' }}>{b.label}</span>
-                <span className="text-xs font-semibold" style={{ color: '#9A9E97' }}>{b.value} ({b.pct}%)</span>
+
+        {/* Tips */}
+        <div className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart2 size={16} style={{ color: '#1E5B45' }} />
+            <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Improvement Tips</h3>
+          </div>
+          <div className="space-y-3">
+            {shortlistRate < 30 && (
+              <Tip>Your shortlist rate is below 30% — try tailoring your cover letter more specifically to each role.</Tip>
+            )}
+            {interviewRate < 20 && (
+              <Tip>Check the match score before applying — focus on roles where you score 70% or higher for better results.</Tip>
+            )}
+            {acceptanceRate === 0 && totalApplications >= 5 && (
+              <Tip>You haven't received an offer yet. Make sure your profile has your city, programme, and skills filled in — these directly affect your match score.</Tip>
+            )}
+            {avgReviewHours !== null && avgReviewHours > 72 && (
+              <Tip>Companies are taking over 3 days to review applications. Sending a message after 48 hours can help keep your application top-of-mind.</Tip>
+            )}
+            {shortlistRate >= 30 && interviewRate >= 20 && (
+              <div className="flex items-start gap-3 p-3.5 rounded-xl" style={{ background: '#EDF2EE', border: '1px solid #C4DBCE' }}>
+                <CheckCircle2 size={14} className="flex-shrink-0 mt-0.5" style={{ color: '#1E5B45' }} />
+                <p className="text-sm" style={{ color: '#1B1D1A' }}>Strong performance! Your applications are converting well. Keep applying to roles that match your skills.</p>
               </div>
-              <div className="h-2 rounded-full overflow-hidden" style={{ background: '#F0F0EA' }}>
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: b.color }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${b.pct}%` }}
-                  transition={{ duration: 0.7, delay: i * 0.07 + 0.2 }}
-                />
-              </div>
-            </motion.div>
-          ))}
+            )}
+            {shortlistRate >= 30 && interviewRate >= 20 && acceptanceRate === 0 && (
+              <Tip>You're getting shortlisted and interviewed but not offers yet — work on your interview preparation and follow-up messages.</Tip>
+            )}
+            {shortlistRate >= 30 && interviewRate >= 20 && acceptanceRate > 0 && shortlistRate < 60 && missingSkills.length === 0 && (
+              <p className="text-sm text-center py-2" style={{ color: '#9A9E97' }}>No specific tips right now — keep up the good work!</p>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Domain & Missing Skills */}
       {(mostAppliedDomain || missingSkills.length > 0) && (
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-5">
           {mostAppliedDomain && (
             <div className="rounded-2xl p-5" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
               <div className="flex items-center gap-2 mb-3">
@@ -225,40 +263,6 @@ export default function StudentAnalytics() {
           )}
         </div>
       )}
-
-      {/* Tips */}
-      <div className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
-        <div className="flex items-center gap-2 mb-4">
-          <BarChart2 size={16} style={{ color: '#1E5B45' }} />
-          <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Improvement Tips</h3>
-        </div>
-        <div className="space-y-3">
-          {shortlistRate < 30 && (
-            <Tip>Your shortlist rate is below 30% — try tailoring your cover letter more specifically to each role.</Tip>
-          )}
-          {interviewRate < 20 && (
-            <Tip>Check the match score before applying — focus on roles where you score 70% or higher for better results.</Tip>
-          )}
-          {acceptanceRate === 0 && totalApplications >= 5 && (
-            <Tip>You haven't received an offer yet. Make sure your profile has your city, programme, and skills filled in — these directly affect your match score.</Tip>
-          )}
-          {avgReviewTimeHours !== null && avgReviewTimeHours > 72 && (
-            <Tip>Companies are taking over 3 days to review applications. Sending a message after 48 hours can help keep your application top-of-mind.</Tip>
-          )}
-          {shortlistRate >= 30 && interviewRate >= 20 && (
-            <div className="flex items-start gap-3 p-3.5 rounded-xl" style={{ background: '#EDF2EE', border: '1px solid #C4DBCE' }}>
-              <CheckCircle2 size={14} className="flex-shrink-0 mt-0.5" style={{ color: '#1E5B45' }} />
-              <p className="text-sm" style={{ color: '#1B1D1A' }}>Strong performance! Your applications are converting well. Keep applying to roles that match your skills.</p>
-            </div>
-          )}
-          {shortlistRate >= 30 && interviewRate >= 20 && acceptanceRate === 0 && (
-            <Tip>You're getting shortlisted and interviewed but not offers yet — work on your interview preparation and follow-up messages.</Tip>
-          )}
-          {shortlistRate >= 30 && interviewRate >= 20 && acceptanceRate > 0 && shortlistRate < 60 && missingSkills.length === 0 && (
-            <p className="text-sm text-center py-2" style={{ color: '#9A9E97' }}>No specific tips right now — keep up the good work!</p>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

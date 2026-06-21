@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Users, Briefcase, FileText, Send, TrendingUp, UserCheck, Building2, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { adminApi } from '../../api/admin';
 import Spinner from '../../components/ui/Spinner';
 import { formatRelativeTime } from '../../lib/utils';
@@ -9,19 +10,23 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 
-function MetricCard({ label, value, icon: Icon, iconBg, iconColor, sub }) {
-  return (
-    <div className="rounded-2xl p-5 flex items-center gap-4" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+function MetricCard({ label, value, icon: Icon, iconBg, iconColor, sub, to }) {
+  const inner = (
+    <div className="rounded-2xl p-5 flex items-center gap-4 h-full transition-colors"
+      style={{ background: '#fff', border: '1px solid #E7E6DF' }}
+      onMouseEnter={to ? e => e.currentTarget.style.borderColor = '#C4DBCE' : undefined}
+      onMouseLeave={to ? e => e.currentTarget.style.borderColor = '#E7E6DF' : undefined}>
       <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: iconBg }}>
         <Icon size={20} style={{ color: iconColor }} />
       </div>
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9A9E97' }}>{label}</p>
         <p className="text-2xl font-black mt-0.5" style={{ fontFamily: "'Source Serif 4', Georgia, serif", color: '#1B1D1A' }}>{value ?? '—'}</p>
-        {sub && <p className="text-[11px] mt-0.5" style={{ color: '#9A9E97' }}>{sub}</p>}
+        {sub && <p className="text-[11px] mt-0.5" style={{ color: to ? '#1E5B45' : '#9A9E97' }}>{sub}</p>}
       </div>
     </div>
   );
+  return to ? <Link to={to} className="block" style={{ textDecoration: 'none' }}>{inner}</Link> : inner;
 }
 
 function ChartTooltip({ active, payload, label }) {
@@ -90,7 +95,7 @@ export default function AdminDashboard() {
     { label: 'Total Users',        value: s?.users?.total,              icon: Users,        iconBg: '#EDF2EE', iconColor: '#1E5B45' },
     { label: 'Students',           value: s?.users?.students,           icon: UserCheck,    iconBg: '#DBEAFE', iconColor: '#1E40AF' },
     { label: 'Companies',          value: s?.users?.companies,          icon: Building2,    iconBg: '#EDE9FE', iconColor: '#5B21B6' },
-    { label: 'Verified Companies', value: s?.users?.verifiedCompanies,  icon: ShieldCheck,  iconBg: '#EDF2EE', iconColor: '#1E5B45', sub: s?.users?.companies > 0 ? `${s?.users?.companies - (s?.users?.verifiedCompanies ?? 0)} pending` : undefined },
+    { label: 'Verified Companies', value: s?.users?.verifiedCompanies,  icon: ShieldCheck,  iconBg: '#EDF2EE', iconColor: '#1E5B45', sub: s?.users?.companies > 0 ? `${s?.users?.companies - (s?.users?.verifiedCompanies ?? 0)} pending →` : undefined, to: '/admin/users?role=company' },
     { label: 'Open Offers',        value: s?.offers?.open,              icon: Briefcase,    iconBg: '#FFFBEB', iconColor: '#D97706', sub: `${s?.offers?.total ?? 0} total` },
     { label: 'Applications',       value: s?.applications?.total,       icon: FileText,     iconBg: '#EEF2FF', iconColor: '#4338CA', sub: `${s?.applications?.pending ?? 0} new` },
     { label: 'Accepted',           value: s?.applications?.accepted,    icon: CheckCircle2, iconBg: '#EDF2EE', iconColor: '#1E5B45', sub: `${s?.applications?.rejected ?? 0} rejected` },
@@ -201,8 +206,11 @@ export default function AdminDashboard() {
                   ? { bg: '#EDE9FE', text: '#5B21B6' }
                   : { bg: '#EDF2EE', text: '#1E5B45' };
               return (
-                <div key={u.id} className="px-5 py-3 flex items-center justify-between gap-3"
-                  style={{ borderTop: i > 0 ? '1px solid #F0F0EA' : 'none' }}>
+                <Link key={u.id} to={`/admin/users?search=${encodeURIComponent(u.email || displayName)}`}
+                  className="px-5 py-3 flex items-center justify-between gap-3 transition-colors"
+                  style={{ borderTop: i > 0 ? '1px solid #F0F0EA' : 'none', textDecoration: 'none' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#FAFAF7'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
                       style={{ background: roleStyle.bg, color: roleStyle.text }}>
@@ -217,7 +225,7 @@ export default function AdminDashboard() {
                     style={{ background: roleStyle.bg, color: roleStyle.text }}>
                     {u.role}
                   </span>
-                </div>
+                </Link>
               );
             })}
           </div>

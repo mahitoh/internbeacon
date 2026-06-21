@@ -1,16 +1,16 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  Compass, LayoutDashboard, Briefcase, FileText, MessageSquare,
-  Bookmark, User, BarChart2, Plus, ChevronLeft, ChevronRight, LogOut, Users, ShieldCheck, Bell, Calendar, Building2,
+  LayoutDashboard, Briefcase, FileText, MessageSquare,
+  Bookmark, User, BarChart2, Plus, ChevronLeft, ChevronRight, LogOut, Users, ShieldCheck, Calendar, Building2,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
-import { notificationsApi } from '../../api/notifications';
 import Avatar from '../ui/Avatar';
 import { cn } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
+// Notifications intentionally omitted — the topbar bell (glance + "View all")
+// is the single home for them; a duplicate sidebar item was removed.
 const STUDENT_NAV = [
   { label: 'Dashboard',       href: '/student/dashboard',      icon: LayoutDashboard },
   { label: 'Browse Offers',   href: '/student/offers',         icon: Briefcase },
@@ -21,7 +21,6 @@ const STUDENT_NAV = [
   { label: 'Analytics',       href: '/student/analytics',      icon: BarChart2 },
   { label: 'Saved Offers',    href: '/student/saved',          icon: Bookmark },
   { label: 'My Profile',      href: '/student/profile',        icon: User },
-  { label: 'Notifications',   href: '/student/notifications',  icon: Bell, notifBadge: true },
 ];
 
 const COMPANY_NAV = [
@@ -31,7 +30,6 @@ const COMPANY_NAV = [
   { label: 'Messages',        href: '/company/messages',       icon: MessageSquare },
   { label: 'Analytics',       href: '/company/analytics',      icon: BarChart2 },
   { label: 'Company Profile', href: '/company/profile',        icon: User },
-  { label: 'Notifications',   href: '/company/notifications',  icon: Bell, notifBadge: true },
 ];
 
 const ADMIN_NAV = [
@@ -46,14 +44,6 @@ export default function Sidebar({ role, mobileOpen = false, onMobileClose }) {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const nav = role === 'student' ? STUDENT_NAV : role === 'company' ? COMPANY_NAV : ADMIN_NAV;
-
-  const { data: unreadData } = useQuery({
-    queryKey: ['notif-unread-sidebar'],
-    queryFn:  () => notificationsApi.unreadCount().then(r => r.data.data.unreadCount ?? 0),
-    refetchInterval: 60_000,
-    enabled: role === 'student' || role === 'company',
-  });
-  const unreadCount = unreadData ?? 0;
 
   const handleLogout = async () => {
     await logout();
@@ -136,23 +126,8 @@ export default function Sidebar({ role, mobileOpen = false, onMobileClose }) {
             )}
             title={collapsed ? item.label : undefined}
           >
-            <div className="relative flex-shrink-0">
-              <item.icon size={18} />
-              {item.notifBadge && unreadCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[14px] h-[14px] bg-[#1E5B45] rounded-full text-white text-[9px] flex items-center justify-center font-bold px-0.5">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </div>
-            {!collapsed && (
-              <span className="flex-1">{item.label}</span>
-            )}
-            {!collapsed && item.notifBadge && unreadCount > 0 && (
-              <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                style={{ background: '#EDF2EE', color: '#1E5B45' }}>
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
+            <item.icon size={18} className="flex-shrink-0" />
+            {!collapsed && <span className="flex-1">{item.label}</span>}
           </NavLink>
         ))}
       </nav>

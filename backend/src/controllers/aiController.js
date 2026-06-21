@@ -183,3 +183,30 @@ exports.rankApplicants = async (req, res, next) => {
     res.json({ success: true, data: rankings });
   } catch (err) { next(err); }
 };
+
+// ── GET /api/ai/match-applicant/:appId ────────────────────────────────────────
+// Recruiter-side counterpart to match-offer: the full algorithmic breakdown for
+// ONE applicant on the candidate-detail page. Enforces that the requesting
+// company owns the offer the application belongs to.
+exports.matchApplicant = async (req, res, next) => {
+  try {
+    const { appId } = req.params;
+
+    const { data: cp } = await supabaseAdmin
+      .from('company_profiles').select('id').eq('user_id', req.user.userId).single();
+    if (!cp) return res.status(400).json({ success: false, message: 'Company profile not found' });
+
+    const { data: app } = await supabaseAdmin
+      .from('applications')
+      .select('id, student_profiles(skills, programme, faculty, study_year, city, languages, ai_summary), internship_offers(title, domain, location, description, requirements, required_skills, company_id)')
+      .eq('id', appId)
+      .single();
+
+    if (!app || !app.internship_offers || !app.student_profiles)
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    if (app.internship_offers.company_id !== cp.id)
+      return res.status(403).json({ success: false, message: 'Access denied' });
+
+    res.json({ success: true, data: computeMatch(app.student_profiles, app.internship_offers) });
+  } catch (err) { next(err); }
+};

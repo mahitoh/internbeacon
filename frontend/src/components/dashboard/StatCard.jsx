@@ -10,7 +10,7 @@ const COLORS = {
   lime:   { bg: '#EDF2EE', border: '#C4DBCE', icon: '#1E5B45', text: '#1E5B45' },
 };
 
-export default function StatCard({ label, value, change, icon: Icon, color = 'green', sub }) {
+export default function StatCard({ label, value, change, icon: Icon, color = 'green', sub, loading = false }) {
   const c = COLORS[color] || COLORS.green;
 
   return (
@@ -18,8 +18,12 @@ export default function StatCard({ label, value, change, icon: Icon, color = 'gr
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9A9E97' }}>{label}</p>
-          <p className="text-3xl font-bold mt-1" style={{ fontFamily: "'Source Serif 4', Georgia, serif", color: '#1B1D1A' }}>{value}</p>
-          {sub && <p className="text-xs mt-0.5" style={{ color: '#9A9E97' }}>{sub}</p>}
+          {loading ? (
+            <div className="mt-2 h-7 w-12 rounded-md animate-pulse" style={{ background: '#EFEEE8' }} />
+          ) : (
+            <p className="text-3xl font-bold mt-1" style={{ fontFamily: "'Source Serif 4', Georgia, serif", color: '#1B1D1A' }}>{value}</p>
+          )}
+          {sub && !loading && <p className="text-xs mt-0.5" style={{ color: '#9A9E97' }}>{sub}</p>}
         </div>
         {Icon && (
           <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"

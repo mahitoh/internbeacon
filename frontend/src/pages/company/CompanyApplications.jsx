@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   FileText, ChevronRight, Loader2, Star, XCircle,
@@ -34,6 +34,21 @@ const SORT_OPTIONS = [
 const PAGE_SIZE = 25;
 const TERMINAL  = ['accepted', 'offer_accepted', 'offer_declined', 'rejected', 'withdrawn'];
 
+// The Match column is only shown at lg+, so match-based sorting is only offered
+// there — sorting by a column you can't see is disorienting.
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const handler = (e) => setIsDesktop(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isDesktop;
+}
+
 const scoreStyle = (score) => {
   if (score >= 85) return { color: '#1E5B45' };
   if (score >= 70) return { color: '#B45309' };
@@ -43,9 +58,15 @@ const scoreStyle = (score) => {
 
 export default function CompanyApplications() {
   const [searchParams]  = useSearchParams();
+  const navigate        = useNavigate();
   const [tab,           setTab]          = useState('all');
   const [offerFilter,   setOfferFilter]  = useState(() => searchParams.get('offer') || '');
   const [sort,          setSort]         = useState('newest');
+  const isDesktop = useIsDesktop();
+  const sortOptions = isDesktop ? SORT_OPTIONS : SORT_OPTIONS.filter(o => !o.key.startsWith('match'));
+  useEffect(() => {
+    if (!isDesktop && sort.startsWith('match')) { setSort('newest'); setPage(1); }
+  }, [isDesktop, sort]);
   const [page,          setPage]         = useState(1);
   const [rankMap,       setRankMap]      = useState({});
   const [rankingOffer,  setRankingOffer] = useState('');
@@ -189,7 +210,7 @@ export default function CompanyApplications() {
               style={{ background: '#fff', border: '1px solid #DDDBD2', color: '#6B6F69' }}
               onFocus={e => e.target.style.borderColor = '#1E5B45'}
               onBlur={e => e.target.style.borderColor = '#DDDBD2'}>
-              {SORT_OPTIONS.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
+              {sortOptions.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
             </select>
           </div>
 
@@ -296,13 +317,14 @@ export default function CompanyApplications() {
                       const isChecked  = selectedIds.includes(app.id);
                       const rank       = rankMap[app.id];
                       return (
-                        <tr key={app.id} className="transition-colors"
+                        <tr key={app.id} className="transition-colors cursor-pointer"
+                          onClick={() => navigate(`/company/applications/${app.id}`, { state: { queue: tabFiltered.map(a => a.id) } })}
                           style={{ borderTop: i > 0 ? '1px solid #F0F0EA' : 'none', background: isChecked ? '#F5FAF7' : 'transparent' }}
                           onMouseEnter={e => { if (!isChecked) e.currentTarget.style.background = '#FAFAF7'; }}
                           onMouseLeave={e => { e.currentTarget.style.background = isChecked ? '#F5FAF7' : 'transparent'; }}>
                           <td className="pl-4 pr-2 py-4 w-8">
                             {!isTerminal && (
-                              <button onClick={() => toggleSelect(app.id)} className="transition-colors"
+                              <button onClick={(e) => { e.stopPropagation(); toggleSelect(app.id); }} className="transition-colors"
                                 style={{ color: isChecked ? '#1E5B45' : '#C0BFBA' }}>
                                 {isChecked ? <CheckSquare size={15} /> : <Square size={15} />}
                               </button>
@@ -350,6 +372,8 @@ export default function CompanyApplications() {
                           <td className="px-5 py-4"><StatusBadge status={app.status} /></td>
                           <td className="px-5 py-4">
                             <Link to={`/company/applications/${app.id}`}
+                              state={{ queue: tabFiltered.map(a => a.id) }}
+                              onClick={(e) => e.stopPropagation()}
                               className="flex items-center gap-1 text-xs font-medium transition-colors"
                               style={{ color: '#1E5B45' }}
                               onMouseEnter={e => e.currentTarget.style.color = '#10342A'}
