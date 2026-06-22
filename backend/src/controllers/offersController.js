@@ -37,7 +37,12 @@ exports.list = async (req, res, next) => {
         .ilike('company_name', `%${search}%`);
       const companyIds = (matchingCompanies || []).map(c => c.id);
 
-      let filter = `title.ilike.%${search}%,description.ilike.%${search}%`;
+      // Wrap the ilike value in double quotes so reserved characters in the search
+      // term (commas, parens — e.g. "node, react", "(intern)") are treated literally
+      // and don't corrupt the PostgREST or() filter DSL. Escape backslashes/quotes
+      // inside the value so the quoting itself can't be broken out of.
+      const safe = String(search).replace(/[\\"]/g, m => `\\${m}`);
+      let filter = `title.ilike."%${safe}%",description.ilike."%${safe}%"`;
       if (companyIds.length > 0) filter += `,company_id.in.(${companyIds.join(',')})`;
       query = query.or(filter);
     }

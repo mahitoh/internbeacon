@@ -40,7 +40,10 @@ api.interceptors.response.use(
       isRefreshing = true;
       try {
         const rt = localStorage.getItem('refreshToken');
-        const res = await axios.post('/api/auth/refresh', { refreshToken: rt });
+        // Use the same baseURL as the api instance (bare axios keeps this call free
+        // of the auth interceptors) so refresh still hits the backend when frontend
+        // and backend are deployed on separate origins.
+        const res = await axios.post(`${api.defaults.baseURL}/auth/refresh`, { refreshToken: rt });
         const { accessToken, refreshToken } = res.data;
         localStorage.setItem('accessToken', accessToken);
         // Supabase rotates refresh tokens — persist the new one or the next

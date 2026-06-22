@@ -141,6 +141,7 @@ export default function App() {
               <Route path="users"            element={<AdminUsers />} />
               <Route path="offers"           element={<AdminOffers />} />
               <Route path="applications"     element={<AdminApplications />} />
+              <Route path="notifications"    element={<NotificationsPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

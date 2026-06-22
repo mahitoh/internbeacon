@@ -181,8 +181,20 @@ exports.getCvSignedUrl = async (req, res, next) => {
     }
 
     // Support both profile CV (userId.pdf) and snapshot paths (applications/userId/ts.pdf).
-    // The caller can pass ?path=... to request a specific snapshot; otherwise defaults to profile CV.
-    const cvPath = req.query.path || `${studentUserId}.pdf`;
+    // SECURITY: the access checks above only authorise this studentUserId, so a
+    // client-supplied ?path must stay inside THAT student's namespace — otherwise a
+    // requester could point path at another student's CV and bypass the check.
+    // Never trust an arbitrary path.
+    const profileCvPath  = `${studentUserId}.pdf`;
+    const snapshotPrefix = `applications/${studentUserId}/`;
+    const requestedPath  = req.query.path;
+    if (requestedPath && (
+        requestedPath.includes('..') ||
+        (requestedPath !== profileCvPath && !requestedPath.startsWith(snapshotPrefix))
+    )) {
+      return res.status(403).json({ success: false, message: 'Forbidden' });
+    }
+    const cvPath = requestedPath || profileCvPath;
 
     const { data, error } = await supabaseAdmin.storage
       .from('cvs')
