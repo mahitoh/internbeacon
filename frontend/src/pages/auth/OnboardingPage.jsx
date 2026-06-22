@@ -79,53 +79,66 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center p-6 relative" style={{ background: '#F6F5F1', fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle at 1px 1px, #DEDCD2 1px, transparent 0)',
+        backgroundSize: '26px 26px',
+        opacity: .5,
+      }} />
+
       <motion.div
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md">
+        className="relative w-full max-w-md">
 
         {/* Logo */}
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-9 h-9 bg-lime-500 rounded-lg flex items-center justify-center">
-            <Compass size={20} className="text-white" />
+        <div className="flex items-center gap-2.5 mb-8">
+          <div className="flex items-center justify-center flex-shrink-0" style={{ width: 36, height: 36, borderRadius: 9, background: '#1E5B45' }}>
+            <Compass size={19} className="text-white" />
           </div>
-          <span className="font-bold text-white text-xl">InternBeacon</span>
+          <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: '#1B1D1A' }}>InternBeacon</span>
         </div>
 
+        <div style={{ background: '#fff', border: '1.5px solid #E7E6DF', borderRadius: 18, padding: '36px 32px', boxShadow: '0 4px 24px rgba(24,32,24,.05)' }}>
         <AnimatePresence mode="wait">
           {step === 'role' && (
             <motion.div key="role"
               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <h1 className="text-3xl font-black text-white">One last step</h1>
-              <p className="text-white/40 mt-2 text-sm mb-8">
-                {googleUser?.email && <span>Signed in as <strong className="text-white/70">{googleUser.email}</strong>. </span>}
+              <h1 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 26, fontWeight: 600, color: '#1B1D1A', margin: '0 0 6px', letterSpacing: '-0.01em' }}>One last step</h1>
+              <p style={{ fontSize: 14, color: '#6B6F69', margin: '0 0 28px', lineHeight: 1.5 }}>
+                {googleUser?.email && <span>Signed in as <strong style={{ color: '#1B1D1A' }}>{googleUser.email}</strong>. </span>}
                 How will you use InternBeacon?
               </p>
               <div className="space-y-3">
                 <button
                   onClick={() => handleRoleSelect('student')}
-                  className="w-full flex items-center gap-4 p-5 bg-[#1a1a1a] border border-white/10 rounded-2xl hover:border-lime-500/40 hover:bg-[#1e1e1e] transition-all group text-left">
-                  <div className="w-12 h-12 rounded-xl bg-lime-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-lime-500/20 transition-colors">
-                    <GraduationCap size={22} className="text-lime-400" />
+                  className="w-full flex items-center gap-4 p-5 rounded-2xl transition-all group text-left"
+                  style={{ background: '#F6F5F1', border: '1.5px solid #E7E6DF' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#1E5B45'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#E7E6DF'}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#EDF2EE' }}>
+                    <GraduationCap size={22} style={{ color: '#1E5B45' }} />
                   </div>
                   <div>
-                    <p className="text-white font-semibold">I'm a Student</p>
-                    <p className="text-white/40 text-sm mt-0.5">Find internships that match my skills</p>
+                    <p className="font-semibold" style={{ color: '#1B1D1A' }}>I'm a Student</p>
+                    <p className="text-sm mt-0.5" style={{ color: '#6B6F69' }}>Find internships that match my skills</p>
                   </div>
-                  <ArrowRight size={18} className="text-white/20 ml-auto group-hover:text-lime-400 transition-colors" />
+                  <ArrowRight size={18} className="ml-auto" style={{ color: '#A4A89F' }} />
                 </button>
 
                 <button
                   onClick={() => handleRoleSelect('company')}
-                  className="w-full flex items-center gap-4 p-5 bg-[#1a1a1a] border border-white/10 rounded-2xl hover:border-lime-500/40 hover:bg-[#1e1e1e] transition-all group text-left">
-                  <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-violet-500/20 transition-colors">
-                    <Building2 size={22} className="text-violet-400" />
+                  className="w-full flex items-center gap-4 p-5 rounded-2xl transition-all group text-left"
+                  style={{ background: '#F6F5F1', border: '1.5px solid #E7E6DF' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#1E5B45'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#E7E6DF'}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#EDF2EE' }}>
+                    <Building2 size={22} style={{ color: '#1E5B45' }} />
                   </div>
                   <div>
-                    <p className="text-white font-semibold">I'm a Company</p>
-                    <p className="text-white/40 text-sm mt-0.5">Post internship offers and hire interns</p>
+                    <p className="font-semibold" style={{ color: '#1B1D1A' }}>I'm a Company</p>
+                    <p className="text-sm mt-0.5" style={{ color: '#6B6F69' }}>Post internship offers and hire interns</p>
                   </div>
-                  <ArrowRight size={18} className="text-white/20 ml-auto group-hover:text-violet-400 transition-colors" />
+                  <ArrowRight size={18} className="ml-auto" style={{ color: '#A4A89F' }} />
                 </button>
               </div>
             </motion.div>
@@ -134,9 +147,9 @@ export default function OnboardingPage() {
           {step === 'profile' && role === 'student' && (
             <motion.div key="student-profile"
               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <button onClick={() => setStep('role')} className="text-white/30 hover:text-white text-sm mb-6 transition-colors">← Back</button>
-              <h1 className="text-3xl font-black text-white">Student profile</h1>
-              <p className="text-white/40 mt-2 text-sm mb-6">Tell us about your studies</p>
+              <button onClick={() => setStep('role')} className="text-sm mb-6 transition-colors" style={{ color: '#9A9E97' }}>← Back</button>
+              <h1 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 26, fontWeight: 600, color: '#1B1D1A', margin: '0 0 6px', letterSpacing: '-0.01em' }}>Student profile</h1>
+              <p style={{ fontSize: 14, color: '#6B6F69', margin: '0 0 24px', lineHeight: 1.5 }}>Tell us about your studies</p>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
@@ -149,13 +162,14 @@ export default function OnboardingPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-white/70">University</label>
-                  <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
+                  <label className="block text-[13px] font-semibold" style={{ color: '#1B1D1A' }}>University</label>
+                  <select className="w-full rounded-[11px] px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 appearance-none"
+                    style={{ border: '1px solid #DDDBD2', background: '#F6F5F1', color: '#1B1D1A' }}
                     {...register('university', { required: 'Required' })}>
-                    <option value="" className="bg-[#1a1a1a]">Select your university…</option>
-                    {UNIVERSITIES.map(u => <option key={u} value={u} className="bg-[#1a1a1a]">{u}</option>)}
+                    <option value="">Select your university…</option>
+                    {UNIVERSITIES.map(u => <option key={u} value={u}>{u}</option>)}
                   </select>
-                  {errors.university && <p className="text-xs text-red-400">{errors.university.message}</p>}
+                  {errors.university && <p className="text-xs text-red-500">{errors.university.message}</p>}
                 </div>
 
                 <DarkInput label="Programme / Degree" placeholder="BSc Information Technology"
@@ -163,13 +177,14 @@ export default function OnboardingPage() {
                   {...register('programme', { required: 'Required' })} />
 
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-white/70">Year of Study</label>
-                  <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
+                  <label className="block text-[13px] font-semibold" style={{ color: '#1B1D1A' }}>Year of Study</label>
+                  <select className="w-full rounded-[11px] px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 appearance-none"
+                    style={{ border: '1px solid #DDDBD2', background: '#F6F5F1', color: '#1B1D1A' }}
                     {...register('studyYear', { required: 'Required', valueAsNumber: true, min: { value: 1, message: 'Required' } })}>
-                    <option value="" className="bg-[#1a1a1a]">Select year…</option>
-                    {[1,2,3,4,5].map(y => <option key={y} value={y} className="bg-[#1a1a1a]">Year {y}</option>)}
+                    <option value="">Select year…</option>
+                    {[1,2,3,4,5].map(y => <option key={y} value={y}>Year {y}</option>)}
                   </select>
-                  {errors.studyYear && <p className="text-xs text-red-400">{errors.studyYear.message}</p>}
+                  {errors.studyYear && <p className="text-xs text-red-500">{errors.studyYear.message}</p>}
                 </div>
 
                 <Button type="submit" variant="primary" size="lg" loading={isSubmitting} className="w-full mt-2">
@@ -182,9 +197,9 @@ export default function OnboardingPage() {
           {step === 'profile' && role === 'company' && (
             <motion.div key="company-profile"
               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <button onClick={() => setStep('role')} className="text-white/30 hover:text-white text-sm mb-6 transition-colors">← Back</button>
-              <h1 className="text-3xl font-black text-white">Company profile</h1>
-              <p className="text-white/40 mt-2 text-sm mb-6">Tell us about your organisation</p>
+              <button onClick={() => setStep('role')} className="text-sm mb-6 transition-colors" style={{ color: '#9A9E97' }}>← Back</button>
+              <h1 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 26, fontWeight: 600, color: '#1B1D1A', margin: '0 0 6px', letterSpacing: '-0.01em' }}>Company profile</h1>
+              <p style={{ fontSize: 14, color: '#6B6F69', margin: '0 0 24px', lineHeight: 1.5 }}>Tell us about your organisation</p>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <DarkInput label="Company Name" placeholder="MTN Cameroon"
@@ -192,23 +207,25 @@ export default function OnboardingPage() {
                   {...register('companyName', { required: 'Required' })} />
 
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-white/70">Sector / Industry</label>
-                  <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
+                  <label className="block text-[13px] font-semibold" style={{ color: '#1B1D1A' }}>Sector / Industry</label>
+                  <select className="w-full rounded-[11px] px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 appearance-none"
+                    style={{ border: '1px solid #DDDBD2', background: '#F6F5F1', color: '#1B1D1A' }}
                     {...register('sector', { required: 'Required' })}>
-                    <option value="" className="bg-[#1a1a1a]">Select your industry…</option>
-                    {SECTORS.map(s => <option key={s} value={s} className="bg-[#1a1a1a]">{s}</option>)}
+                    <option value="">Select your industry…</option>
+                    {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
-                  {errors.sector && <p className="text-xs text-red-400">{errors.sector.message}</p>}
+                  {errors.sector && <p className="text-xs text-red-500">{errors.sector.message}</p>}
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-white/70">City</label>
-                  <select className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white focus:outline-none focus:border-lime-500/50 appearance-none"
+                  <label className="block text-[13px] font-semibold" style={{ color: '#1B1D1A' }}>City</label>
+                  <select className="w-full rounded-[11px] px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 appearance-none"
+                    style={{ border: '1px solid #DDDBD2', background: '#F6F5F1', color: '#1B1D1A' }}
                     {...register('city', { required: 'Required' })}>
-                    <option value="" className="bg-[#1a1a1a]">Select city…</option>
-                    {CITIES.map(c => <option key={c} value={c} className="bg-[#1a1a1a]">{c}</option>)}
+                    <option value="">Select city…</option>
+                    {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
-                  {errors.city && <p className="text-xs text-red-400">{errors.city.message}</p>}
+                  {errors.city && <p className="text-xs text-red-500">{errors.city.message}</p>}
                 </div>
 
                 <Button type="submit" variant="primary" size="lg" loading={isSubmitting} className="w-full mt-2">
@@ -218,6 +235,7 @@ export default function OnboardingPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </motion.div>
     </div>
   );

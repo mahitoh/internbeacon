@@ -72,10 +72,10 @@ export default function AuthCallbackPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#F6F5F1', fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
       <div className="text-center space-y-4">
         <Spinner />
-        <p className="text-white/40 text-sm">Signing you in with Google…</p>
+        <p className="text-sm" style={{ color: '#6B6F69' }}>Signing you in with Google…</p>
       </div>
     </div>
   );

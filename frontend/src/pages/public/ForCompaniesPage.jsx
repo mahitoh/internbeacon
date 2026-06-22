@@ -17,7 +17,7 @@ const FEATURES = [
   },
   {
     icon: Users,
-    title: 'AI-Powered Matching',
+    title: 'Algorithmic Matching',
     desc: 'Our algorithm surfaces the most relevant candidates from thousands of verified student profiles.',
   },
   {

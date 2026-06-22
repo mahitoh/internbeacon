@@ -55,45 +55,53 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center p-6 relative" style={{ background: '#F6F5F1', fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle at 1px 1px, #DEDCD2 1px, transparent 0)',
+        backgroundSize: '26px 26px',
+        opacity: .5,
+      }} />
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className="relative w-full max-w-md"
       >
-        <Link to="/" className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 bg-lime-500 rounded-lg flex items-center justify-center">
-            <Compass size={16} className="text-white" />
+        <Link to="/" className="flex items-center gap-2.5 mb-8">
+          <div className="flex items-center justify-center flex-shrink-0" style={{ width: 36, height: 36, borderRadius: 9, background: '#1E5B45' }}>
+            <Compass size={17} className="text-white" />
           </div>
-          <span className="font-bold text-white">InternBeacon</span>
+          <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: '-0.02em', color: '#1B1D1A' }}>InternBeacon</span>
         </Link>
 
+        <div style={{ background: '#fff', border: '1.5px solid #E7E6DF', borderRadius: 18, padding: '36px 32px', boxShadow: '0 4px 24px rgba(24,32,24,.05)' }}>
         {tokenError ? (
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">
-              <AlertCircle size={28} className="text-red-400" />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto" style={{ background: 'rgba(192,86,62,0.08)', border: '1px solid rgba(192,86,62,0.2)' }}>
+              <AlertCircle size={28} style={{ color: '#C0563E' }} />
             </div>
-            <h1 className="text-2xl font-black text-white">Invalid or expired link</h1>
-            <p className="text-white/50 text-sm">This reset link is no longer valid. Please request a new one.</p>
+            <h1 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 24, fontWeight: 600, color: '#1B1D1A', letterSpacing: '-0.01em' }}>Invalid or expired link</h1>
+            <p className="text-sm" style={{ color: '#6B6F69' }}>This reset link is no longer valid. Please request a new one.</p>
             <Link
               to="/forgot-password"
-              className="inline-block mt-2 px-6 py-2.5 bg-lime-500 hover:bg-lime-600 text-white text-sm font-semibold rounded-xl transition-colors"
+              className="inline-block mt-2 px-6 py-2.5 text-sm font-semibold rounded-xl transition-colors"
+              style={{ background: '#1E5B45', color: '#fff' }}
             >
               Request new link
             </Link>
           </div>
         ) : done ? (
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-lime-500/15 border border-lime-500/20 flex items-center justify-center mx-auto">
-              <CheckCircle2 size={28} className="text-lime-400" />
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto" style={{ background: '#EDF2EE', border: '1.5px solid #C4DBCE' }}>
+              <CheckCircle2 size={28} style={{ color: '#1E5B45' }} />
             </div>
-            <h1 className="text-2xl font-black text-white">Password updated!</h1>
-            <p className="text-white/50 text-sm">Redirecting you to sign in…</p>
+            <h1 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 24, fontWeight: 600, color: '#1B1D1A', letterSpacing: '-0.01em' }}>Password updated!</h1>
+            <p className="text-sm" style={{ color: '#6B6F69' }}>Redirecting you to sign in…</p>
           </div>
         ) : (
           <>
-            <h1 className="text-3xl font-black text-white">Set new password</h1>
-            <p className="text-white/40 mt-2 text-sm">Choose a strong password for your account.</p>
+            <h1 style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 26, fontWeight: 600, color: '#1B1D1A', margin: '0 0 6px', letterSpacing: '-0.01em' }}>Set new password</h1>
+            <p style={{ fontSize: 14, color: '#6B6F69', margin: 0 }}>Choose a strong password for your account.</p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
               <DarkInput
@@ -127,6 +135,7 @@ export default function ResetPasswordPage() {
             </form>
           </>
         )}
+        </div>
       </motion.div>
     </div>
   );

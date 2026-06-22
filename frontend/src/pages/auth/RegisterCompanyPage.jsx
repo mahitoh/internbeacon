@@ -78,7 +78,7 @@ export default function RegisterCompanyPage() {
             Access a pool of talented Cameroonian university students from top universities.
           </p>
           <ul className="space-y-2">
-            {['Post unlimited internship offers', 'AI-powered candidate matching', 'Application pipeline management', 'Direct messaging with candidates', 'Free to start'].map(p => (
+            {['Post unlimited internship offers', 'Algorithmic candidate matching', 'Application pipeline management', 'Direct messaging with candidates', 'Free to start'].map(p => (
               <li key={p} className="flex items-center gap-2" style={{ fontSize: 13.5, color: '#D7E5DE' }}>
                 <span style={{ color: '#9FE870', fontWeight: 700 }}>✓</span> {p}
               </li>
