@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import Sidebar from './Sidebar';
 import DashboardTopbar from './DashboardTopbar';
+import WelcomeModal from '../ui/WelcomeModal';
 
 const TITLES = {
   '/student/dashboard':    'Dashboard',
@@ -43,6 +44,9 @@ export default function DashboardLayout({ role }) {
 
   return (
     <div className="flex bg-[#F6F5F1] min-h-screen">
+      {/* First-run welcome (one-time per user; student & company only) */}
+      <WelcomeModal role={role} />
+
       {/* Mobile overlay backdrop */}
       {mobileSidebarOpen && (
         <div
