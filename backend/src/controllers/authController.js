@@ -1,6 +1,22 @@
 const { supabaseAdmin, supabaseAuth } = require('../config/supabase');
 const { normaliseStudentProfile, normaliseCompanyProfile } = require('./profilesController');
 
+// supabase-js has no admin.getUserByEmail(), so page through listUsers() to find
+// a user by email. Capped at 20 pages so a large user base can't loop unbounded
+// — fine at this app's scale, and used only on auth error paths (not hot paths).
+async function findUserByEmail(email) {
+  const target = String(email || '').toLowerCase();
+  if (!target) return null;
+  for (let page = 1; page <= 20; page++) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+    if (error || !data?.users?.length) return null;
+    const match = data.users.find(u => u.email?.toLowerCase() === target);
+    if (match) return match;
+    if (data.users.length < 200) return null; // reached the last page
+  }
+  return null;
+}
+
 // ── POST /api/auth/register ────────────────────────────────────────────────────
 // Creates the Supabase auth user (which fires the handle_new_user trigger and
 // auto-creates the public.profiles row), then creates the role-specific profile.
@@ -32,7 +48,7 @@ exports.register = async (req, res, next) => {
       if (isDuplicate) {
         // Check if the existing account is Google-only (no password set).
         try {
-          const { data: { user: existingUser } } = await supabaseAdmin.auth.admin.getUserByEmail(email);
+          const existingUser = await findUserByEmail(email);
           if (existingUser) {
             const identities = existingUser.identities || [];
             const isGoogleOnly = identities.length > 0 && identities.every(i => i.provider === 'google');
@@ -118,10 +134,11 @@ exports.login = async (req, res, next) => {
         });
       }
 
-      // A suspended/banned account returns a generic auth error too, so without an
-      // explicit check it looks identical to a wrong password. Fast-path on the
-      // message; the account lookup below is the reliable check.
-      if (msg.includes('banned') || msg.includes('suspended')) {
+      // Suspended/banned account. GoTrue rejects the login with code 'user_banned'
+      // ("User is banned") as soon as the account is banned — before checking the
+      // password — so this reliably catches a suspended user. (banned_until isn't
+      // exposed by the admin API, so the login error code is the signal we use.)
+      if (error.code === 'user_banned' || msg.includes('banned') || msg.includes('suspended')) {
         return res.status(403).json({
           success: false,
           message: 'This account has been suspended. Please contact support if you believe this is a mistake.',
@@ -129,19 +146,12 @@ exports.login = async (req, res, next) => {
         });
       }
 
-      // Look the account up so we can give a precise reason instead of a blanket
-      // "incorrect password" for states that have nothing to do with the password:
-      // a suspended account, or a Google-only (password-less) account.
+      // Otherwise the credentials were invalid. Distinguish a Google-only
+      // (password-less) account so we can point the user at the right button
+      // instead of a blanket "incorrect password".
       try {
-        const { data: { user: existingUser } } = await supabaseAdmin.auth.admin.getUserByEmail(email);
+        const existingUser = await findUserByEmail(email);
         if (existingUser) {
-          if (existingUser.banned_until && new Date(existingUser.banned_until) > new Date()) {
-            return res.status(403).json({
-              success: false,
-              message: 'This account has been suspended. Please contact support if you believe this is a mistake.',
-              code:    'ACCOUNT_SUSPENDED',
-            });
-          }
           const identities = existingUser.identities || [];
           const isGoogleOnly = identities.length > 0 && identities.every(i => i.provider === 'google');
           if (isGoogleOnly) {
