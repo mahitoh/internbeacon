@@ -140,7 +140,7 @@ export default function RegisterCompanyPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-            <LightInput label="Company name" icon={Building2} placeholder="MTN Cameroon"
+            <LightInput label="Company name" icon={Building2} placeholder="Your company name"
               error={errors.companyName?.message}
               {...register('companyName', { required: 'Required' })} />
 

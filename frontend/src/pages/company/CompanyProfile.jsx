@@ -139,7 +139,7 @@ export default function CompanyProfile() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <Section title="Company Information" icon={Building2}>
-          <Field label="Company Name *" {...register('companyName')} placeholder="MTN Cameroon" />
+          <Field label="Company Name *" {...register('companyName')} placeholder="Your company name" />
           <SelectField label="Industry / Sector" {...register('sector')}>
             {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
           </SelectField>

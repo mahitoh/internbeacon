@@ -140,10 +140,10 @@ export default function RegisterStudentPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <LightInput label="First name" icon={User} placeholder="Brian"
+              <LightInput label="First name" icon={User} placeholder="Your first name"
                 error={errors.firstName?.message}
                 {...register('firstName', { required: 'Required' })} />
-              <LightInput label="Last name" placeholder="Tabi"
+              <LightInput label="Last name" placeholder="Your last name"
                 error={errors.lastName?.message}
                 {...register('lastName', { required: 'Required' })} />
             </div>
@@ -172,7 +172,7 @@ export default function RegisterStudentPage() {
               {errors.university && <p className="text-xs" style={{ color: '#C0563E' }}>{errors.university.message}</p>}
             </div>
 
-            <LightInput label="Programme / Degree" icon={GraduationCap} placeholder="BSc Information Technology"
+            <LightInput label="Programme / Degree" icon={GraduationCap} placeholder="e.g. BSc Computer Science"
               error={errors.programme?.message}
               {...register('programme', { required: 'Required' })} />
 

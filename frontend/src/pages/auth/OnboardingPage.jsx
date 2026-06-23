@@ -154,10 +154,10 @@ export default function OnboardingPage() {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <DarkInput label="First Name" placeholder="Brian"
+                  <DarkInput label="First Name" placeholder="Your first name"
                     error={errors.firstName?.message}
                     {...register('firstName', { required: 'Required' })} />
-                  <DarkInput label="Last Name" placeholder="Tabi"
+                  <DarkInput label="Last Name" placeholder="Your last name"
                     error={errors.lastName?.message}
                     {...register('lastName', { required: 'Required' })} />
                 </div>
@@ -173,7 +173,7 @@ export default function OnboardingPage() {
                   {errors.university && <p className="text-xs text-red-500">{errors.university.message}</p>}
                 </div>
 
-                <DarkInput label="Programme / Degree" placeholder="BSc Information Technology"
+                <DarkInput label="Programme / Degree" placeholder="e.g. BSc Computer Science"
                   error={errors.programme?.message}
                   {...register('programme', { required: 'Required' })} />
 
@@ -203,7 +203,7 @@ export default function OnboardingPage() {
               <p style={{ fontSize: 14, color: '#6B6F69', margin: '0 0 24px', lineHeight: 1.5 }}>Tell us about your organisation</p>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <DarkInput label="Company Name" placeholder="MTN Cameroon"
+                <DarkInput label="Company Name" placeholder="Your company name"
                   error={errors.companyName?.message}
                   {...register('companyName', { required: 'Required' })} />
 

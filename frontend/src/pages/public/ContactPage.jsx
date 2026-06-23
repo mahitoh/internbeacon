@@ -74,9 +74,9 @@ export default function ContactPage() {
             <h3 className="text-lg font-black text-forest-950 mb-4 pb-2 border-b ">Send a message</h3>
             
             <div className="grid grid-cols-2 gap-4">
-              <Input label="First Name" placeholder="Brian" error={errors.firstName?.message}
+              <Input label="First Name" placeholder="Your first name" error={errors.firstName?.message}
                 {...register('firstName', { required: 'Required' })} />
-              <Input label="Last Name" placeholder="Tabi" error={errors.lastName?.message}
+              <Input label="Last Name" placeholder="Your last name" error={errors.lastName?.message}
                 {...register('lastName', { required: 'Required' })} />
             </div>
             
