@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';
-import { User, GraduationCap, Code2, Upload, Globe, Github, Linkedin, Save, FileText, Loader2, Eye, Bell, MapPin } from 'lucide-react';
+import { User, GraduationCap, Code2, Upload, Globe, Github, Linkedin, Save, FileText, Loader2, Eye, Bell, MapPin, Trash2 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Avatar from '../../components/ui/Avatar';
 import CropModal from '../../components/ui/CropModal';
@@ -68,6 +68,7 @@ export default function StudentProfile() {
   const profile  = user?.studentProfile;
   const [selectedSkills, setSelectedSkills] = useState(profile?.skills || []);
   const [uploadingCv,    setUploadingCv]    = useState(false);
+  const [removingCv,     setRemovingCv]     = useState(false);
   const [cvViewerOpen,   setCvViewerOpen]   = useState(false);
   const [cvViewerUrl,    setCvViewerUrl]    = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -203,6 +204,21 @@ export default function StudentProfile() {
   }, [refetchUser, analyzeCv]);
 
   const handleCvChange = (e) => handleCvFile(e.target.files?.[0]);
+
+  // Remove the stored CV. Curated skills stay on the profile (they're the source
+  // of truth the student manages); only the file + parsed summary are cleared.
+  const handleRemoveCv = useCallback(async () => {
+    if (!window.confirm('Remove your CV? Your skills stay on your profile and you can upload a new CV anytime.')) return;
+    setRemovingCv(true);
+    try {
+      await uploadApi.removeCv();
+      setCvUploaded(false);
+      await refetchUser();
+      toast.success('CV removed');
+    } catch {
+      toast.error('Could not remove CV');
+    } finally { setRemovingCv(false); }
+  }, [refetchUser]);
 
   const handleDragEnter = (e) => { e.preventDefault(); dragCounterRef.current++; if (dragCounterRef.current === 1) setIsDraggingCv(true); };
   const handleDragLeave = (e) => { e.preventDefault(); dragCounterRef.current--; if (dragCounterRef.current === 0) setIsDraggingCv(false); };
@@ -462,13 +478,23 @@ export default function StudentProfile() {
                     : 'PDF uploaded · click "Re-analyze CV" to read it'}
                 </p>
               </div>
-              <button type="button" onClick={() => cvInputRef.current?.click()}
-                className="text-xs px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-colors"
-                style={{ color: '#6B6F69', border: '1px solid #DDDBD2', background: '#fff' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#1E5B45'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#DDDBD2'}>
-                Replace
-              </button>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <button type="button" onClick={() => cvInputRef.current?.click()} disabled={removingCv}
+                  className="text-xs px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                  style={{ color: '#6B6F69', border: '1px solid #DDDBD2', background: '#fff' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = '#1E5B45'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = '#DDDBD2'}>
+                  Replace
+                </button>
+                <button type="button" onClick={handleRemoveCv} disabled={removingCv} title="Remove CV"
+                  className="text-xs px-2 py-1.5 rounded-lg flex items-center gap-1 transition-colors disabled:opacity-50"
+                  style={{ color: '#B91C1C', border: '1px solid #F3D2D2', background: '#fff' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#FEF2F2'; e.currentTarget.style.borderColor = '#FECACA'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#F3D2D2'; }}>
+                  {removingCv ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                  Remove
+                </button>
+              </div>
             </div>
           ) : (
             <div

@@ -4,6 +4,7 @@ const authorize    = require('../middleware/authorize');
 const ctrl         = require('../controllers/uploadController');
 
 router.post('/cv',          authenticate, authorize('student'), ctrl.cvMiddleware,    ctrl.uploadCv);
+router.delete('/cv',        authenticate, authorize('student'),                       ctrl.deleteCv);
 router.post('/cv-snapshot', authenticate, authorize('student'), ctrl.cvMiddleware,    ctrl.uploadCvSnapshot);
 router.post('/avatar',      authenticate, authorize('student'), ctrl.imageMiddleware, ctrl.uploadAvatar);
 router.post('/logo',        authenticate, authorize('company'), ctrl.imageMiddleware, ctrl.uploadLogo);

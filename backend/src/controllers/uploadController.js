@@ -60,6 +60,35 @@ exports.uploadCv = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// ── DELETE /api/upload/cv ─────────────────────────────────────────────────────
+// Removes the student's profile CV: deletes the stored file and clears cv_url +
+// ai_summary (extraction/display metadata). Curated skills/languages are kept —
+// they are the source of truth the student manages directly. Past applications
+// keep their own immutable cv_snapshot, so this never affects what was submitted.
+exports.deleteCv = async (req, res, next) => {
+  try {
+    const { data: profile } = await supabaseAdmin
+      .from('student_profiles')
+      .select('cv_url')
+      .eq('user_id', req.user.userId)
+      .single();
+
+    // Remove the stored file (best-effort — a missing object must not block the
+    // profile update). Fall back to the conventional path if cv_url is unset.
+    const path = profile?.cv_url || `${req.user.userId}.pdf`;
+    await supabaseAdmin.storage.from('cvs').remove([path]).catch(() => {});
+
+    const { error } = await supabaseAdmin
+      .from('student_profiles')
+      .update({ cv_url: null, ai_summary: null, updated_at: new Date().toISOString() })
+      .eq('user_id', req.user.userId);
+
+    if (error) throw error;
+
+    res.json({ success: true, data: { removed: true } });
+  } catch (err) { next(err); }
+};
+
 // ── POST /api/upload/cv-snapshot ─────────────────────────────────────────────
 // Stores a PDF at applications/{userId}/{timestamp}.pdf WITHOUT touching the
 // student's profile CV. Used when a student attaches an application-specific CV.
