@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Users, Briefcase, FileText, Send, TrendingUp, UserCheck, Building2, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Users, Briefcase, FileText, Send, TrendingUp, UserCheck, Building2, CheckCircle2, ShieldCheck, ArrowRight, ArrowUpRight, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { adminApi } from '../../api/admin';
 import Spinner from '../../components/ui/Spinner';
+import SelectField from '../../components/ui/SelectField';
 import { formatRelativeTime } from '../../lib/utils';
 import toast from 'react-hot-toast';
 import {
@@ -12,18 +13,22 @@ import {
 
 function MetricCard({ label, value, icon: Icon, iconBg, iconColor, sub, to }) {
   const inner = (
-    <div className="rounded-2xl p-5 flex items-center gap-4 h-full transition-colors"
+    <div className="group relative rounded-2xl p-5 flex items-center gap-4 h-full transition-all"
       style={{ background: '#fff', border: '1px solid #E7E6DF' }}
-      onMouseEnter={to ? e => e.currentTarget.style.borderColor = '#C4DBCE' : undefined}
-      onMouseLeave={to ? e => e.currentTarget.style.borderColor = '#E7E6DF' : undefined}>
+      onMouseEnter={to ? e => { e.currentTarget.style.borderColor = '#C4DBCE'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(30,91,69,.08)'; e.currentTarget.style.transform = 'translateY(-2px)'; } : undefined}
+      onMouseLeave={to ? e => { e.currentTarget.style.borderColor = '#E7E6DF'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; } : undefined}>
       <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: iconBg }}>
         <Icon size={20} style={{ color: iconColor }} />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#9A9E97' }}>{label}</p>
         <p className="text-2xl font-black mt-0.5" style={{ fontFamily: "'Source Serif 4', Georgia, serif", color: '#1B1D1A' }}>{value ?? '—'}</p>
         {sub && <p className="text-[11px] mt-0.5" style={{ color: to ? '#1E5B45' : '#9A9E97' }}>{sub}</p>}
       </div>
+      {to && (
+        <ArrowUpRight size={16} className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ color: '#1E5B45' }} />
+      )}
     </div>
   );
   return to ? <Link to={to} className="block" style={{ textDecoration: 'none' }}>{inner}</Link> : inner;
@@ -91,14 +96,39 @@ export default function AdminDashboard() {
   const tickEvery = trendDays <= 7 ? 1 : trendDays <= 30 ? 5 : 10;
   const chartData = (trendData || []).map((d, i) => ({ ...d, label: i % tickEvery === 0 ? shortDate(d.date) : '' }));
 
-  const metrics = [
-    { label: 'Total Users',        value: s?.users?.total,              icon: Users,        iconBg: '#EDF2EE', iconColor: '#1E5B45' },
-    { label: 'Students',           value: s?.users?.students,           icon: UserCheck,    iconBg: '#DBEAFE', iconColor: '#1E40AF' },
-    { label: 'Companies',          value: s?.users?.companies,          icon: Building2,    iconBg: '#EDE9FE', iconColor: '#5B21B6' },
-    { label: 'Verified Companies', value: s?.users?.verifiedCompanies,  icon: ShieldCheck,  iconBg: '#EDF2EE', iconColor: '#1E5B45', sub: s?.users?.companies > 0 ? `${s?.users?.companies - (s?.users?.verifiedCompanies ?? 0)} pending →` : undefined, to: '/admin/users?role=company' },
-    { label: 'Open Offers',        value: s?.offers?.open,              icon: Briefcase,    iconBg: '#FFFBEB', iconColor: '#D97706', sub: `${s?.offers?.total ?? 0} total` },
-    { label: 'Applications',       value: s?.applications?.total,       icon: FileText,     iconBg: '#EEF2FF', iconColor: '#4338CA', sub: `${s?.applications?.pending ?? 0} new` },
-    { label: 'Accepted',           value: s?.applications?.accepted,    icon: CheckCircle2, iconBg: '#EDF2EE', iconColor: '#1E5B45', sub: `${s?.applications?.rejected ?? 0} rejected` },
+  // Operational queue — things the admin should act on, each a one-click drill-down.
+  const pendingVerifications = Math.max(0, (s?.users?.companies ?? 0) - (s?.users?.verifiedCompanies ?? 0));
+  const newApplications      = s?.applications?.pending ?? 0;
+  const attention = [
+    pendingVerifications > 0 && {
+      icon: ShieldCheck, color: '#5B21B6', bg: '#EDE9FE',
+      label: `${pendingVerifications} compan${pendingVerifications === 1 ? 'y' : 'ies'} awaiting verification`,
+      cta: 'Review', to: '/admin/users?role=company',
+    },
+    newApplications > 0 && {
+      icon: FileText, color: '#4338CA', bg: '#EEF2FF',
+      label: `${newApplications} new application${newApplications === 1 ? '' : 's'} to triage`,
+      cta: 'View', to: '/admin/applications?status=submitted',
+    },
+    (s?.offers?.open ?? 0) === 0 && {
+      icon: Briefcase, color: '#D97706', bg: '#FFFBEB',
+      label: 'No open offers on the platform right now',
+      cta: 'Browse offers', to: '/admin/offers',
+    },
+  ].filter(Boolean);
+
+  // Split into two evenly-filled rows (4 + 3) so the grid never leaves a ragged
+  // half-empty last row, and group them logically (people vs. activity).
+  const userMetrics = [
+    { label: 'Total Users',        value: s?.users?.total,              icon: Users,        iconBg: '#EDF2EE', iconColor: '#1E5B45', to: '/admin/users' },
+    { label: 'Students',           value: s?.users?.students,           icon: UserCheck,    iconBg: '#DBEAFE', iconColor: '#1E40AF', to: '/admin/users?role=student' },
+    { label: 'Companies',          value: s?.users?.companies,          icon: Building2,    iconBg: '#EDE9FE', iconColor: '#5B21B6', to: '/admin/users?role=company' },
+    { label: 'Verified Companies', value: s?.users?.verifiedCompanies,  icon: ShieldCheck,  iconBg: '#EDF2EE', iconColor: '#1E5B45', sub: pendingVerifications > 0 ? `${pendingVerifications} pending →` : undefined, to: '/admin/users?role=company' },
+  ];
+  const activityMetrics = [
+    { label: 'Open Offers',        value: s?.offers?.open,              icon: Briefcase,    iconBg: '#FFFBEB', iconColor: '#D97706', sub: `${s?.offers?.total ?? 0} total`, to: '/admin/offers?status=open' },
+    { label: 'Applications',       value: s?.applications?.total,       icon: FileText,     iconBg: '#EEF2FF', iconColor: '#4338CA', sub: `${s?.applications?.pending ?? 0} new`, to: '/admin/applications' },
+    { label: 'Accepted',           value: s?.applications?.accepted,    icon: CheckCircle2, iconBg: '#EDF2EE', iconColor: '#1E5B45', sub: `${s?.applications?.rejected ?? 0} rejected`, to: '/admin/applications?status=accepted' },
   ];
 
   const inputStyle = {
@@ -113,9 +143,46 @@ export default function AdminDashboard() {
         <p className="text-sm mt-0.5" style={{ color: '#9A9E97' }}>Platform-wide statistics and controls</p>
       </div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {metrics.map(m => <MetricCard key={m.label} {...m} />)}
+      {/* Needs attention — operational queue, each item one click from action */}
+      {attention.length > 0 && (
+        <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+          <div className="flex items-center gap-2 px-5 py-3" style={{ borderBottom: '1px solid #F0F0EA' }}>
+            <Clock size={14} style={{ color: '#D97706' }} />
+            <h3 className="font-semibold text-sm" style={{ color: '#1B1D1A' }}>Needs attention</h3>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: '#FFFBEB', border: '1px solid #FDE68A', color: '#B45309' }}>{attention.length}</span>
+          </div>
+          {attention.map((a, i) => (
+            <Link key={i} to={a.to}
+              className="flex items-center gap-3 px-5 py-3 transition-colors"
+              style={{ borderTop: i > 0 ? '1px solid #F0F0EA' : 'none', textDecoration: 'none' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#FAFAF7'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: a.bg }}>
+                <a.icon size={15} style={{ color: a.color }} />
+              </div>
+              <p className="flex-1 text-sm" style={{ color: '#1B1D1A' }}>{a.label}</p>
+              <span className="flex items-center gap-1 text-xs font-semibold flex-shrink-0" style={{ color: '#1E5B45' }}>
+                {a.cta} <ArrowRight size={13} />
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Metrics — people */}
+      <div className="space-y-2">
+        <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: '#9A9E97' }}>People</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {userMetrics.map(m => <MetricCard key={m.label} {...m} />)}
+        </div>
+      </div>
+
+      {/* Metrics — activity */}
+      <div className="space-y-2">
+        <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: '#9A9E97' }}>Activity</p>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {activityMetrics.map(m => <MetricCard key={m.label} {...m} />)}
+        </div>
       </div>
 
       {/* Trend chart */}
@@ -240,13 +307,14 @@ export default function AdminDashboard() {
           <div className="p-5 space-y-3">
             <div>
               <label className="text-xs font-medium mb-1.5 block" style={{ color: '#6B6F69' }}>Target audience</label>
-              <select value={broadcastRole} onChange={e => setBroadcastRole(e.target.value)} style={inputStyle}
+              <SelectField bare value={broadcastRole} onChange={e => setBroadcastRole(e.target.value)}
+                style={{ ...inputStyle, paddingRight: '2.25rem', appearance: 'none', cursor: 'pointer' }}
                 onFocus={e => e.target.style.borderColor = '#1E5B45'}
                 onBlur={e => e.target.style.borderColor = '#DDDBD2'}>
                 <option value="">All users</option>
                 <option value="student">Students only</option>
                 <option value="company">Companies only</option>
-              </select>
+              </SelectField>
             </div>
             <input value={broadcastTitle} onChange={e => setBroadcastTitle(e.target.value)}
               placeholder="Notification title…" style={inputStyle}

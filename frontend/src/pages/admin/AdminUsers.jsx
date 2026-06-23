@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, UserCheck, UserX, Trash2, Users, ShieldCheck, Shield } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import Spinner from '../../components/ui/Spinner';
+import SelectField from '../../components/ui/SelectField';
 import { formatRelativeTime } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
@@ -50,7 +51,7 @@ export default function AdminUsers() {
 
   const selectStyle = {
     background: '#fff', border: '1px solid #DDDBD2', borderRadius: '12px',
-    padding: '10px 12px', fontSize: '14px', color: '#6B6F69', outline: 'none', appearance: 'none',
+    padding: '10px 32px 10px 12px', fontSize: '14px', color: '#6B6F69', outline: 'none', appearance: 'none',
   };
 
   return (
@@ -73,12 +74,12 @@ export default function AdminUsers() {
             onFocus={e => e.target.style.borderColor = '#1E5B45'}
             onBlur={e => e.target.style.borderColor = '#DDDBD2'} />
         </div>
-        <select value={role} onChange={e => { setRole(e.target.value); setPage(1); }} style={selectStyle}>
+        <SelectField bare value={role} onChange={e => { setRole(e.target.value); setPage(1); }} style={selectStyle}>
           <option value="">All roles</option>
           <option value="student">Students</option>
           <option value="company">Companies</option>
           <option value="admin">Admins</option>
-        </select>
+        </SelectField>
       </div>
 
       {isLoading ? (

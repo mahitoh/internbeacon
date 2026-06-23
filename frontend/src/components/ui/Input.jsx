@@ -59,7 +59,7 @@ export const DarkInput = forwardRef(({ label, error, icon: Icon, className, ...p
 
 DarkInput.displayName = 'DarkInput';
 
-export const LightInput = forwardRef(({ label, error, icon: Icon, className, ...props }, ref) => (
+export const LightInput = forwardRef(({ label, error, icon: Icon, trailing, className, ...props }, ref) => (
   <div className="space-y-1.5">
     {label && <label className="block text-[13px] font-semibold text-[#1B1D1A]">{label}</label>}
     <div className="relative">
@@ -75,11 +75,17 @@ export const LightInput = forwardRef(({ label, error, icon: Icon, className, ...
           'placeholder:text-[#A4A89F] focus:border-[#1E5B45] focus:outline-none focus:ring-2 focus:ring-[#1E5B45]/15',
           'transition-colors duration-200',
           Icon && 'pl-10',
+          trailing && 'pr-11',
           error && 'border-red-400 focus:border-red-400 focus:ring-red-400/15',
           className
         )}
         {...props}
       />
+      {trailing && (
+        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center">
+          {trailing}
+        </span>
+      )}
     </div>
     {error && <p className="text-xs text-red-500">{error}</p>}
   </div>

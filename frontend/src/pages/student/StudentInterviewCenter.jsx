@@ -5,6 +5,7 @@ import { Calendar, MapPin, Video, Phone, MessageSquare, Briefcase, CheckCircle2,
 import { applicationsApi } from '../../api/applications';
 import Spinner from '../../components/ui/Spinner';
 import { formatDate } from '../../lib/utils';
+import { externalHref } from '../../lib/url';
 
 const TYPE_META = {
   google_meet: { label: 'Google Meet',     icon: Video,  color: '#3B82F6' },
@@ -72,7 +73,7 @@ function InterviewCard({ app, isPast }) {
 
       {/* Join link */}
       {interview.link && (
-        <a href={interview.link} target="_blank" rel="noopener noreferrer"
+        <a href={externalHref(interview.link)} target="_blank" rel="noopener noreferrer"
           className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-colors"
           style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', color: '#4338CA', textDecoration: 'none' }}
           onMouseEnter={e => e.currentTarget.style.background = '#E0E7FF'}

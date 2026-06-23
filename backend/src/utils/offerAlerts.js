@@ -23,7 +23,7 @@ async function fireOfferAlerts(offer) {
 
     const { data: students } = await supabaseAdmin
       .from('student_profiles')
-      .select('user_id, skills, programme, faculty, study_year, languages, ai_summary');
+      .select('user_id, skills, programme, faculty, study_year, languages');
 
     if (!students?.length) return;
 

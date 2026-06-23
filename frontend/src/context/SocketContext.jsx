@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { getToken } from '../lib/tokenStorage';
 
 const SocketContext = createContext(null);
 
@@ -25,7 +26,7 @@ export function SocketProvider({ children }) {
       return;
     }
 
-    const token = localStorage.getItem('accessToken');
+    const token = getToken('accessToken');
     const s = createSocket(token);
 
     s.on('connect', () => { socketRef.current = s; setSocket(s); });

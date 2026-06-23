@@ -31,13 +31,23 @@ export default function OfferCard({ offer, dark = false, basePath = '/offers', c
               }
             </div>
             {offer.company?.id ? (
-              <button
-                type="button"
+              // role="link" span (not <button>) so we don't nest interactive
+              // content inside the card's outer <Link> — invalid HTML that breaks
+              // right-click/keyboard semantics. Keeps click + Enter/Space nav.
+              <span
+                role="link"
+                tabIndex={0}
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`${companyBasePath}/${offer.company.id}`); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault(); e.stopPropagation();
+                    navigate(`${companyBasePath}/${offer.company.id}`);
+                  }
+                }}
                 className={`text-xs font-bold ${sub} hover:text-lime-400 transition-colors cursor-pointer`}
               >
                 {offer.company.companyName}
-              </button>
+              </span>
             ) : (
               <span className={`text-xs font-bold ${sub}`}>{offer.company?.companyName}</span>
             )}

@@ -94,6 +94,11 @@ export default function StudentDashboard() {
   const name       = user?.studentProfile?.firstName || 'Student';
   const aiSummary  = user?.studentProfile?.aiSummary;
   const profile    = user?.studentProfile;
+  // Skills & languages are sourced from the curated profile (single source of
+  // truth), not from ai_summary — so what's shown here always matches what the
+  // matching engine uses and what the student can edit on the Profile page.
+  const skills     = profile?.skills    || [];
+  const languages  = profile?.languages || [];
 
   const { data: appsData, isLoading: appsLoading } = useQuery({ queryKey: ['my-apps'],         queryFn: () => applicationsApi.my({ limit: 100 }).then(r => r.data.data) });
   const { data: recData, isLoading: recLoading } = useQuery({ queryKey: ['offers-rec'],      queryFn: () => offersApi.recommended(6).then(r => r.data.data) });
@@ -147,15 +152,20 @@ export default function StudentDashboard() {
     apps.filter(a => ['interview_scheduled','interview_completed'].includes(a.status)).slice(0, 3),
   [apps]);
 
+  // Single source of truth: the backend-computed completion score, so the ring %
+  // matches exactly what the Profile page shows (no second, divergent formula).
+  const profileComplete = profile?.completionScore ?? 0;
+
+  // The readiness checklist still needs per-item booleans (the % alone can't say
+  // WHICH items are done). Derived straight from the profile so it stays in step.
   const profileFields = [
-    profile?.skills?.length > 0,
-    profile?.programme,
-    profile?.studyYear,
-    !!profile?.city,
-    profile?.languages?.length > 0,
-    !!aiSummary,
+    skills.length > 0,        // Skills added
+    !!profile?.programme,     // Programme set
+    !!profile?.studyYear,     // Study year set
+    !!profile?.city,          // City set
+    languages.length > 0,     // Languages added
+    !!aiSummary,              // CV analysed
   ];
-  const profileComplete = Math.round((profileFields.filter(Boolean).length / profileFields.length) * 100);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'GOOD MORNING' : hour < 17 ? 'GOOD AFTERNOON' : 'GOOD EVENING';
@@ -313,7 +323,7 @@ export default function StudentDashboard() {
             <Card>
               <SectionHeader
                 title="CV Summary"
-                sub="Extracted from your uploaded CV"
+                sub="Summary from your CV · skills from your profile"
                 action={
                   <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
@@ -325,34 +335,34 @@ export default function StudentDashboard() {
                 {aiSummary.summary && (
                   <p className="text-xs leading-relaxed line-clamp-3" style={{ color: '#6B6F69' }}>{aiSummary.summary}</p>
                 )}
-                {aiSummary.skills?.length > 0 && (
+                {skills.length > 0 && (
                   <div>
                     <div className="flex items-center gap-1.5 mb-2">
                       <Code2 size={12} style={{ color: '#1E5B45' }} />
                       <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#9A9E97' }}>Skills</span>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
-                      {aiSummary.skills.slice(0, 10).map((s, i) => (
+                      {skills.slice(0, 10).map((s, i) => (
                         <span key={i} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
                           {s}
                         </span>
                       ))}
-                      {aiSummary.skills.length > 10 && (
+                      {skills.length > 10 && (
                         <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: '#F6F5F1', border: '1px solid #E7E6DF', color: '#9A9E97' }}>
-                          +{aiSummary.skills.length - 10} more
+                          +{skills.length - 10} more
                         </span>
                       )}
                     </div>
                   </div>
                 )}
-                {aiSummary.languages?.length > 0 && (
+                {languages.length > 0 && (
                   <div>
                     <div className="flex items-center gap-1.5 mb-2">
                       <Languages size={12} style={{ color: '#6B9FD4' }} />
                       <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#9A9E97' }}>Languages</span>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
-                      {aiSummary.languages.map((l, i) => (
+                      {languages.map((l, i) => (
                         <span key={i} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: '#EEF2FB', border: '1px solid #C4CFEB', color: '#3B5FC0' }}>
                           {typeof l === 'string' ? l : `${l.language}${l.level ? ` · ${l.level}` : ''}`}
                         </span>
@@ -360,6 +370,45 @@ export default function StudentDashboard() {
                     </div>
                   </div>
                 )}
+
+                {/* Education & experience are extracted by the CV parser and stored
+                    in ai_summary; surface them here so the parsing isn't invisible. */}
+                {Array.isArray(aiSummary.education) && aiSummary.education.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <GraduationCap size={12} style={{ color: '#9B7FD4' }} />
+                      <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#9A9E97' }}>Education</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {aiSummary.education.slice(0, 3).map((e, i) => (
+                        <div key={i} className="text-xs" style={{ color: '#6B6F69' }}>
+                          <span className="font-semibold" style={{ color: '#1B1D1A' }}>{e.degree || e.institution || 'Studies'}</span>
+                          {e.institution && e.degree && <span> · {e.institution}</span>}
+                          {e.year && <span style={{ color: '#9A9E97' }}> ({e.year})</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {Array.isArray(aiSummary.experience) && aiSummary.experience.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <Briefcase size={12} style={{ color: '#D4A07F' }} />
+                      <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: '#9A9E97' }}>Experience</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {aiSummary.experience.slice(0, 3).map((x, i) => (
+                        <div key={i} className="text-xs" style={{ color: '#6B6F69' }}>
+                          <span className="font-semibold" style={{ color: '#1B1D1A' }}>{x.role || 'Role'}</span>
+                          {x.company && <span> · {x.company}</span>}
+                          {x.duration && <span style={{ color: '#9A9E97' }}> · {x.duration}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <Link to="/student/profile"
                   className="inline-flex items-center gap-1.5 text-xs font-semibold" style={{ color: '#1E5B45', textDecoration: 'none' }}>
                   <RefreshCw size={11} /> Re-analyse CV

@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { FileText, Search } from 'lucide-react';
 import { adminApi } from '../../api/admin';
 import { StatusBadge } from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
+import SelectField from '../../components/ui/SelectField';
 import { formatRelativeTime } from '../../lib/utils';
 
 const STATUS_OPTIONS = [
@@ -29,7 +31,11 @@ const TABS = [
 ];
 
 export default function AdminApplications() {
-  const [status, setStatus] = useState('');
+  const [searchParams] = useSearchParams();
+  const [status, setStatus] = useState(() => {
+    const s = searchParams.get('status');
+    return STATUS_OPTIONS.some(o => o.value === s) ? s : '';
+  });
   const [search, setSearch] = useState('');
   const [page,   setPage]   = useState(1);
 
@@ -77,13 +83,14 @@ export default function AdminApplications() {
         </div>
 
         {/* Status select */}
-        <select value={status} onChange={e => handleTabChange(e.target.value)}
-          className="rounded-xl px-3 py-2 text-xs focus:outline-none appearance-none transition-colors"
+        <SelectField bare value={status} onChange={e => handleTabChange(e.target.value)}
+          className="rounded-xl px-3 pr-8 py-2 text-xs focus:outline-none appearance-none transition-colors"
           style={{ background: '#fff', border: '1px solid #DDDBD2', color: '#6B6F69' }}
+          chevronSize={14}
           onFocus={e => e.target.style.borderColor = '#1E5B45'}
           onBlur={e => e.target.style.borderColor = '#DDDBD2'}>
           {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
+        </SelectField>
 
         {/* Search */}
         <div className="flex items-center gap-2 flex-1 min-w-[200px] rounded-xl px-3 py-2"

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Building2, MapPin, Globe, Upload, Save, ShieldCheck } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import CropModal from '../../components/ui/CropModal';
+import SelectField from '../../components/ui/SelectField';
 import { profilesApi } from '../../api/profiles';
 import { uploadApi } from '../../api/upload';
 import toast from 'react-hot-toast';
@@ -24,33 +25,17 @@ function Section({ title, icon: Icon, children }) {
   );
 }
 
-function Field({ label, ...props }) {
+function Field({ label, onFocus, onBlur, ...props }) {
   return (
     <div className="space-y-1.5">
       {label && <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>}
       <input
         className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors"
         style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
-        onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
-        onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
         {...props}
+        onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; onFocus?.(e); }}
+        onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; onBlur?.(e); }}
       />
-    </div>
-  );
-}
-
-function SelectField({ label, children, ...props }) {
-  return (
-    <div className="space-y-1.5">
-      {label && <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>}
-      <select
-        className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none appearance-none transition-colors"
-        style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
-        onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
-        onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
-        {...props}>
-        {children}
-      </select>
     </div>
   );
 }
@@ -168,9 +153,9 @@ export default function CompanyProfile() {
               placeholder="Tell students about your company, culture, and what makes you a great place to intern…"
               className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none resize-none transition-colors"
               style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+              {...register('description')}
               onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
-              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
-              {...register('description')} />
+              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }} />
           </div>
         </Section>
 
@@ -188,9 +173,9 @@ export default function CompanyProfile() {
               className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors"
               style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
               placeholder="https://www.company.cm"
+              {...register('websiteUrl')}
               onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
               onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
-              {...register('websiteUrl')}
             />
           </div>
         </Section>

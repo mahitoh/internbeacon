@@ -12,6 +12,7 @@ import { applicationsApi } from '../../api/applications';
 import { formatDate } from '../../lib/utils';
 import { StatusBadge } from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
+import SelectField from '../../components/ui/SelectField';
 import toast from 'react-hot-toast';
 
 const DOMAINS   = ['Information Technology','Finance & Banking','Telecommunications','Marketing & Sales','Engineering','Human Resources','Healthcare','Agriculture','Other'];
@@ -133,19 +134,19 @@ export default function StudentBrowseOffers() {
           )}
         </div>
 
-        <select value={domain} onChange={e => { setDomain(e.target.value); setPage(1); }}
+        <SelectField bare value={domain} onChange={e => { setDomain(e.target.value); setPage(1); }}
           className={selectCls}
           style={{ background: '#fff', border: `1px solid ${domain ? '#1E5B45' : '#DDDBD2'}`, color: domain ? '#1B1D1A' : '#9A9E97' }}>
           <option value="">All domains</option>
           {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
-        </select>
+        </SelectField>
 
-        <select value={location} onChange={e => { setLocation(e.target.value); setPage(1); }}
+        <SelectField bare value={location} onChange={e => { setLocation(e.target.value); setPage(1); }}
           className={selectCls}
           style={{ background: '#fff', border: `1px solid ${location ? '#1E5B45' : '#DDDBD2'}`, color: location ? '#1B1D1A' : '#9A9E97' }}>
           <option value="">All cities</option>
           {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-        </select>
+        </SelectField>
       </div>
 
       {/* Active filter chips */}

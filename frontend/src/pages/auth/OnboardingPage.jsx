@@ -8,6 +8,7 @@ import { authApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { DarkInput } from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import SelectField from '../../components/ui/SelectField';
 import toast from 'react-hot-toast';
 
 const UNIVERSITIES = ['ICT University', 'University of Yaoundé I', 'University of Yaoundé II', 'ESSEC Douala', 'IRIC', "SUP'TIC", 'ENSP Yaoundé', 'IUT Douala', 'ISTDI', 'Other'];
@@ -153,22 +154,22 @@ export default function OnboardingPage() {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <DarkInput label="First Name" placeholder="Collins"
+                  <DarkInput label="First Name" placeholder="Brian"
                     error={errors.firstName?.message}
                     {...register('firstName', { required: 'Required' })} />
-                  <DarkInput label="Last Name" placeholder="Nkem"
+                  <DarkInput label="Last Name" placeholder="Tabi"
                     error={errors.lastName?.message}
                     {...register('lastName', { required: 'Required' })} />
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="block text-[13px] font-semibold" style={{ color: '#1B1D1A' }}>University</label>
-                  <select className="w-full rounded-[11px] px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 appearance-none"
+                  <SelectField bare className="w-full rounded-[11px] px-4 py-2.5 pr-10 text-[14px] focus:outline-none focus:ring-2 appearance-none"
                     style={{ border: '1px solid #DDDBD2', background: '#F6F5F1', color: '#1B1D1A' }}
                     {...register('university', { required: 'Required' })}>
                     <option value="">Select your university…</option>
                     {UNIVERSITIES.map(u => <option key={u} value={u}>{u}</option>)}
-                  </select>
+                  </SelectField>
                   {errors.university && <p className="text-xs text-red-500">{errors.university.message}</p>}
                 </div>
 
@@ -178,12 +179,12 @@ export default function OnboardingPage() {
 
                 <div className="space-y-1.5">
                   <label className="block text-[13px] font-semibold" style={{ color: '#1B1D1A' }}>Year of Study</label>
-                  <select className="w-full rounded-[11px] px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 appearance-none"
+                  <SelectField bare className="w-full rounded-[11px] px-4 py-2.5 pr-10 text-[14px] focus:outline-none focus:ring-2 appearance-none"
                     style={{ border: '1px solid #DDDBD2', background: '#F6F5F1', color: '#1B1D1A' }}
                     {...register('studyYear', { required: 'Required', valueAsNumber: true, min: { value: 1, message: 'Required' } })}>
                     <option value="">Select year…</option>
                     {[1,2,3,4,5].map(y => <option key={y} value={y}>Year {y}</option>)}
-                  </select>
+                  </SelectField>
                   {errors.studyYear && <p className="text-xs text-red-500">{errors.studyYear.message}</p>}
                 </div>
 
@@ -208,23 +209,23 @@ export default function OnboardingPage() {
 
                 <div className="space-y-1.5">
                   <label className="block text-[13px] font-semibold" style={{ color: '#1B1D1A' }}>Sector / Industry</label>
-                  <select className="w-full rounded-[11px] px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 appearance-none"
+                  <SelectField bare className="w-full rounded-[11px] px-4 py-2.5 pr-10 text-[14px] focus:outline-none focus:ring-2 appearance-none"
                     style={{ border: '1px solid #DDDBD2', background: '#F6F5F1', color: '#1B1D1A' }}
                     {...register('sector', { required: 'Required' })}>
                     <option value="">Select your industry…</option>
                     {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
+                  </SelectField>
                   {errors.sector && <p className="text-xs text-red-500">{errors.sector.message}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="block text-[13px] font-semibold" style={{ color: '#1B1D1A' }}>City</label>
-                  <select className="w-full rounded-[11px] px-4 py-2.5 text-[14px] focus:outline-none focus:ring-2 appearance-none"
+                  <SelectField bare className="w-full rounded-[11px] px-4 py-2.5 pr-10 text-[14px] focus:outline-none focus:ring-2 appearance-none"
                     style={{ border: '1px solid #DDDBD2', background: '#F6F5F1', color: '#1B1D1A' }}
                     {...register('city', { required: 'Required' })}>
                     <option value="">Select city…</option>
                     {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  </SelectField>
                   {errors.city && <p className="text-xs text-red-500">{errors.city.message}</p>}
                 </div>
 

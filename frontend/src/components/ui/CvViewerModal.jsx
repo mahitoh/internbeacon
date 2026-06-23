@@ -62,7 +62,8 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
-          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/75 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6"
+          style={{ background: 'rgba(24,32,24,0.45)', backdropFilter: 'blur(4px)' }}
           onClick={onClose}
         >
           <motion.div
@@ -70,27 +71,27 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
             animate={{ opacity: 1, y: 0,  scale: 1    }}
             exit={{    opacity: 0, y: 48, scale: 0.96 }}
             transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full sm:max-w-4xl sm:mx-auto flex flex-col bg-[#111] sm:rounded-2xl rounded-t-3xl overflow-hidden shadow-2xl border border-white/8"
-            style={{ height: '92vh', maxHeight: 'calc(100vh - 1.5rem)' }}
+            className="w-full sm:max-w-4xl sm:mx-auto flex flex-col sm:rounded-2xl rounded-t-3xl overflow-hidden"
+            style={{ height: '92vh', maxHeight: 'calc(100vh - 1.5rem)', background: '#fff', border: '1px solid #E7E6DF', boxShadow: '0 24px 64px rgba(24,32,24,.22)' }}
             onClick={e => e.stopPropagation()}
           >
 
             {/* ── Header ── */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-white/8 flex-shrink-0 bg-[#0f0f0f]">
+            <div className="flex items-center gap-3 px-4 py-3 flex-shrink-0" style={{ borderBottom: '1px solid #E7E6DF', background: '#FAFAF7' }}>
               {/* Icon */}
-              <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/18 flex items-center justify-center flex-shrink-0">
-                <FileText size={16} className="text-red-400" />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#FEE2E2', border: '1px solid #FECACA' }}>
+                <FileText size={16} style={{ color: '#DC2626' }} />
               </div>
 
               {/* Title */}
               <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-semibold leading-tight truncate">{displayName}</p>
+                <p className="text-sm font-semibold leading-tight truncate" style={{ color: '#1B1D1A' }}>{displayName}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-white/30 text-[11px]">PDF</span>
-                  <span className="w-1 h-1 rounded-full bg-white/15" />
-                  {state === 'loading' && <span className="text-white/30 text-[11px]">Loading…</span>}
-                  {state === 'ready'   && <span className="text-lime-400/70 text-[11px]">Ready to view</span>}
-                  {state === 'error'   && <span className="text-red-400/70 text-[11px]">Failed to load</span>}
+                  <span className="text-[11px]" style={{ color: '#9A9E97' }}>PDF</span>
+                  <span className="w-1 h-1 rounded-full" style={{ background: '#DDDBD2' }} />
+                  {state === 'loading' && <span className="text-[11px]" style={{ color: '#9A9E97' }}>Loading…</span>}
+                  {state === 'ready'   && <span className="text-[11px] font-medium" style={{ color: '#1E5B45' }}>Ready to view</span>}
+                  {state === 'error'   && <span className="text-[11px] font-medium" style={{ color: '#DC2626' }}>Failed to load</span>}
                 </div>
               </div>
 
@@ -102,7 +103,8 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
                       href={blobUrl || url}
                       download={candidateName ? `${candidateName}_CV.pdf` : 'CV.pdf'}
                       onClick={e => e.stopPropagation()}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-lime-500/10 hover:bg-lime-500/20 border border-lime-500/22 text-lime-400 text-xs font-semibold transition-all"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                      style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}
                     >
                       <Download size={12} /> Download
                     </a>
@@ -111,7 +113,8 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={e => e.stopPropagation()}
-                      className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 hover:text-white text-xs font-semibold transition-all"
+                      className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                      style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#6B6F69' }}
                     >
                       <ExternalLink size={12} /> Open
                     </a>
@@ -119,7 +122,10 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
                 )}
                 <button
                   onClick={onClose}
-                  className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/12 border border-white/10 text-white/40 hover:text-white flex items-center justify-center transition-all"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                  style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#9A9E97' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#F0F0EA'; e.currentTarget.style.color = '#1B1D1A'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#F6F5F1'; e.currentTarget.style.color = '#9A9E97'; }}
                   aria-label="Close"
                 >
                   <X size={15} />
@@ -128,22 +134,22 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
             </div>
 
             {/* ── PDF area ── */}
-            <div className="flex-1 relative overflow-hidden bg-[#181818]">
+            <div className="flex-1 relative overflow-hidden" style={{ background: '#F6F5F1' }}>
 
               {/* Loading skeleton */}
               {state === 'loading' && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 p-8">
-                  <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center mb-1">
-                    <Loader2 size={24} className="text-lime-400 animate-spin" />
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-1" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+                    <Loader2 size={24} className="animate-spin" style={{ color: '#1E5B45' }} />
                   </div>
                   <div className="text-center">
-                    <p className="text-white/50 text-sm font-medium">Loading CV…</p>
-                    <p className="text-white/25 text-xs mt-1">Fetching the document securely</p>
+                    <p className="text-sm font-medium" style={{ color: '#6B6F69' }}>Loading CV…</p>
+                    <p className="text-xs mt-1" style={{ color: '#9A9E97' }}>Fetching the document securely</p>
                   </div>
-                  {/* Skeleton lines */}
-                  <div className="w-full max-w-sm space-y-2 mt-4">
-                    {[100, 90, 95, 70, 85, 60].map((w, i) => (
-                      <div key={i} className="h-2 rounded-full bg-white/5 animate-pulse" style={{ width: `${w}%` }} />
+                  {/* Skeleton sheet */}
+                  <div className="w-full max-w-sm rounded-xl p-5 mt-2 space-y-2" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+                    {[100, 90, 95, 70, 85, 60, 80].map((w, i) => (
+                      <div key={i} className="h-2.5 rounded-full animate-pulse" style={{ width: `${w}%`, background: '#F0F0EA' }} />
                     ))}
                   </div>
                 </div>
@@ -152,17 +158,18 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
               {/* Error state */}
               {state === 'error' && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 z-10 p-8">
-                  <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                    <AlertCircle size={26} className="text-red-400" />
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#FEE2E2', border: '1px solid #FECACA' }}>
+                    <AlertCircle size={26} style={{ color: '#DC2626' }} />
                   </div>
                   <div className="text-center">
-                    <p className="text-white/80 font-semibold">Could not load the CV</p>
-                    <p className="text-white/35 text-sm mt-1 max-w-xs">The preview link may have expired. Try refreshing or open it directly.</p>
+                    <p className="font-semibold" style={{ color: '#1B1D1A' }}>Could not load the CV</p>
+                    <p className="text-sm mt-1 max-w-xs" style={{ color: '#9A9E97' }}>The preview link may have expired. Try refreshing or open it directly.</p>
                   </div>
                   <div className="flex gap-3">
                     <button
                       onClick={() => { retryRef.current++; setState('idle'); }}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-sm font-medium transition-all"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                      style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#6B6F69' }}
                     >
                       <RefreshCw size={14} /> Retry
                     </button>
@@ -170,7 +177,8 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lime-500/12 hover:bg-lime-500/22 border border-lime-500/25 text-lime-400 text-sm font-medium transition-all"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                      style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}
                     >
                       <ExternalLink size={14} /> Open in new tab
                     </a>
@@ -178,7 +186,7 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
                 </div>
               )}
 
-              {/* PDF iframe — better cross-browser than <object> */}
+              {/* PDF — <embed> renders inline, better cross-browser than <object> */}
               {state === 'ready' && blobUrl && (
                 <embed
                   src={blobUrl}
@@ -188,25 +196,30 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
                 />
               )}
 
-              {/* Download fallback shown when embed can't render (Firefox mobile, some iOS) */}
+              {/* Mobile browsers that can't render <embed> show a blank pane; JS is
+                  always on so a <noscript> fallback never fires. Show a persistent,
+                  tappable download/open bar on small screens instead. */}
               {state === 'ready' && blobUrl && (
-                <noscript>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6">
-                    <p className="text-white/50 text-sm text-center">Your browser cannot display PDFs inline.</p>
-                    <a href={blobUrl} download="cv.pdf"
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl bg-lime-500 hover:bg-lime-600 text-white text-sm font-semibold">
-                      <Download size={14} /> Download CV
-                    </a>
-                  </div>
-                </noscript>
+                <div className="sm:hidden absolute bottom-3 inset-x-3 flex items-center gap-2 z-10">
+                  <a href={blobUrl} download={candidateName ? `${candidateName}_CV.pdf` : 'CV.pdf'}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-semibold shadow-lg"
+                    style={{ background: '#1E5B45' }}>
+                    <Download size={14} /> Download
+                  </a>
+                  <a href={url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold shadow-lg"
+                    style={{ background: '#fff', border: '1px solid #DDDBD2', color: '#1B1D1A' }}>
+                    <ExternalLink size={14} /> Open
+                  </a>
+                </div>
               )}
             </div>
 
             {/* ── Footer bar ── */}
-            <div className="flex items-center justify-between px-5 py-2.5 border-t border-white/5 bg-[#0f0f0f] flex-shrink-0">
-              <p className="text-white/20 text-[11px]">Press Esc to close</p>
+            <div className="flex items-center justify-between px-5 py-2.5 flex-shrink-0" style={{ borderTop: '1px solid #E7E6DF', background: '#FAFAF7' }}>
+              <p className="text-[11px]" style={{ color: '#9A9E97' }}>Press Esc to close</p>
               {state === 'ready' && (
-                <p className="text-white/20 text-[11px]">Secure preview · link expires in 1h</p>
+                <p className="text-[11px]" style={{ color: '#9A9E97' }}>Secure preview · link expires in 1h</p>
               )}
             </div>
           </motion.div>

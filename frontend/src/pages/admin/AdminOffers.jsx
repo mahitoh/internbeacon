@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Briefcase, Trash2, ToggleLeft, ToggleRight, Eye } from 'lucide-react';
 import { adminApi } from '../../api/admin';
@@ -11,7 +12,11 @@ const STATUSES = ['', 'open', 'closed', 'draft'];
 
 export default function AdminOffers() {
   const qc = useQueryClient();
-  const [status, setStatus] = useState('');
+  const [searchParams] = useSearchParams();
+  const [status, setStatus] = useState(() => {
+    const s = searchParams.get('status');
+    return STATUSES.includes(s) ? s : '';
+  });
   const [page,   setPage]   = useState(1);
 
   const { data, isLoading } = useQuery({

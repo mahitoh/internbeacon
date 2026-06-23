@@ -241,7 +241,7 @@ export default function HomePage() {
                     style={{ backgroundColor: '#f7fee7', borderColor: '#d9f99d', color: '#4d7c0f' }}>+ New</span>
                 </div>
                 {[
-                  { name: 'Collins Nkem', text: "Application accepted — internship offer from MTN Cameroon.", status: 'Accepted', dot: '#092218' },
+                  { name: 'Brian Tabi', text: "Application accepted — internship offer from MTN Cameroon.", status: 'Accepted', dot: '#092218' },
                   { name: 'Amina Bello', text: "Application under review by the HR team at Orange CM.", status: 'In Review', dot: '#d97706' },
                 ].map((task, i) => (
                   <div key={i} className="p-3 rounded-xl space-y-1 border"

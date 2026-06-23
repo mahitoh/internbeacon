@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, Building2, MapPin, ArrowRight, AlertCircle } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { LightInput } from '../../components/ui/Input';
+import SelectField from '../../components/ui/SelectField';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 
@@ -157,25 +158,25 @@ export default function RegisterCompanyPage() {
 
             <div className="space-y-1.5">
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#1B1D1A' }}>Sector / Industry</label>
-              <select
+              <SelectField bare
                 style={{ borderRadius: 11, borderColor: errors.sector ? '#f87171' : '#DDDBD2' }}
-                className={selectCls + ' border focus:border-[#1E5B45] focus:ring-2 focus:ring-[#1E5B45]/15'}
+                className={selectCls + ' pr-10 border focus:border-[#1E5B45] focus:ring-2 focus:ring-[#1E5B45]/15'}
                 {...register('sector', { required: 'Required' })}>
                 <option value="">Select your industry…</option>
                 {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
+              </SelectField>
               {errors.sector && <p className="text-xs" style={{ color: '#C0563E' }}>{errors.sector.message}</p>}
             </div>
 
             <div className="space-y-1.5">
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#1B1D1A' }}>City</label>
-              <select
+              <SelectField bare
                 style={{ borderRadius: 11, borderColor: errors.city ? '#f87171' : '#DDDBD2' }}
-                className={selectCls + ' border focus:border-[#1E5B45] focus:ring-2 focus:ring-[#1E5B45]/15'}
+                className={selectCls + ' pr-10 border focus:border-[#1E5B45] focus:ring-2 focus:ring-[#1E5B45]/15'}
                 {...register('city', { required: 'Required' })}>
                 <option value="">Select city…</option>
                 {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              </SelectField>
               {errors.city && <p className="text-xs" style={{ color: '#C0563E' }}>{errors.city.message}</p>}
             </div>
 

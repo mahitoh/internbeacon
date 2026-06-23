@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getToken, setToken, clearTokens } from '../lib/tokenStorage';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -7,7 +8,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
+  const token = getToken('accessToken');
   if (token) config.headers['Authorization'] = `Bearer ${token}`;
   return config;
 });
@@ -39,23 +40,25 @@ api.interceptors.response.use(
       }
       isRefreshing = true;
       try {
-        const rt = localStorage.getItem('refreshToken');
+        const rt = getToken('refreshToken');
         // Use the same baseURL as the api instance (bare axios keeps this call free
         // of the auth interceptors) so refresh still hits the backend when frontend
         // and backend are deployed on separate origins.
         const res = await axios.post(`${api.defaults.baseURL}/auth/refresh`, { refreshToken: rt });
         const { accessToken, refreshToken } = res.data;
-        localStorage.setItem('accessToken', accessToken);
+        // setToken writes to whichever store the session lives in (local vs session),
+        // preserving the user's "Keep me signed in" choice across refreshes.
+        setToken('accessToken', accessToken);
         // Supabase rotates refresh tokens — persist the new one or the next
         // refresh will fail with the now-revoked token and force a logout.
-        if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+        if (refreshToken) setToken('refreshToken', refreshToken);
         window.dispatchEvent(new CustomEvent('token:refreshed', { detail: { accessToken } }));
         processQueue(null, accessToken);
         original.headers['Authorization'] = `Bearer ${accessToken}`;
         return api(original);
       } catch (refreshErr) {
         processQueue(refreshErr, null);
-        localStorage.clear();
+        clearTokens();
         window.location.href = '/login';
         return Promise.reject(refreshErr);
       } finally {

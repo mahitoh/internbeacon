@@ -15,6 +15,7 @@ import api from '../../api/axios';
 import { applicationsApi } from '../../api/applications';
 import { uploadApi } from '../../api/upload';
 import CvViewerModal from '../../components/ui/CvViewerModal';
+import SelectField from '../../components/ui/SelectField';
 import { formatRelativeTime } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
@@ -132,13 +133,20 @@ export default function ApplicationDetail() {
   }
 
   const viewCv = async () => {
+    // Resolve the student's user id robustly — older/snapshot records can leave
+    // app.student.userId empty, which would hit /cv-url/undefined and 403.
+    const studentUserId = app.student?.userId || app.student?.user_id;
+    if (!studentUserId) { toast.error("This candidate's account is unavailable, so their CV can't be opened."); return; }
     setCvLoading(true);
     try {
-      const r = await uploadApi.getCvUrl(app.student?.userId, app.cvSnapshotUrl || undefined);
+      const r = await uploadApi.getCvUrl(studentUserId, app.cvSnapshotUrl || undefined);
       setCvViewerUrl(r.data.data.url);
       setCvViewerOpen(true);
-    } catch { toast.error('Could not retrieve CV'); }
-    finally { setCvLoading(false); }
+    } catch (err) {
+      // Surface the backend's specific reason (e.g. "CV not found", "No shared
+      // application") instead of a generic failure, so issues are diagnosable.
+      toast.error(err?.response?.data?.message || 'Could not retrieve CV');
+    } finally { setCvLoading(false); }
   };
 
   const saveNotes = async () => {
@@ -441,12 +449,12 @@ export default function ApplicationDetail() {
                 </div>
                 <div>
                   <label className="block text-xs mb-1" style={{ color: '#6B6F69' }}>Format</label>
-                  <select value={interviewForm.type} onChange={e => setInterviewForm(f => ({ ...f, type: e.target.value }))}
-                    style={{ ...inputStyle, appearance: 'none' }}
+                  <SelectField bare value={interviewForm.type} onChange={e => setInterviewForm(f => ({ ...f, type: e.target.value }))}
+                    style={{ ...inputStyle, appearance: 'none', paddingRight: '2.25rem', cursor: 'pointer' }}
                     onFocus={e => e.target.style.borderColor = '#4338CA'}
                     onBlur={e => e.target.style.borderColor = '#DDDBD2'}>
                     {INTERVIEW_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
+                  </SelectField>
                 </div>
               </div>
               {interviewForm.type === 'in_person' ? (

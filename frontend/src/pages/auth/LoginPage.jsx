@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { LightInput } from '../../components/ui/Input';
 import { supabase } from '../../lib/supabase';
@@ -19,13 +19,15 @@ const signInWithGoogle = async () => {
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate  = useNavigate();
-  const [authError, setAuthError] = useState('');
+  const [authError, setAuthError]       = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember]         = useState(true);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
   const onSubmit = async ({ email, password }) => {
     setAuthError('');
     try {
-      const role = await login(email, password);
+      const role = await login(email, password, remember);
       toast.success('Welcome back!');
       navigate(
         role === 'student' ? '/student/dashboard' :
@@ -132,10 +134,20 @@ export default function LoginPage() {
                 </Link>
               </div>
               <LightInput
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 icon={Lock}
                 placeholder="••••••••••"
                 error={errors.password?.message}
+                trailing={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(s => !s)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    className="text-[#A4A89F] hover:text-[#1B1D1A] transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                }
                 {...register('password', { required: 'Password is required', onChange: () => setAuthError('') })}
               />
             </div>
@@ -148,7 +160,12 @@ export default function LoginPage() {
             )}
 
             <label className="flex items-center gap-2 cursor-pointer" style={{ fontSize: 13.5, color: '#6B6F69' }}>
-              <input type="checkbox" className="accent-[#1E5B45]" /> Keep me signed in
+              <input
+                type="checkbox"
+                className="accent-[#1E5B45]"
+                checked={remember}
+                onChange={e => setRemember(e.target.checked)}
+              /> Keep me signed in
             </label>
 
             <button

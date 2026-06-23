@@ -9,7 +9,7 @@ export default function PublicNavbar() {
   const [open, setOpen] = useState(false);
 
   const navItems = [
-    { label: 'Solutions',        href: '/about' },
+    { label: 'About',            href: '/about' },
     { label: 'Find Internships', href: '/offers' },
     { label: 'For Companies',    href: '/for-companies' },
     { label: 'Pricing',          href: '/pricing' },

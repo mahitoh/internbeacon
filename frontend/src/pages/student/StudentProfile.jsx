@@ -7,6 +7,8 @@ import Button from '../../components/ui/Button';
 import Avatar from '../../components/ui/Avatar';
 import CropModal from '../../components/ui/CropModal';
 import CvViewerModal from '../../components/ui/CvViewerModal';
+import SelectField from '../../components/ui/SelectField';
+import Combobox from '../../components/ui/Combobox';
 import { profilesApi } from '../../api/profiles';
 import { uploadApi } from '../../api/upload';
 import api from '../../api/axios';
@@ -14,6 +16,12 @@ import toast from 'react-hot-toast';
 
 const SKILLS_LIST = ['JavaScript', 'Python', 'React', 'Node.js', 'Java', 'SQL', 'Machine Learning', 'Data Analysis', 'Excel', 'Figma', 'Marketing', 'Finance'];
 const CITIES = ['Yaoundé', 'Douala', 'Bafoussam', 'Bamenda', 'Garoua', 'Maroua', 'Ngaoundéré', 'Bertoua', 'Ebolowa', 'Buea', 'Limbé'];
+
+// Suggestion lists for the education combo-boxes. These are hints only —
+// the field stays a free-text input so a student can type anything not listed.
+const UNIVERSITIES = ['ICT University', 'University of Yaoundé I', 'University of Yaoundé II', 'University of Buea', 'University of Douala', 'University of Dschang', 'University of Bamenda', 'University of Ngaoundéré', 'University of Maroua', 'ESSEC Douala', 'IRIC', "SUP'TIC", 'ENSP Yaoundé', 'IUT Douala', 'ISTDI', 'Other'];
+const FACULTIES = ['Faculty of Science', 'Faculty of Engineering', 'College of Technology', 'Faculty of Economics & Management', 'Faculty of Arts, Letters & Social Sciences', 'Faculty of Law & Political Science', 'Faculty of Health Sciences', 'Faculty of Agriculture', 'Business School', 'FICT', 'Other'];
+const PROGRAMMES = ['BSc Computer Science', 'BSc Software Engineering', 'BSc Information Technology', 'BEng Telecommunications', 'BEng Electrical Engineering', 'BEng Civil Engineering', 'BEng Mechanical Engineering', 'BSc Banking & Finance', 'BSc Accounting', 'BSc Economics', 'BSc Management', 'BSc Marketing', 'BSc Human Resource Management', 'LLB Law', 'BSc Communication', 'BSc Nursing', 'BSc Agriculture', 'Other'];
 
 function Section({ title, icon: Icon, children }) {
   return (
@@ -27,20 +35,32 @@ function Section({ title, icon: Icon, children }) {
   );
 }
 
-function Field({ label, ...props }) {
+// Shared focus/blur styling. Composed with any handler the caller passes (e.g.
+// react-hook-form's register().onBlur) so the border/background reset isn't
+// clobbered by the spread — previously RHF's onBlur won and fields stayed
+// highlighted green after you clicked away.
+const focusStyle = (extra) => (e) => {
+  e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; extra?.(e);
+};
+const blurStyle = (extra) => (e) => {
+  e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; extra?.(e);
+};
+
+function Field({ label, onFocus, onBlur, ...props }) {
   return (
     <div className="space-y-1.5">
       <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>
       <input
         className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors"
         style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
-        onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
-        onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
         {...props}
+        onFocus={focusStyle(onFocus)}
+        onBlur={blurStyle(onBlur)}
       />
     </div>
   );
 }
+
 
 export default function StudentProfile() {
   const { user, refetchUser } = useAuth();
@@ -60,7 +80,6 @@ export default function StudentProfile() {
   const photoInputRef = useRef(null);
   const dragCounterRef = useRef(0);
   const [isDraggingCv,     setIsDraggingCv]     = useState(false);
-  const [suggestedSkills,  setSuggestedSkills]  = useState([]);
   const [analyzingCv,      setAnalyzingCv]      = useState(false);
 
   const { data: prefs } = useQuery({
@@ -75,7 +94,7 @@ export default function StudentProfile() {
     onError:    () => toast.error('Failed to save alert preferences'),
   });
 
-  const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, setValue, watch, formState: { isSubmitting } } = useForm({
     defaultValues: {
       firstName:   profile?.firstName  || '',
       lastName:    profile?.lastName   || '',
@@ -228,8 +247,16 @@ export default function StudentProfile() {
   };
 
   const displayName = `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim();
-  const completion  = [profile?.bio, profile?.cvUrl, profile?.skills?.length, profile?.phone, profile?.city, profile?.programme].filter(Boolean).length;
-  const pct         = Math.round((completion / 6) * 100);
+  // Use the backend-computed completion score (single source of truth) so the
+  // Profile page and the Dashboard always agree.
+  const pct         = profile?.completionScore ?? 0;
+
+  // CV parse status, surfaced on the upload card so the student can see at a
+  // glance whether the CV was actually read and what it produced. `method`
+  // ('ai' | 'keyword') and the narrative blob come from the parse-cv endpoint.
+  const cvAnalysed  = !!profile?.aiSummary;
+  const cvMethod    = profile?.aiSummary?.method;        // 'ai' | 'keyword' | undefined
+  const cvLangCount = profile?.languages?.length || 0;
 
   return (
     <div className="max-w-3xl space-y-6" style={{ fontFamily: "'Hanken Grotesk', system-ui, sans-serif" }}>
@@ -290,49 +317,39 @@ export default function StudentProfile() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Phone Number" {...register('phone')} placeholder="+237 6XX XXX XXX" />
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium flex items-center gap-1.5" style={{ color: '#6B6F69' }}>
-                <MapPin size={12} /> City / Location
-              </label>
-              <select
-                className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors appearance-none"
-                style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
-                onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
-                onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
-                {...register('city')}>
-                <option value="">Select your city</option>
-                {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <p className="text-xs" style={{ color: '#9A9E97' }}>Used for location matching</p>
-            </div>
+            <SelectField label="City / Location" labelIcon={MapPin} hint="Used for location matching" {...register('city')}>
+              <option value="">Select your city</option>
+              {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </SelectField>
           </div>
           <div className="space-y-1.5">
             <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>Bio</label>
             <textarea rows={3} placeholder="Tell companies a bit about yourself…"
               className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none resize-none transition-colors"
               style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
-              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
-              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
-              {...register('bio')} />
+              {...register('bio')}
+              onFocus={focusStyle()}
+              onBlur={blurStyle()} />
           </div>
         </Section>
 
         {/* Education */}
         <Section title="Education" icon={GraduationCap}>
-          <Field label="University" {...register('university')} />
-          <Field label="Faculty"    {...register('faculty')}    placeholder="Faculty of Science" />
-          <Field label="Programme"  {...register('programme')}  placeholder="BSc Information Technology" />
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>Year of Study</label>
-            <select
-              className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors appearance-none"
-              style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
-              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
-              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
-              {...register('studyYear', { valueAsNumber: true })}>
-              {[1,2,3,4,5].map(y => <option key={y} value={y}>Year {y}</option>)}
-            </select>
-          </div>
+          <Combobox label="University" options={UNIVERSITIES}
+            value={watch('university') || ''}
+            onChange={v => setValue('university', v, { shouldDirty: true })}
+            placeholder="Pick from the list or type your own" />
+          <Combobox label="Faculty" options={FACULTIES}
+            value={watch('faculty') || ''}
+            onChange={v => setValue('faculty', v, { shouldDirty: true })}
+            placeholder="Pick from the list or type your own" />
+          <Combobox label="Programme" options={PROGRAMMES}
+            value={watch('programme') || ''}
+            onChange={v => setValue('programme', v, { shouldDirty: true })}
+            placeholder="Pick from the list or type your own" />
+          <SelectField label="Year of Study" {...register('studyYear', { valueAsNumber: true })}>
+            {[1,2,3,4,5].map(y => <option key={y} value={y}>Year {y}</option>)}
+          </SelectField>
         </Section>
 
         {/* Skills */}
@@ -383,35 +400,6 @@ export default function StudentProfile() {
             </div>
           )}
 
-          {/* CV-extracted skill suggestions */}
-          {suggestedSkills.length > 0 && (
-            <div className="rounded-xl p-3 space-y-2" style={{ background: '#EDF2EE', border: '1px solid #C4DBCE' }}>
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold" style={{ color: '#1E5B45' }}>
-                  Skills detected in your CV — click to add
-                </p>
-                <button type="button" onClick={() => setSuggestedSkills([])}
-                  className="text-xs" style={{ color: '#6B6F69' }}>
-                  Dismiss
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {suggestedSkills.map(s => (
-                  <button type="button" key={s}
-                    onClick={() => {
-                      if (!selectedSkills.includes(s)) setSelectedSkills(p => [...p, s]);
-                      setSuggestedSkills(p => p.filter(x => x !== s));
-                    }}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-all"
-                    style={{ background: '#fff', border: '1px solid #C4DBCE', color: '#1E5B45' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#F5FAF7'}
-                    onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
-                    + {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </Section>
 
         {/* Links */}
@@ -424,9 +412,9 @@ export default function StudentProfile() {
               className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors"
               style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
               placeholder="https://linkedin.com/in/yourprofile"
-              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
-              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
               {...register('linkedinUrl')}
+              onFocus={focusStyle()}
+              onBlur={blurStyle()}
             />
           </div>
           <div className="space-y-1.5">
@@ -437,9 +425,9 @@ export default function StudentProfile() {
               className="w-full rounded-lg px-4 py-3 text-sm focus:outline-none transition-colors"
               style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
               placeholder="https://github.com/yourusername"
-              onFocus={e => { e.target.style.borderColor = '#1E5B45'; e.target.style.background = '#fff'; }}
-              onBlur={e => { e.target.style.borderColor = '#DDDBD2'; e.target.style.background = '#F6F5F1'; }}
               {...register('githubUrl')}
+              onFocus={focusStyle()}
+              onBlur={blurStyle()}
             />
           </div>
         </Section>
@@ -455,10 +443,24 @@ export default function StudentProfile() {
                   : <FileText size={18} style={{ color: '#DC2626' }} />}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate" style={{ color: '#1B1D1A' }}>
-                  {displayName ? `${displayName} — CV.pdf` : 'Resume.pdf'}
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold truncate" style={{ color: '#1B1D1A' }}>
+                    {displayName ? `${displayName} — CV.pdf` : 'Resume.pdf'}
+                  </p>
+                  {cvAnalysed && (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                      style={cvMethod === 'keyword'
+                        ? { background: '#FEF3E2', border: '1px solid #FAD8A8', color: '#B45309' }
+                        : { background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
+                      {cvMethod === 'keyword' ? 'Keyword scan' : 'Analysed'}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs mt-0.5" style={{ color: '#9A9E97' }}>
+                  {cvAnalysed
+                    ? `${selectedSkills.length} skill${selectedSkills.length !== 1 ? 's' : ''} · ${cvLangCount} language${cvLangCount !== 1 ? 's' : ''} detected`
+                    : 'PDF uploaded · click "Re-analyze CV" to read it'}
                 </p>
-                <p className="text-xs mt-0.5" style={{ color: '#9A9E97' }}>PDF document · uploaded</p>
               </div>
               <button type="button" onClick={() => cvInputRef.current?.click()}
                 className="text-xs px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-colors"
@@ -539,17 +541,20 @@ export default function StudentProfile() {
           {(prefs?.offerAlerts ?? true) && (
             <div className="flex items-center justify-between pt-1">
               <label className="text-sm" style={{ color: '#6B6F69' }}>Minimum match score</label>
-              <select
+              <SelectField
+                bare
                 value={prefs?.minMatchScore ?? 50}
                 onChange={e => prefsMutation.mutate({ minMatchScore: Number(e.target.value) })}
-                className="rounded-lg px-3 py-1.5 text-sm focus:outline-none appearance-none transition-colors"
+                className="rounded-lg pl-3 pr-9 py-1.5 text-sm focus:outline-none appearance-none transition-colors cursor-pointer"
                 style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}
+                chevronSize={14}
+                chevronClassName="right-2.5"
                 onFocus={e => e.target.style.borderColor = '#1E5B45'}
                 onBlur={e => e.target.style.borderColor = '#DDDBD2'}>
                 {[40, 50, 60, 70, 80].map(v => (
                   <option key={v} value={v}>{v}% or higher</option>
                 ))}
-              </select>
+              </SelectField>
             </div>
           )}
         </Section>

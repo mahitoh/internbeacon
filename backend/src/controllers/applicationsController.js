@@ -108,7 +108,11 @@ exports.apply = async (req, res, next) => {
     if (resolvedCv) {
       (async () => {
         try {
-          const snapshotPath = `applications/${sp.id}/${data.id}.pdf`;
+          // Namespace the snapshot by the AUTH user id (not student_profiles.id):
+          // the CV signed-URL guard authorises by studentUserId and only allows
+          // paths under `applications/${studentUserId}/`, so the company viewer 403s
+          // if the snapshot is stored under the profile id instead.
+          const snapshotPath = `applications/${req.user.userId}/${data.id}.pdf`;
           const { data: fileData, error: dlErr } = await supabaseAdmin.storage
             .from('cvs').download(resolvedCv);
           if (!dlErr && fileData) {
@@ -286,7 +290,12 @@ exports.updateStatus = async (req, res, next) => {
       if (interviewDate)     updates.interview_date     = interviewDate;
       if (interviewType)     updates.interview_type     = interviewType;
       if (interviewLocation) updates.interview_location = interviewLocation;
-      if (interviewLink)     updates.interview_link     = interviewLink;
+      if (interviewLink) {
+        // Store an absolute URL so the student-side link is a real external link,
+        // not a relative path the SPA tries (and fails) to route to.
+        const u = String(interviewLink).trim();
+        updates.interview_link = /^(https?:\/\/|mailto:|tel:)/i.test(u) ? u : `https://${u}`;
+      }
       if (interviewNotes)    updates.interview_notes    = interviewNotes;
     }
 

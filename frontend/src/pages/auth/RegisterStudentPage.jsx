@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, User, GraduationCap, ArrowRight, AlertCircle } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { LightInput } from '../../components/ui/Input';
+import SelectField from '../../components/ui/SelectField';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 
@@ -139,10 +140,10 @@ export default function RegisterStudentPage() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <LightInput label="First name" icon={User} placeholder="Collins"
+              <LightInput label="First name" icon={User} placeholder="Brian"
                 error={errors.firstName?.message}
                 {...register('firstName', { required: 'Required' })} />
-              <LightInput label="Last name" placeholder="Nkem"
+              <LightInput label="Last name" placeholder="Tabi"
                 error={errors.lastName?.message}
                 {...register('lastName', { required: 'Required' })} />
             </div>
@@ -161,13 +162,13 @@ export default function RegisterStudentPage() {
 
             <div className="space-y-1.5">
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#1B1D1A' }}>University</label>
-              <select
+              <SelectField bare
                 style={{ borderRadius: 11, borderColor: errors.university ? '#f87171' : '#DDDBD2' }}
-                className={selectCls + ' border focus:border-[#1E5B45] focus:ring-2 focus:ring-[#1E5B45]/15'}
+                className={selectCls + ' pr-10 border focus:border-[#1E5B45] focus:ring-2 focus:ring-[#1E5B45]/15'}
                 {...register('university', { required: 'Required' })}>
                 <option value="">Select your university…</option>
                 {UNIVERSITIES.map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
+              </SelectField>
               {errors.university && <p className="text-xs" style={{ color: '#C0563E' }}>{errors.university.message}</p>}
             </div>
 
@@ -177,13 +178,13 @@ export default function RegisterStudentPage() {
 
             <div className="space-y-1.5">
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#1B1D1A' }}>Year of study</label>
-              <select
+              <SelectField bare
                 style={{ borderRadius: 11, borderColor: errors.studyYear ? '#f87171' : '#DDDBD2' }}
-                className={selectCls + ' border focus:border-[#1E5B45] focus:ring-2 focus:ring-[#1E5B45]/15'}
+                className={selectCls + ' pr-10 border focus:border-[#1E5B45] focus:ring-2 focus:ring-[#1E5B45]/15'}
                 {...register('studyYear', { required: 'Required' })}>
                 <option value="">Select year…</option>
                 {YEARS.map(y => <option key={y} value={y}>Year {y}</option>)}
-              </select>
+              </SelectField>
               {errors.studyYear && <p className="text-xs" style={{ color: '#C0563E' }}>{errors.studyYear.message}</p>}
             </div>
 

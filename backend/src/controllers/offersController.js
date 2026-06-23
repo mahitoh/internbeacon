@@ -5,7 +5,7 @@ const { fireOfferAlerts } = require('../utils/offerAlerts');
 async function getStudentProfile(userId) {
   const { data } = await supabaseAdmin
     .from('student_profiles')
-    .select('skills, ai_summary, programme, faculty, city, study_year, languages')
+    .select('skills, programme, faculty, city, study_year, languages')
     .eq('user_id', userId)
     .single();
   return data || null;
@@ -420,7 +420,7 @@ exports.recommended = async (req, res, next) => {
 
     const { data: sp } = await supabaseAdmin
       .from('student_profiles')
-      .select('id, skills, programme, faculty, study_year, languages, ai_summary')
+      .select('id, skills, programme, faculty, study_year, languages')
       .eq('user_id', req.user.userId)
       .single();
 

@@ -118,12 +118,30 @@ exports.login = async (req, res, next) => {
         });
       }
 
-      // Check whether this account exists but was created via Google OAuth (no password set).
-      // Supabase returns generic `invalid_credentials` for both wrong password and
-      // password-less OAuth accounts, so we need to look it up explicitly.
+      // A suspended/banned account returns a generic auth error too, so without an
+      // explicit check it looks identical to a wrong password. Fast-path on the
+      // message; the account lookup below is the reliable check.
+      if (msg.includes('banned') || msg.includes('suspended')) {
+        return res.status(403).json({
+          success: false,
+          message: 'This account has been suspended. Please contact support if you believe this is a mistake.',
+          code:    'ACCOUNT_SUSPENDED',
+        });
+      }
+
+      // Look the account up so we can give a precise reason instead of a blanket
+      // "incorrect password" for states that have nothing to do with the password:
+      // a suspended account, or a Google-only (password-less) account.
       try {
         const { data: { user: existingUser } } = await supabaseAdmin.auth.admin.getUserByEmail(email);
         if (existingUser) {
+          if (existingUser.banned_until && new Date(existingUser.banned_until) > new Date()) {
+            return res.status(403).json({
+              success: false,
+              message: 'This account has been suspended. Please contact support if you believe this is a mistake.',
+              code:    'ACCOUNT_SUSPENDED',
+            });
+          }
           const identities = existingUser.identities || [];
           const isGoogleOnly = identities.length > 0 && identities.every(i => i.provider === 'google');
           if (isGoogleOnly) {
@@ -161,7 +179,11 @@ exports.login = async (req, res, next) => {
       .single();
 
     if (!profile?.is_active) {
-      return res.status(403).json({ success: false, message: 'Account deactivated' });
+      return res.status(403).json({
+        success: false,
+        message: 'This account has been deactivated. Please contact support if you believe this is a mistake.',
+        code:    'ACCOUNT_DEACTIVATED',
+      });
     }
 
     res.json({

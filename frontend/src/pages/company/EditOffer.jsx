@@ -6,6 +6,11 @@ import { Briefcase, MapPin, Banknote, X } from 'lucide-react';
 import { offersApi } from '../../api/offers';
 import Spinner from '../../components/ui/Spinner';
 import Button from '../../components/ui/Button';
+import SelectField from '../../components/ui/SelectField';
+
+// Preserve this form's existing 10px select dimensions when using the shared
+// SelectField, so migrating in the chevron/handlers introduces no visual change.
+const SELECT_DIMS = { borderRadius: '10px', padding: '10px 38px 10px 14px' };
 import toast from 'react-hot-toast';
 
 const DOMAINS    = ['Information Technology', 'Finance & Banking', 'Telecommunications', 'Marketing & Sales', 'Engineering', 'Human Resources', 'Legal', 'Healthcare', 'Agriculture', 'Other'];
@@ -109,7 +114,7 @@ export default function EditOffer() {
             {...register('title', { required: 'Title is required' })}
             placeholder="e.g. Software Development Intern" />
 
-          <SelectField label="Domain *" error={errors.domain?.message}
+          <SelectField label="Domain *" error={errors.domain?.message} style={SELECT_DIMS}
             {...register('domain', { required: 'Domain is required' })}>
             <option value="">Select domain…</option>
             {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
@@ -149,12 +154,12 @@ export default function EditOffer() {
 
         <FormSection title="Logistics" icon={MapPin}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <SelectField label="Location *" error={errors.location?.message}
+            <SelectField label="Location *" error={errors.location?.message} style={SELECT_DIMS}
               {...register('location', { required: 'Location is required' })}>
               <option value="">Select city…</option>
               {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
             </SelectField>
-            <SelectField label="Duration (weeks) *" error={errors.durationWeeks?.message}
+            <SelectField label="Duration (weeks) *" error={errors.durationWeeks?.message} style={SELECT_DIMS}
               {...register('durationWeeks', { required: 'Duration is required' })}>
               <option value="">Select…</option>
               {DURATIONS.map(d => <option key={d} value={d}>{d} weeks</option>)}
@@ -177,7 +182,7 @@ export default function EditOffer() {
           {isPaid && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
               <Field label="Stipend Amount (per month)" type="number" {...register('stipendAmount')} placeholder="50000" />
-              <SelectField label="Currency" {...register('stipendCurrency')}>
+              <SelectField label="Currency" style={SELECT_DIMS} {...register('stipendCurrency')}>
                 {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
               </SelectField>
             </div>
@@ -209,42 +214,27 @@ function FormSection({ title, icon: Icon, children }) {
   );
 }
 
-function Field({ label, error, ...props }) {
+function Field({ label, error, onFocus, onBlur, ...props }) {
   return (
     <div className="space-y-1.5">
       {label && <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>}
       <input style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none' }}
-        onFocus={e => e.target.style.borderColor = '#1E5B45'}
-        onBlur={e => e.target.style.borderColor = '#DDDBD2'}
-        {...props} />
+        {...props}
+        onFocus={e => { e.target.style.borderColor = '#1E5B45'; onFocus?.(e); }}
+        onBlur={e => { e.target.style.borderColor = '#DDDBD2'; onBlur?.(e); }} />
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }
 
-function Textarea({ label, error, ...props }) {
+function Textarea({ label, error, onFocus, onBlur, ...props }) {
   return (
     <div className="space-y-1.5">
       {label && <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>}
       <textarea style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none', resize: 'none' }}
-        onFocus={e => e.target.style.borderColor = '#1E5B45'}
-        onBlur={e => e.target.style.borderColor = '#DDDBD2'}
-        {...props} />
-      {error && <p className="text-xs text-red-500">{error}</p>}
-    </div>
-  );
-}
-
-function SelectField({ label, error, children, ...props }) {
-  return (
-    <div className="space-y-1.5">
-      {label && <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>}
-      <select style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none', appearance: 'none' }}
-        onFocus={e => e.target.style.borderColor = '#1E5B45'}
-        onBlur={e => e.target.style.borderColor = '#DDDBD2'}
-        {...props}>
-        {children}
-      </select>
+        {...props}
+        onFocus={e => { e.target.style.borderColor = '#1E5B45'; onFocus?.(e); }}
+        onBlur={e => { e.target.style.borderColor = '#DDDBD2'; onBlur?.(e); }} />
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );

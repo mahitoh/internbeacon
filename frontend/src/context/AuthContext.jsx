@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authApi } from '../api/auth';
+import { setPersist, setToken, getToken, clearTokens } from '../lib/tokenStorage';
 
 const AuthContext = createContext(null);
 
@@ -8,14 +9,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading]         = useState(true);
 
   const fetchUser = useCallback(async () => {
-    const token = localStorage.getItem('accessToken');
+    const token = getToken('accessToken');
     if (!token) { setLoading(false); return; }
     try {
       const res = await authApi.me();
       setUser(res.data.data);
     } catch {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      clearTokens();
     } finally {
       setLoading(false);
     }
@@ -23,11 +23,14 @@ export function AuthProvider({ children }) {
 
   useEffect(() => { fetchUser(); }, [fetchUser]);
 
-  const login = async (email, password) => {
+  // `remember` (default true) picks where tokens live: localStorage when the user
+  // wants to stay signed in across browser restarts, sessionStorage otherwise.
+  const login = async (email, password, remember = true) => {
     const res = await authApi.login({ email, password });
     const { accessToken, refreshToken, role } = res.data;
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    setPersist(remember);
+    setToken('accessToken', accessToken);
+    setToken('refreshToken', refreshToken);
     const meRes = await authApi.me();
     setUser(meRes.data.data);
     return role;
@@ -35,7 +38,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try { await authApi.logout(); } catch {}
-    localStorage.clear();
+    clearTokens();
     setUser(null);
   };
 

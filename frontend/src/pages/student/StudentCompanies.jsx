@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Building2, MapPin, Briefcase, Search, ShieldCheck, ChevronRight, ChevronLeft } from 'lucide-react';
 import { companiesApi } from '../../api/companies';
 import Spinner from '../../components/ui/Spinner';
+import SelectField from '../../components/ui/SelectField';
 
 const SECTORS = [
   'Information Technology', 'Finance & Banking', 'Telecommunications',
@@ -64,7 +65,7 @@ export default function StudentCompanies() {
     background: '#fff',
     border: `1px solid ${hasValue ? '#1E5B45' : '#DDDBD2'}`,
     borderRadius: '12px',
-    padding: '10px 12px',
+    padding: '10px 32px 10px 12px',
     fontSize: '14px',
     color: hasValue ? '#1B1D1A' : '#9A9E97',
     outline: 'none',
@@ -86,14 +87,14 @@ export default function StudentCompanies() {
             style={{ background: '#fff', border: `1px solid ${search ? '#1E5B45' : '#DDDBD2'}`, color: '#1B1D1A' }}
           />
         </div>
-        <select value={sector} onChange={e => setSector(e.target.value)} style={selectStyle(!!sector)}>
+        <SelectField bare value={sector} onChange={e => setSector(e.target.value)} style={selectStyle(!!sector)}>
           <option value="">All sectors</option>
           {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <select value={city} onChange={e => setCity(e.target.value)} style={selectStyle(!!city)}>
+        </SelectField>
+        <SelectField bare value={city} onChange={e => setCity(e.target.value)} style={selectStyle(!!city)}>
           <option value="">All cities</option>
           {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
+        </SelectField>
         <label className="flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-xl text-sm select-none transition-colors"
           style={{ background: verified ? '#EDF2EE' : '#fff', border: `1px solid ${verified ? '#C4DBCE' : '#DDDBD2'}`, color: verified ? '#1E5B45' : '#6B6F69' }}>
           <input type="checkbox" checked={verified} onChange={e => setVerified(e.target.checked)} className="accent-emerald-600" />

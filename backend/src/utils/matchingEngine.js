@@ -338,7 +338,16 @@ function getVerdict(score) {
 // ── Blocking conditions ────────────────────────────────────────────────────────
 // Prevents disqualifying hard mismatches from being masked by other perfect scores.
 
-function applyBlockingConditions(score, verdict, ls, lc) {
+function applyBlockingConditions(score, verdict, ls, lc, skillCoverage, offerHasRequiredSkills) {
+  // No skills overlap at all against an offer that does list requirements —
+  // force the lowest verdict so a strong domain/location can't mask it.
+  if (skillCoverage === 0 && offerHasRequiredSkills) {
+    return {
+      score,
+      verdict: 'Low Match',
+      warning: 'Your profile has no skills matching this offer\'s requirements.',
+    };
+  }
   // Study year hard requirement not met — flag for review and cap the score at 64.
   if (ls <= 40) {
     return {
@@ -361,12 +370,14 @@ function applyBlockingConditions(score, verdict, ls, lc) {
 // ── Public API ─────────────────────────────────────────────────────────────────
 
 function computeMatch(student, offer) {
-  const mergedSkills = [
-    ...(student.skills || []),
-    ...((student.ai_summary?.skills) || []),
-  ];
+  // Single source of truth: the student's curated skills column. The CV parser
+  // already writes extracted skills here, so this needs no fallback to ai_summary
+  // (which is extraction/display metadata only). Reading ai_summary.skills would
+  // resurrect skills the user has deleted and leak non-deterministic AI output
+  // into the deterministic match — both are intentionally avoided.
+  const studentSkills = student.skills || [];
 
-  const sk = skillsCoverage(mergedSkills, offer.required_skills);
+  const sk = skillsCoverage(studentSkills, offer.required_skills);
   const ds = domainScore(student.programme, student.faculty, offer.domain);
   const lc = locationScore(student.city, offer.location);
   const ls = studyLevelScore(student.study_year ?? student.studyYear, offer.requirements);
@@ -387,7 +398,9 @@ function computeMatch(student, offer) {
     lg         * effectiveWeights.language
   ));
 
-  const { score, verdict, warning } = applyBlockingConditions(rawScore, getVerdict(rawScore), ls, lc);
+  const { score, verdict, warning } = applyBlockingConditions(
+    rawScore, getVerdict(rawScore), ls, lc, sk.matched.length, !sk.noRequirements
+  );
 
   const breakdown = {
     skills:   { score: sk.score / 100, matched: sk.matched, missing: sk.missing, noRequirements: sk.noRequirements },

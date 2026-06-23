@@ -9,6 +9,7 @@ import { StatusBadge } from '../../components/ui/Badge';
 import ApplicationTimeline from '../../components/ui/ApplicationTimeline';
 import Spinner from '../../components/ui/Spinner';
 import { formatDate, formatRelativeTime } from '../../lib/utils';
+import { externalHref } from '../../lib/url';
 import toast from 'react-hot-toast';
 
 const TYPE_LABELS = {
@@ -308,7 +309,7 @@ export default function StudentApplications() {
                                 </p>
                               )}
                               {app.interview.link && (
-                                <a href={app.interview.link} target="_blank" rel="noopener noreferrer"
+                                <a href={externalHref(app.interview.link)} target="_blank" rel="noopener noreferrer"
                                   className="hover:underline break-all text-sm" style={{ color: '#4338CA' }}>
                                   {app.interview.link}
                                 </a>

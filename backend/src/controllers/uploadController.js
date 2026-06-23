@@ -144,57 +144,65 @@ exports.uploadLogo = async (req, res, next) => {
 // ── GET /api/upload/cv-url/:studentUserId ─────────────────────────────────────
 // Returns a 1-hour signed URL for a student's CV.
 // Allowed: the student themselves, any company with a shared application, admins.
+//
+// SECURITY: we never trust the client-supplied ?path. Instead we build the set of
+// CV paths the requester is genuinely entitled to — the student's profile CV plus
+// the cv_snapshot_url of every application the requester may see — straight from
+// the DB, and require ?path to be one of them. This closes the IDOR while still
+// supporting per-application snapshots whose storage folder is namespaced by the
+// applicant's user id (which may differ from the student's *current* user id).
 exports.getCvSignedUrl = async (req, res, next) => {
   try {
     const { studentUserId } = req.params;
     const { userId, role } = req.user;
+    const requestedPath = req.query.path;
 
-    if (role === 'student' && userId !== studentUserId) {
+    if (requestedPath && requestedPath.includes('..')) {
       return res.status(403).json({ success: false, message: 'Forbidden' });
     }
 
-    if (role === 'company') {
+    const { data: sp } = await supabaseAdmin
+      .from('student_profiles').select('id, cv_url').eq('user_id', studentUserId).single();
+    if (!sp) return res.status(404).json({ success: false, message: 'Student not found' });
+
+    // Which of this student's applications may the requester see?
+    let appsQuery = supabaseAdmin
+      .from('applications').select('cv_snapshot_url').eq('student_id', sp.id);
+
+    if (role === 'student') {
+      if (userId !== studentUserId) return res.status(403).json({ success: false, message: 'Forbidden' });
+    } else if (role === 'company') {
       const { data: cp } = await supabaseAdmin
         .from('company_profiles').select('id').eq('user_id', userId).single();
-
       if (!cp) return res.status(400).json({ success: false, message: 'Company profile not found' });
 
       const { data: offers } = await supabaseAdmin
         .from('internship_offers').select('id').eq('company_id', cp.id);
-
       const offerIds = (offers || []).map(o => o.id);
       if (!offerIds.length) return res.status(403).json({ success: false, message: 'No shared application' });
 
-      const { data: sp } = await supabaseAdmin
-        .from('student_profiles').select('id').eq('user_id', studentUserId).single();
-
-      if (!sp) return res.status(403).json({ success: false, message: 'Student not found' });
-
-      const { data: apps } = await supabaseAdmin
-        .from('applications')
-        .select('id')
-        .eq('student_id', sp.id)
-        .in('offer_id', offerIds)
-        .limit(1);
-
-      if (!apps?.length) return res.status(403).json({ success: false, message: 'No shared application found' });
-    }
-
-    // Support both profile CV (userId.pdf) and snapshot paths (applications/userId/ts.pdf).
-    // SECURITY: the access checks above only authorise this studentUserId, so a
-    // client-supplied ?path must stay inside THAT student's namespace — otherwise a
-    // requester could point path at another student's CV and bypass the check.
-    // Never trust an arbitrary path.
-    const profileCvPath  = `${studentUserId}.pdf`;
-    const snapshotPrefix = `applications/${studentUserId}/`;
-    const requestedPath  = req.query.path;
-    if (requestedPath && (
-        requestedPath.includes('..') ||
-        (requestedPath !== profileCvPath && !requestedPath.startsWith(snapshotPrefix))
-    )) {
+      appsQuery = appsQuery.in('offer_id', offerIds);
+    } else if (role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Forbidden' });
     }
-    const cvPath = requestedPath || profileCvPath;
+
+    const { data: apps } = await appsQuery;
+    if (role === 'company' && !apps?.length) {
+      return res.status(403).json({ success: false, message: 'No shared application found' });
+    }
+
+    // Allowed CV paths, derived entirely from the DB.
+    const allowed = new Set([`${studentUserId}.pdf`]);
+    if (sp.cv_url) allowed.add(sp.cv_url);
+    for (const a of (apps || [])) if (a.cv_snapshot_url) allowed.add(a.cv_snapshot_url);
+
+    let cvPath;
+    if (requestedPath) {
+      if (!allowed.has(requestedPath)) return res.status(403).json({ success: false, message: 'Forbidden' });
+      cvPath = requestedPath;
+    } else {
+      cvPath = sp.cv_url || `${studentUserId}.pdf`;
+    }
 
     const { data, error } = await supabaseAdmin.storage
       .from('cvs')

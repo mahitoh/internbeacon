@@ -288,6 +288,13 @@ function normaliseStudentProfile(p) {
     bio:              p.bio,
     skills:           p.skills,
     languages:        p.languages,
+    // ai_summary is extraction/display metadata only (summary, education,
+    // experience, parsing method). Skills/languages live in their own columns
+    // and are the single source of truth — strip them here defensively so no
+    // stale blob copy can ever reach the client.
+    aiSummary:        p.ai_summary
+      ? (({ skills, languages, ...narrative }) => narrative)(p.ai_summary)
+      : null,
     city:             p.city,
     cvUrl:            p.cv_url,
     avatarUrl:        p.avatar_url,

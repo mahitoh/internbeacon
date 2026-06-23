@@ -80,8 +80,13 @@ Rules:
       };
     }
 
+    // ai_summary is extraction/display metadata ONLY (narrative summary, parsed
+    // education/experience, parsing method). Skills and languages are written to
+    // their own authoritative columns below — never duplicated into the blob, so
+    // there is a single source of truth for matching.
+    const { skills: _omitSkills, languages: _omitLangs, ...narrative } = extracted;
     const updatePayload = {
-      ai_summary: { ...extracted, method },
+      ai_summary: { ...narrative, method },
       updated_at: new Date().toISOString(),
     };
 
@@ -124,7 +129,7 @@ exports.matchOffer = async (req, res, next) => {
     const [{ data: student }, { data: offer }] = await Promise.all([
       supabaseAdmin
         .from('student_profiles')
-        .select('skills, programme, faculty, study_year, city, languages, ai_summary')
+        .select('skills, programme, faculty, study_year, city, languages')
         .eq('user_id', req.user.userId)
         .single(),
       supabaseAdmin
@@ -158,7 +163,7 @@ exports.rankApplicants = async (req, res, next) => {
     const TERMINAL = ['accepted', 'offer_accepted', 'offer_declined', 'rejected', 'withdrawn'];
     const { data: apps } = await supabaseAdmin
       .from('applications')
-      .select('id, status, student_profiles(skills, programme, faculty, study_year, city, languages, ai_summary)')
+      .select('id, status, student_profiles(skills, programme, faculty, study_year, city, languages)')
       .eq('offer_id', offerId)
       .not('status', 'in', `(${TERMINAL.join(',')})`)
       .order('applied_at', { ascending: false })
@@ -198,7 +203,7 @@ exports.matchApplicant = async (req, res, next) => {
 
     const { data: app } = await supabaseAdmin
       .from('applications')
-      .select('id, student_profiles(skills, programme, faculty, study_year, city, languages, ai_summary), internship_offers(title, domain, location, description, requirements, required_skills, company_id)')
+      .select('id, student_profiles(skills, programme, faculty, study_year, city, languages), internship_offers(title, domain, location, description, requirements, required_skills, company_id)')
       .eq('id', appId)
       .single();
 

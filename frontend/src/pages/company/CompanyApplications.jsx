@@ -11,6 +11,7 @@ import { applicationsApi } from '../../api/applications';
 import { StatusBadge } from '../../components/ui/Badge';
 import Avatar from '../../components/ui/Avatar';
 import Spinner from '../../components/ui/Spinner';
+import SelectField from '../../components/ui/SelectField';
 import { formatRelativeTime } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
@@ -191,27 +192,27 @@ export default function CompanyApplications() {
           {offerOptions.length > 1 && (
             <div className="flex items-center gap-2">
               <Filter size={14} style={{ color: '#9A9E97', flexShrink: 0 }} />
-              <select value={offerFilter} onChange={e => handleOfferFilter(e.target.value)}
-                className="rounded-xl px-3 py-1.5 text-sm appearance-none focus:outline-none"
+              <SelectField bare value={offerFilter} onChange={e => handleOfferFilter(e.target.value)}
+                className="rounded-xl px-3 pr-8 py-1.5 text-sm appearance-none focus:outline-none"
                 style={{ background: '#fff', border: '1px solid #DDDBD2', color: '#6B6F69', maxWidth: 220 }}
                 onFocus={e => e.target.style.borderColor = '#1E5B45'}
                 onBlur={e => e.target.style.borderColor = '#DDDBD2'}>
                 <option value="">All offers</option>
                 {offerOptions.map(o => <option key={o.id} value={o.id}>{o.title}</option>)}
-              </select>
+              </SelectField>
             </div>
           )}
 
           {/* Sort */}
           <div className="flex items-center gap-2">
             <ArrowUpDown size={14} style={{ color: '#9A9E97', flexShrink: 0 }} />
-            <select value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
-              className="rounded-xl px-3 py-1.5 text-sm appearance-none focus:outline-none"
+            <SelectField bare value={sort} onChange={e => { setSort(e.target.value); setPage(1); }}
+              className="rounded-xl px-3 pr-8 py-1.5 text-sm appearance-none focus:outline-none"
               style={{ background: '#fff', border: '1px solid #DDDBD2', color: '#6B6F69' }}
               onFocus={e => e.target.style.borderColor = '#1E5B45'}
               onBlur={e => e.target.style.borderColor = '#DDDBD2'}>
               {sortOptions.map(o => <option key={o.key} value={o.key}>{o.label}</option>)}
-            </select>
+            </SelectField>
           </div>
 
           {tabFiltered.length > 0 && (
