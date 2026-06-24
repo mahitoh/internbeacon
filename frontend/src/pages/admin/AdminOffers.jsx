@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Briefcase, Trash2, ToggleLeft, ToggleRight, Eye } from 'lucide-react';
+import { Briefcase, Trash2, ToggleLeft, ToggleRight, Eye, MapPin, Clock, Users, Calendar, Banknote, FileText, Building2, Code2 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
+import { offersApi } from '../../api/offers';
 import { StatusBadge } from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
+import SlideOver, { DSection, DRow, DChips, DHero, DAvatar, DBadge, DStat, DStatGrid } from '../../components/ui/SlideOver';
 import { formatDate } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
@@ -18,6 +20,7 @@ export default function AdminOffers() {
     return STATUSES.includes(s) ? s : '';
   });
   const [page,   setPage]   = useState(1);
+  const [selectedId, setSelectedId] = useState(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-offers', { status, page }],
@@ -88,8 +91,9 @@ export default function AdminOffers() {
                 </thead>
                 <tbody>
                   {offers.map((o, i) => (
-                    <tr key={o.id} className="transition-colors"
+                    <tr key={o.id} className="transition-colors cursor-pointer"
                       style={{ borderTop: i > 0 ? '1px solid #F0F0EA' : 'none' }}
+                      onClick={() => setSelectedId(o.id)}
                       onMouseEnter={e => e.currentTarget.style.background = '#FAFAF7'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td className="px-5 py-4">
@@ -114,7 +118,7 @@ export default function AdminOffers() {
                       <td className="px-5 py-4">
                         <span className="text-xs" style={{ color: '#9A9E97' }}>{formatDate(o.created_at)}</span>
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
                           <button onClick={() => toggleStatus(o)} title={o.status === 'open' ? 'Close offer' : 'Open offer'}
                             className="p-1.5 rounded-lg transition-colors"
@@ -161,6 +165,91 @@ export default function AdminOffers() {
           </div>
         </div>
       )}
+
+      <OfferDetailDrawer
+        offerId={selectedId}
+        onClose={() => setSelectedId(null)}
+        onToggleStatus={(o) => statusMutation.mutate({ id: o.id, status: o.status === 'open' ? 'closed' : 'open' })}
+        onDelete={(id) => { if (window.confirm('Delete this offer?')) { deleteMutation.mutate(id); setSelectedId(null); } }}
+      />
     </div>
+  );
+}
+
+// ── Offer detail drawer ─────────────────────────────────────────────────────────
+function OfferDetailDrawer({ offerId, onClose, onToggleStatus, onDelete }) {
+  const { data: o, isLoading } = useQuery({
+    queryKey: ['admin-offer', offerId],
+    queryFn:  () => offersApi.getOne(offerId).then(r => r.data.data),
+    enabled:  !!offerId,
+  });
+
+  const footer = o && (
+    <div className="flex items-center gap-2">
+      <button onClick={() => onToggleStatus(o)}
+        className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+        style={o.status === 'open'
+          ? { background: '#FFFBEB', border: '1px solid #FDE68A', color: '#B45309' }
+          : { background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
+        {o.status === 'open' ? 'Close offer' : 'Re-open offer'}
+      </button>
+      <button onClick={() => onDelete(o.id)}
+        className="px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+        style={{ background: '#fff', border: '1px solid #FECACA', color: '#DC2626' }}>
+        <Trash2 size={15} />
+      </button>
+    </div>
+  );
+
+  return (
+    <SlideOver open={!!offerId} onClose={onClose} eyebrow="Offer details" footer={footer}>
+      {isLoading || !o ? (
+        <div className="flex justify-center py-16"><Spinner /></div>
+      ) : (
+        <>
+          <DHero
+            avatar={<DAvatar name={o.company?.companyName || o.title} src={o.company?.logoUrl} icon={!o.company?.logoUrl ? Building2 : undefined} />}
+            title={o.title}
+            subtitle={o.company?.companyName}
+            badges={
+              <>
+                <StatusBadge status={o.status} />
+                <DBadge tone="grey">{o.domain}</DBadge>
+                <DBadge tone={o.isPaid ? 'green' : 'grey'}>{o.isPaid ? 'Paid' : 'Unpaid'}</DBadge>
+              </>
+            }
+          />
+
+          <DSection title="Key facts" icon={Briefcase}>
+            <DStatGrid>
+              <DStat icon={MapPin}   label="Location"  value={o.location} />
+              <DStat icon={Clock}    label="Duration"  value={o.durationWeeks ? `${o.durationWeeks} weeks` : null} />
+              <DStat icon={Users}    label="Openings"  value={o.openings} />
+              <DStat icon={Calendar} label="Deadline"  value={o.deadline ? formatDate(o.deadline) : null} />
+              <DStat icon={Banknote} label="Stipend"   value={o.isPaid ? `${o.stipendCurrency} ${Number(o.stipendAmount || 0).toLocaleString()}/mo` : 'Unpaid'} />
+              <DStat icon={Calendar} label="Posted"    value={o.createdAt ? formatDate(o.createdAt) : null} />
+            </DStatGrid>
+          </DSection>
+
+          {o.description && (
+            <DSection title="Description" icon={FileText}>
+              <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#6B6F69' }}>{o.description}</p>
+            </DSection>
+          )}
+          {o.requirements && (
+            <DSection title="Requirements" icon={FileText}>
+              <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#6B6F69' }}>{o.requirements}</p>
+            </DSection>
+          )}
+          <DSection title="Required skills" icon={Code2}><DChips items={o.requiredSkills} empty="None listed" /></DSection>
+
+          <DSection title="Company" icon={Building2}>
+            <DRow label="Name" value={o.company?.companyName} />
+            <DRow label="Sector" value={o.company?.sector} />
+            <DRow label="City" value={o.company?.city} />
+          </DSection>
+        </>
+      )}
+    </SlideOver>
   );
 }

@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import { Search, UserCheck, UserX, Trash2, Users, ShieldCheck, Shield } from 'lucide-react';
+import { Search, UserCheck, UserX, Trash2, Users, ShieldCheck, Shield, Eye, User, GraduationCap, Code2, Languages, FileText, Building2 } from 'lucide-react';
 import { adminApi } from '../../api/admin';
+import { uploadApi } from '../../api/upload';
 import Spinner from '../../components/ui/Spinner';
 import SelectField from '../../components/ui/SelectField';
-import { formatRelativeTime } from '../../lib/utils';
+import SlideOver, { DSection, DRow, DChips, DHero, DAvatar, DBadge } from '../../components/ui/SlideOver';
+import CvViewerModal from '../../components/ui/CvViewerModal';
+import { formatRelativeTime, formatDate } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 export default function AdminUsers() {
@@ -14,6 +17,7 @@ export default function AdminUsers() {
   const [search, setSearch] = useState(() => searchParams.get('search') || '');
   const [role,   setRole]   = useState(() => searchParams.get('role') || '');
   const [page,   setPage]   = useState(1);
+  const [selectedId, setSelectedId] = useState(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users', { search, role, page }],
@@ -113,8 +117,9 @@ export default function AdminUsers() {
                         ? { bg: '#EDE9FE', text: '#5B21B6' }
                         : { bg: '#EDF2EE', text: '#1E5B45' };
                     return (
-                      <tr key={u.id} className="transition-colors"
+                      <tr key={u.id} className="transition-colors cursor-pointer"
                         style={{ borderTop: i > 0 ? '1px solid #F0F0EA' : 'none' }}
+                        onClick={() => setSelectedId(u.id)}
                         onMouseEnter={e => e.currentTarget.style.background = '#FAFAF7'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                         <td className="px-5 py-4">
@@ -144,7 +149,7 @@ export default function AdminUsers() {
                         <td className="px-5 py-4">
                           <span className="text-xs" style={{ color: '#9A9E97' }}>{formatRelativeTime(u.createdAt)}</span>
                         </td>
-                        <td className="px-5 py-4">
+                        <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
                           <div className="flex items-center gap-2">
                             {u.role === 'company' && (
                               <button
@@ -210,6 +215,149 @@ export default function AdminUsers() {
           </div>
         </div>
       )}
+
+      <UserDetailDrawer
+        userId={selectedId}
+        onClose={() => setSelectedId(null)}
+        onActivate={(id, isActive) => activateMutation.mutate({ id, isActive })}
+        onVerify={(id, isVerified) => verifyMutation.mutate({ id, isVerified })}
+        onDelete={(user) => { confirmDelete(user); setSelectedId(null); }}
+      />
     </div>
+  );
+}
+
+// ── User detail drawer ──────────────────────────────────────────────────────────
+function UserDetailDrawer({ userId, onClose, onActivate, onVerify, onDelete }) {
+  const [cvOpen, setCvOpen] = useState(false);
+  const [cvUrl,  setCvUrl]  = useState('');
+
+  const { data: u, isLoading } = useQuery({
+    queryKey: ['admin-user', userId],
+    queryFn:  () => adminApi.getUser(userId).then(r => r.data.data),
+    enabled:  !!userId,
+  });
+
+  const sp = u?.studentProfile;
+  const cp = u?.companyProfile;
+  const name = sp ? `${sp.first_name || ''} ${sp.last_name || ''}`.trim()
+    : cp?.company_name || u?.email || 'User';
+
+  const viewCv = async () => {
+    try {
+      const r = await uploadApi.getCvUrl(userId);
+      setCvUrl(r.data.data.url);
+      setCvOpen(true);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Could not load CV');
+    }
+  };
+
+  const footer = u && (
+    <div className="flex items-center gap-2">
+      <button onClick={() => onActivate(u.id, !u.isActive)}
+        className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+        style={u.isActive
+          ? { background: '#FFFBEB', border: '1px solid #FDE68A', color: '#B45309' }
+          : { background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
+        {u.isActive ? 'Suspend' : 'Activate'}
+      </button>
+      {u.role === 'company' && (
+        <button onClick={() => onVerify(u.id, !cp?.is_verified)}
+          className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+          style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#1B1D1A' }}>
+          {cp?.is_verified ? 'Unverify' : 'Verify'}
+        </button>
+      )}
+      <button onClick={() => onDelete(u)}
+        className="px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+        style={{ background: '#fff', border: '1px solid #FECACA', color: '#DC2626' }}>
+        <Trash2 size={15} />
+      </button>
+    </div>
+  );
+
+  const roleTone = u?.role === 'student' ? 'blue' : u?.role === 'company' ? 'purple' : 'green';
+
+  return (
+    <>
+      <SlideOver open={!!userId} onClose={onClose} eyebrow="User details" footer={footer}>
+        {isLoading || !u ? (
+          <div className="flex justify-center py-16"><Spinner /></div>
+        ) : (
+          <>
+            <DHero
+              avatar={<DAvatar name={name} src={sp?.avatar_url || cp?.logo_url} icon={cp ? Building2 : undefined} />}
+              title={name}
+              subtitle={u.email}
+              badges={
+                <>
+                  <DBadge tone={roleTone}>{u.role}</DBadge>
+                  <DBadge tone={u.isActive ? 'green' : 'red'}>{u.isActive ? 'Active' : 'Suspended'}</DBadge>
+                  {cp?.is_verified && <DBadge tone="green"><ShieldCheck size={11} /> Verified</DBadge>}
+                  {!u.emailConfirmed && <DBadge tone="amber">Email unverified</DBadge>}
+                </>
+              }
+            />
+
+            <DSection title="Account" icon={User}>
+              <DRow label="Joined" value={u.createdAt ? formatDate(u.createdAt) : null} />
+              <DRow label="Last sign-in" value={u.lastSignIn ? formatRelativeTime(u.lastSignIn) : 'Never'} />
+              <DRow label="Email confirmed" value={u.emailConfirmed ? 'Yes' : 'No'} />
+            </DSection>
+
+            {sp && (
+              <>
+                <DSection title="Education" icon={GraduationCap}>
+                  <DRow label="University" value={sp.university} />
+                  <DRow label="Faculty" value={sp.faculty} />
+                  <DRow label="Programme" value={sp.programme} />
+                  <DRow label="Study year" value={sp.study_year ? `Year ${sp.study_year}` : null} />
+                  <DRow label="City" value={sp.city} />
+                  <DRow label="Phone" value={sp.phone} />
+                </DSection>
+                <DSection title="Skills" icon={Code2}><DChips items={sp.skills} empty="No skills added" /></DSection>
+                <DSection title="Languages" icon={Languages}><DChips items={sp.languages} empty="None listed" /></DSection>
+                {sp.bio && (
+                  <DSection title="Bio">
+                    <p className="text-sm leading-relaxed" style={{ color: '#6B6F69' }}>{sp.bio}</p>
+                  </DSection>
+                )}
+                <DSection title="CV & Links" icon={FileText}
+                  action={sp.cv_url && (
+                    <button onClick={viewCv} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
+                      style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
+                      <Eye size={12} /> View CV
+                    </button>
+                  )}>
+                  {!sp.cv_url && <p className="text-sm mb-1" style={{ color: '#C0BFBA' }}>No CV uploaded</p>}
+                  <DRow label="LinkedIn" value={sp.linkedin_url} />
+                  <DRow label="GitHub" value={sp.github_url} />
+                </DSection>
+              </>
+            )}
+
+            {cp && (
+              <>
+                <DSection title="Company" icon={Building2}>
+                  <DRow label="Sector" value={cp.sector} />
+                  <DRow label="Size" value={cp.employee_size ? `${cp.employee_size} employees` : null} />
+                  <DRow label="City" value={cp.city} />
+                  <DRow label="Address" value={cp.address} />
+                  <DRow label="Phone" value={cp.phone} />
+                  <DRow label="Website" value={cp.website_url} />
+                </DSection>
+                {cp.description && (
+                  <DSection title="About">
+                    <p className="text-sm leading-relaxed" style={{ color: '#6B6F69' }}>{cp.description}</p>
+                  </DSection>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </SlideOver>
+      <CvViewerModal isOpen={cvOpen} onClose={() => setCvOpen(false)} url={cvUrl} candidateName={name} />
+    </>
   );
 }

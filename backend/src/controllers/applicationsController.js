@@ -536,8 +536,11 @@ exports.getOne = async (req, res, next) => {
 
     const isStudent = role === 'student' && app.student_profiles?.user_id === userId;
     const isCompany = role === 'company' && app.internship_offers?.company_profiles?.user_id === userId;
+    // Admins may review any application for moderation, but not the company's
+    // private internal note (showInternal stays company-only).
+    const isAdmin   = role === 'admin';
 
-    if (!isStudent && !isCompany)
+    if (!isStudent && !isCompany && !isAdmin)
       return res.status(403).json({ success: false, message: 'Access denied' });
 
     res.json({ success: true, data: normaliseApplication(app, { showInternal: isCompany }) });

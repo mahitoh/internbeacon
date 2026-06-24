@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { FileText, Search } from 'lucide-react';
+import { FileText, Search, Eye, Briefcase, User } from 'lucide-react';
 import { adminApi } from '../../api/admin';
+import { applicationsApi } from '../../api/applications';
+import { uploadApi } from '../../api/upload';
 import { StatusBadge } from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
 import SelectField from '../../components/ui/SelectField';
-import { formatRelativeTime } from '../../lib/utils';
+import SlideOver, { DSection, DRow, DHero, DAvatar } from '../../components/ui/SlideOver';
+import CvViewerModal from '../../components/ui/CvViewerModal';
+import { formatRelativeTime, formatDate } from '../../lib/utils';
+import toast from 'react-hot-toast';
 
 const STATUS_OPTIONS = [
   { value: '',                    label: 'All statuses' },
@@ -38,6 +43,7 @@ export default function AdminApplications() {
   });
   const [search, setSearch] = useState('');
   const [page,   setPage]   = useState(1);
+  const [selectedId, setSelectedId] = useState(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-applications', { status, page }],
@@ -124,8 +130,9 @@ export default function AdminApplications() {
                 </thead>
                 <tbody>
                   {filtered.map((app, i) => (
-                    <tr key={app.id} className="transition-colors"
+                    <tr key={app.id} className="transition-colors cursor-pointer"
                       style={{ borderTop: i > 0 ? '1px solid #F0F0EA' : 'none' }}
+                      onClick={() => setSelectedId(app.id)}
                       onMouseEnter={e => e.currentTarget.style.background = '#FAFAF7'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td className="px-5 py-4">
@@ -174,6 +181,81 @@ export default function AdminApplications() {
           </div>
         </div>
       )}
+
+      <ApplicationDetailDrawer appId={selectedId} onClose={() => setSelectedId(null)} />
     </div>
+  );
+}
+
+// ── Application detail drawer (read-only review) ─────────────────────────────────
+function ApplicationDetailDrawer({ appId, onClose }) {
+  const [cvOpen, setCvOpen] = useState(false);
+  const [cvUrl,  setCvUrl]  = useState('');
+
+  const { data: app, isLoading } = useQuery({
+    queryKey: ['admin-application', appId],
+    queryFn:  () => applicationsApi.getOne(appId).then(r => r.data.data),
+    enabled:  !!appId,
+  });
+
+  const studentName = app?.student
+    ? `${app.student.firstName || ''} ${app.student.lastName || ''}`.trim()
+    : 'Applicant';
+
+  const viewCv = async () => {
+    const studentUserId = app?.student?.userId;
+    if (!studentUserId) { toast.error('This applicant has no CV on file'); return; }
+    try {
+      const r = await uploadApi.getCvUrl(studentUserId, app?.cvSnapshotUrl || undefined);
+      setCvUrl(r.data.data.url);
+      setCvOpen(true);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Could not load CV');
+    }
+  };
+
+  return (
+    <>
+      <SlideOver open={!!appId} onClose={onClose} eyebrow="Application review" width="max-w-xl">
+        {isLoading || !app ? (
+          <div className="flex justify-center py-16"><Spinner /></div>
+        ) : (
+          <>
+            <DHero
+              avatar={<DAvatar name={studentName} src={app.student?.avatarUrl} />}
+              title={studentName}
+              subtitle={`Applied to ${app.offer?.title || 'a role'}${app.appliedAt ? ` · ${formatDate(app.appliedAt)}` : ''}`}
+              badges={<StatusBadge status={app.status} />}
+            />
+
+            <DSection title="Applicant" icon={User}
+              action={(app.cvSnapshotUrl || app.student?.cvUrl) && (
+                <button onClick={viewCv} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold"
+                  style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}>
+                  <Eye size={12} /> View CV
+                </button>
+              )}>
+              <DRow label="University" value={app.student?.university} />
+              <DRow label="Programme" value={app.student?.programme} />
+              <DRow label="Study year" value={app.student?.studyYear ? `Year ${app.student.studyYear}` : null} />
+            </DSection>
+
+            {app.coverLetter && (
+              <DSection title="Cover letter" icon={FileText}>
+                <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#6B6F69' }}>{app.coverLetter}</p>
+              </DSection>
+            )}
+
+            <DSection title="Offer" icon={Briefcase}>
+              <DRow label="Title" value={app.offer?.title} />
+              <DRow label="Company" value={app.offer?.company?.companyName} />
+              <DRow label="Location" value={app.offer?.location} />
+              <DRow label="Domain" value={app.offer?.domain} />
+            </DSection>
+          </>
+        )}
+      </SlideOver>
+      <CvViewerModal isOpen={cvOpen} onClose={() => setCvOpen(false)} url={cvUrl} candidateName={studentName} />
+    </>
   );
 }
