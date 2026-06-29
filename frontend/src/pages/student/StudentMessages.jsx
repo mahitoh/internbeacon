@@ -59,7 +59,22 @@ export default function StudentMessages() {
     if (!socket || !activeAppId) return;
     socket.emit('join_thread', activeAppId);
     const onMessage = (msg) => {
-      setMessages(prev => [...prev, msg]);
+      setMessages(prev => {
+        // Replace any matching optimistic message (same sender + content + within 10s)
+        const now = Date.now();
+        const idx = prev.findIndex(m =>
+          m.id?.startsWith('opt-') &&
+          m.senderId === msg.senderId &&
+          m.content === msg.content &&
+          now - new Date(m.sentAt).getTime() < 10_000
+        );
+        if (idx !== -1) {
+          const next = [...prev];
+          next[idx] = msg;
+          return next;
+        }
+        return [...prev, msg];
+      });
       qc.invalidateQueries({ queryKey: ['message-threads-student'] });
     };
     const onRead = ({ messageIds }) => {
@@ -96,14 +111,24 @@ export default function StudentMessages() {
   }, [socket, activeAppId]);
 
   const sendMessage = async () => {
-    if (!input.trim() || !activeAppId || sending) return;
+    const text = input.trim();
+    if (!text || !activeAppId || sending) return;
+    // Optimistic: clear input and show message immediately — don't wait for the server
+    setInput('');
+    const optimistic = {
+      id: `opt-${Date.now()}`, appId: activeAppId,
+      senderId: user?.userId, content: text,
+      isRead: false, sentAt: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, optimistic]);
     setSending(true);
     try {
-      await messagesApi.send(activeAppId, input.trim());
-      setInput('');
+      await messagesApi.send(activeAppId, text);
       qc.invalidateQueries({ queryKey: ['message-threads-student'] });
     } catch {
-      // message arrives via socket
+      // revert optimistic message on failure
+      setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+      setInput(text);
     } finally {
       setSending(false);
     }

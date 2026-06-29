@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Briefcase, MapPin, Banknote, X } from 'lucide-react';
 import { offersApi } from '../../api/offers';
 import Button from '../../components/ui/Button';
@@ -25,6 +26,7 @@ const fieldStyle = {
 
 export default function PostOffer() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: { isPaid: false, openings: 1, stipendCurrency: 'XAF' }
   });
@@ -88,6 +90,8 @@ export default function PostOffer() {
         requiredLanguages: languages,
       });
       toast.success('Internship offer posted!');
+      queryClient.invalidateQueries({ queryKey: ['my-offers'] });
+      queryClient.invalidateQueries({ queryKey: ['company-apps'] });
       navigate('/company/offers');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to post offer');

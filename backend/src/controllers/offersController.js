@@ -56,28 +56,33 @@ exports.list = async (req, res, next) => {
     // matching offers (capped) and paginate in memory. Anonymous visitors keep the
     // cheap DB-level pagination ordered by recency.
     let studentProfile = null;
-    if (req.user?.role === 'student') {
-      studentProfile = await getStudentProfile(req.user.userId);
-    }
-
     let offers, total;
-    if (studentProfile) {
-      query = query.range(0, 199); // cap — thesis dataset is small
-      const { data, error, count } = await query;
+
+    if (req.user?.role === 'student') {
+      // Fetch profile and offers in parallel — saves one sequential round-trip
+      const [sp, { data, error, count }] = await Promise.all([
+        getStudentProfile(req.user.userId),
+        query.range(0, 199),
+      ]);
       if (error) throw error;
+      studentProfile = sp;
       total = count;
-      offers = data
-        .map(o => {
-          const normalised = normaliseOffer(o);
-          const result = computeMatch(studentProfile, o);
-          normalised.match = {
-            score: result.score, verdict: result.verdict,
-            breakdown: result.breakdown, strengths: result.strengths,
-          };
-          return normalised;
-        })
-        .sort((a, b) => b.match.score - a.match.score)
-        .slice(offset, offset + limitNum);
+      if (studentProfile) {
+        offers = data
+          .map(o => {
+            const normalised = normaliseOffer(o);
+            const result = computeMatch(studentProfile, o);
+            normalised.match = {
+              score: result.score, verdict: result.verdict,
+              breakdown: result.breakdown, strengths: result.strengths,
+            };
+            return normalised;
+          })
+          .sort((a, b) => b.match.score - a.match.score)
+          .slice(offset, offset + limitNum);
+      } else {
+        offers = data.slice(offset, offset + limitNum).map(normaliseOffer);
+      }
     } else {
       query = query.range(offset, offset + limitNum - 1);
       const { data, error, count } = await query;

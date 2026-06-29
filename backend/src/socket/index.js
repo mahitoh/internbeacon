@@ -1,5 +1,6 @@
-const { Server }       = require('socket.io');
+const { Server }        = require('socket.io');
 const { supabaseAdmin } = require('../config/supabase');
+const { resolveToken }  = require('../utils/tokenCache');
 
 let io = null;
 
@@ -23,11 +24,11 @@ function initSocket(httpServer) {
     const token = socket.handshake.auth?.token;
     if (!token) return next(new Error('Authentication required'));
 
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    const { user, error } = await resolveToken(token);
     if (error || !user) return next(new Error('Invalid or expired token'));
 
-    socket.userId   = user.id;
-    socket.userRole = user.app_metadata?.role || user.user_metadata?.role;
+    socket.userId   = user.userId;
+    socket.userRole = user.role;
     next();
   });
 

@@ -48,7 +48,20 @@ export default function CompanyMessages() {
   useEffect(() => {
     if (!socket || !activeAppId) return;
     socket.emit('join_thread', activeAppId);
-    const onMessage = (msg) => { setMessages(prev => [...prev, msg]); qc.invalidateQueries({ queryKey: ['message-threads'] }); };
+    const onMessage = (msg) => {
+      setMessages(prev => {
+        const now = Date.now();
+        const idx = prev.findIndex(m =>
+          m.id?.startsWith('opt-') &&
+          m.senderId === msg.senderId &&
+          m.content === msg.content &&
+          now - new Date(m.sentAt).getTime() < 10_000
+        );
+        if (idx !== -1) { const next = [...prev]; next[idx] = msg; return next; }
+        return [...prev, msg];
+      });
+      qc.invalidateQueries({ queryKey: ['message-threads'] });
+    };
     const onRead = ({ messageIds }) => { setMessages(prev => prev.map(m => messageIds.includes(m.id) ? { ...m, isRead: true } : m)); };
     const onTyping = ({ isTyping }) => setPeerTyping(isTyping);
     socket.on('new_message', onMessage);
@@ -74,13 +87,23 @@ export default function CompanyMessages() {
   }, [socket, activeAppId]);
 
   const sendMessage = async () => {
-    if (!input.trim() || !activeAppId || sending) return;
+    const text = input.trim();
+    if (!text || !activeAppId || sending) return;
+    setInput('');
+    const optimistic = {
+      id: `opt-${Date.now()}`, appId: activeAppId,
+      senderId: user?.userId, content: text,
+      isRead: false, sentAt: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, optimistic]);
     setSending(true);
     try {
-      await messagesApi.send(activeAppId, input.trim());
-      setInput('');
+      await messagesApi.send(activeAppId, text);
       qc.invalidateQueries({ queryKey: ['message-threads'] });
-    } catch { /* arrives via socket */ } finally { setSending(false); }
+    } catch {
+      setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+      setInput(text);
+    } finally { setSending(false); }
   };
 
   const activeThread = threads?.find(t => String(t.appId) === activeAppId);

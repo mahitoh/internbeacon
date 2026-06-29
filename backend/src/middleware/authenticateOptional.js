@@ -1,4 +1,4 @@
-const { supabaseAdmin } = require('../config/supabase');
+const { resolveToken } = require('../utils/tokenCache');
 
 // Like authenticate but never blocks — sets req.user if a valid token is present,
 // otherwise just calls next() so the route still works for unauthenticated requests.
@@ -7,15 +7,8 @@ module.exports = async (req, res, next) => {
   if (!token) return next();
 
   try {
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-    if (!error && user) {
-      req.user = {
-        userId:       user.id,
-        email:        user.email,
-        role:         user.app_metadata?.role || user.user_metadata?.role,
-        userMetadata: user.user_metadata || {},
-      };
-    }
+    const { user } = await resolveToken(token);
+    if (user) req.user = user;
   } catch {}
 
   next();
