@@ -14,9 +14,10 @@ import { StatusBadge } from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
 import SelectField from '../../components/ui/SelectField';
 import toast from 'react-hot-toast';
+import { OFFER_LOCATIONS } from '../../constants/locations';
 
 const DOMAINS   = ['Information Technology','Finance & Banking','Telecommunications','Marketing & Sales','Engineering','Human Resources','Healthcare','Agriculture','Other'];
-const LOCATIONS = ['Yaoundé','Douala','Bafoussam','Garoua','Bamenda','Remote'];
+const LOCATIONS = OFFER_LOCATIONS;
 const LIMIT     = 12;
 
 const MATCH_STYLE = (score) => {

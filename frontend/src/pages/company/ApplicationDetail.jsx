@@ -66,7 +66,7 @@ const MATCH_FACTORS = [
   { key: 'language', label: 'Language',       weight: 5,  color: '#D4A07F' },
 ];
 
-const inputStyle = { background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none' };
+const inputStyle = { background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none', colorScheme: 'light' };
 const taStyle    = { ...inputStyle, resize: 'none' };
 
 export default function ApplicationDetail() {

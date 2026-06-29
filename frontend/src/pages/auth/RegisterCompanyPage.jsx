@@ -8,6 +8,7 @@ import { LightInput } from '../../components/ui/Input';
 import SelectField from '../../components/ui/SelectField';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
+import { CAMEROON_CITIES } from '../../constants/locations';
 
 const signInWithGoogle = async () => {
   sessionStorage.setItem('googleOAuthRole', 'company');
@@ -19,7 +20,7 @@ const signInWithGoogle = async () => {
 };
 
 const SECTORS = ['Information Technology', 'Finance & Banking', 'Telecommunications', 'Marketing & Sales', 'Engineering', 'Healthcare', 'Education', 'Oil & Gas', 'Agriculture', 'Other'];
-const CITIES  = ['Yaoundé', 'Douala', 'Bafoussam', 'Garoua', 'Bamenda', 'Ngaoundéré', 'Bertoua', 'Maroua'];
+const CITIES  = CAMEROON_CITIES;
 
 const selectCls = [
   'w-full border bg-white px-4 py-2.5 text-[14px] text-[#1B1D1A] appearance-none',

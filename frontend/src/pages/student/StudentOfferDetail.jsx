@@ -40,7 +40,16 @@ export default function StudentOfferDetail() {
   const [bookmarking, setBookmarking] = useState(false);
   const [newCvFile,   setNewCvFile]   = useState(null);
   const [cvUploading, setCvUploading] = useState(false);
-  const cvInputRef = useRef(null);
+  const cvInputRef     = useRef(null);
+  const applyFormRef   = useRef(null);
+
+  // The "Apply Now" button lives in a sticky sidebar, so toggling the form open
+  // can leave it rendered off-screen below the description/skills sections with
+  // no visual change near the button — scroll it into view so it's obvious
+  // something happened and there's a next step to complete.
+  useEffect(() => {
+    if (showForm) applyFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [showForm]);
 
   const hasProfileCv = !!user?.studentProfile?.cvUrl;
 
@@ -61,11 +70,15 @@ export default function StudentOfferDetail() {
   });
   const bookmarked = bookmarksData?.some(o => o.id === id) ?? false;
 
+  const ALLOWED_CV_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
   const handleCvFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf'))
-      { toast.error('Only PDF files accepted'); e.target.value = ''; return; }
+    const lowerName = file.name.toLowerCase();
+    const okType = ALLOWED_CV_TYPES.includes(file.type) || lowerName.endsWith('.pdf') || lowerName.endsWith('.docx');
+    if (!okType)
+      { toast.error('Only PDF or Word (.docx) files accepted'); e.target.value = ''; return; }
     if (file.size > 5 * 1024 * 1024)
       { toast.error('CV must be under 5 MB'); e.target.value = ''; return; }
     setNewCvFile(file);
@@ -195,13 +208,23 @@ export default function StudentOfferDetail() {
                 </div>
               </Section>
             )}
+            {offer.requiredLanguages?.length > 0 && (
+              <Section title="Required Languages">
+                <div className="flex flex-wrap gap-2">
+                  {offer.requiredLanguages.map(l => (
+                    <span key={l} className="px-3 py-1 rounded-lg text-xs font-medium"
+                      style={{ background: '#FEF3E2', border: '1px solid #FAD8A8', color: '#B45309' }}>{l}</span>
+                  ))}
+                </div>
+              </Section>
+            )}
           </div>
 
           {/* Apply form */}
           {showForm && (
-            <div className="rounded-2xl p-6 space-y-5" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
+            <div ref={applyFormRef} className="rounded-2xl p-6 space-y-5" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>
               <h3 className="font-semibold text-base" style={{ color: '#1B1D1A' }}>Complete Your Application</h3>
-              <input ref={cvInputRef} type="file" accept=".pdf" className="hidden" onChange={handleCvFileChange} />
+              <input ref={cvInputRef} type="file" accept=".pdf,.docx" className="hidden" onChange={handleCvFileChange} />
 
               <div className="space-y-2">
                 <label className="block text-sm font-semibold" style={{ color: '#1B1D1A' }}>CV / Resume</label>
@@ -232,7 +255,7 @@ export default function StudentOfferDetail() {
                     <Upload size={18} style={{ color: '#BDBBB3' }} />
                     <div className="text-left">
                       <p className="text-sm" style={{ color: '#6B6F69' }}>Attach your CV</p>
-                      <p className="text-xs" style={{ color: '#9A9E97' }}>PDF only, max 5 MB — highly recommended</p>
+                      <p className="text-xs" style={{ color: '#9A9E97' }}>PDF or Word (.docx), max 5 MB — highly recommended</p>
                     </div>
                   </button>
                 )}

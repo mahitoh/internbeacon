@@ -21,7 +21,7 @@ exports.list = async (req, res, next) => {
       .select(`
         id, title, domain, location, duration_weeks, is_paid, stipend_amount,
         stipend_currency, openings, deadline, start_date, status, views_count, created_at,
-        required_skills, requirements,
+        required_skills, required_languages, requirements,
         company_profiles ( id, company_name, sector, city, logo_url, is_verified )
       `, { count: 'exact' })
       .eq('status', status)
@@ -149,7 +149,7 @@ exports.create = async (req, res, next) => {
     const {
       title, description, responsibilities, requirements, domain, location,
       durationWeeks, isPaid, stipendAmount, stipendCurrency,
-      openings, startDate, deadline, requiredSkills, status = 'open',
+      openings, startDate, deadline, requiredSkills, requiredLanguages, status = 'open',
     } = req.body;
 
     // Only include optional fields when provided — don't override DB defaults with null
@@ -162,6 +162,7 @@ exports.create = async (req, res, next) => {
       duration_weeks: Number(durationWeeks),
       deadline,
       required_skills: requiredSkills || [],
+      required_languages: requiredLanguages || [],
       status,
     };
     if (responsibilities !== undefined)  payload.responsibilities   = responsibilities;
@@ -217,7 +218,7 @@ exports.update = async (req, res, next) => {
       durationWeeks: 'duration_weeks', isPaid: 'is_paid',
       stipendAmount: 'stipend_amount', stipendCurrency: 'stipend_currency',
       openings: 'openings', startDate: 'start_date', deadline: 'deadline',
-      requiredSkills: 'required_skills', status: 'status',
+      requiredSkills: 'required_skills', requiredLanguages: 'required_languages', status: 'status',
     };
 
     const updates = {};
@@ -440,7 +441,7 @@ exports.recommended = async (req, res, next) => {
       .select(`
         id, title, domain, location, duration_weeks, is_paid, stipend_amount,
         stipend_currency, openings, deadline, start_date, status, views_count,
-        required_skills, requirements, description, created_at,
+        required_skills, required_languages, requirements, description, created_at,
         company_profiles ( id, company_name, sector, city, logo_url, is_verified )
       `)
       .eq('status', 'open')
@@ -493,6 +494,7 @@ function normaliseOffer(o) {
     startDate:       rest.start_date,
     deadline:        rest.deadline,
     requiredSkills:  rest.required_skills,
+    requiredLanguages: rest.required_languages,
     status:          rest.status,
     viewsCount:      rest.views_count,
     filledCount:     rest.filled_count ?? 0,

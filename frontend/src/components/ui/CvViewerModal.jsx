@@ -53,6 +53,12 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
   }, [isOpen, onClose]);
 
   const displayName = candidateName ? `${candidateName} — CV` : 'Curriculum Vitae';
+  // Browsers have no built-in inline renderer for .docx the way <embed> renders
+  // PDFs — detect it from the signed URL's path so we can skip straight to a
+  // download/open prompt instead of showing a blank pane.
+  const isDocx   = /\.docx(\?|$)/i.test(url || '');
+  const fileExt  = isDocx ? 'docx' : 'pdf';
+  const fileName = candidateName ? `${candidateName}_CV.${fileExt}` : `CV.${fileExt}`;
 
   return createPortal(
     <AnimatePresence>
@@ -87,7 +93,7 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold leading-tight truncate" style={{ color: '#1B1D1A' }}>{displayName}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[11px]" style={{ color: '#9A9E97' }}>PDF</span>
+                  <span className="text-[11px]" style={{ color: '#9A9E97' }}>{isDocx ? 'Word Document' : 'PDF'}</span>
                   <span className="w-1 h-1 rounded-full" style={{ background: '#DDDBD2' }} />
                   {state === 'loading' && <span className="text-[11px]" style={{ color: '#9A9E97' }}>Loading…</span>}
                   {state === 'ready'   && <span className="text-[11px] font-medium" style={{ color: '#1E5B45' }}>Ready to view</span>}
@@ -101,7 +107,7 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
                   <>
                     <a
                       href={blobUrl || url}
-                      download={candidateName ? `${candidateName}_CV.pdf` : 'CV.pdf'}
+                      download={fileName}
                       onClick={e => e.stopPropagation()}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
                       style={{ background: '#EDF2EE', border: '1px solid #C4DBCE', color: '#1E5B45' }}
@@ -187,7 +193,7 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
               )}
 
               {/* PDF — <embed> renders inline, better cross-browser than <object> */}
-              {state === 'ready' && blobUrl && (
+              {state === 'ready' && blobUrl && !isDocx && (
                 <embed
                   src={blobUrl}
                   type="application/pdf"
@@ -196,12 +202,38 @@ export default function CvViewerModal({ isOpen, onClose, url, candidateName }) {
                 />
               )}
 
+              {/* .docx has no browser-native inline renderer — prompt download/open
+                  instead of showing a blank pane. */}
+              {state === 'ready' && blobUrl && isDocx && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 p-8">
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: '#EDF2EE', border: '1px solid #C4DBCE' }}>
+                    <FileText size={26} style={{ color: '#1E5B45' }} />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold" style={{ color: '#1B1D1A' }}>Word documents can't be previewed in-browser</p>
+                    <p className="text-sm mt-1 max-w-xs" style={{ color: '#9A9E97' }}>Download it or open it in a new tab to view this CV.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <a href={blobUrl} download={fileName}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                      style={{ background: '#1E5B45', color: '#fff' }}>
+                      <Download size={14} /> Download
+                    </a>
+                    <a href={url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                      style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', color: '#6B6F69' }}>
+                      <ExternalLink size={14} /> Open in new tab
+                    </a>
+                  </div>
+                </div>
+              )}
+
               {/* Mobile browsers that can't render <embed> show a blank pane; JS is
                   always on so a <noscript> fallback never fires. Show a persistent,
                   tappable download/open bar on small screens instead. */}
-              {state === 'ready' && blobUrl && (
+              {state === 'ready' && blobUrl && !isDocx && (
                 <div className="sm:hidden absolute bottom-3 inset-x-3 flex items-center gap-2 z-10">
-                  <a href={blobUrl} download={candidateName ? `${candidateName}_CV.pdf` : 'CV.pdf'}
+                  <a href={blobUrl} download={fileName}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-semibold shadow-lg"
                     style={{ background: '#1E5B45' }}>
                     <Download size={14} /> Download

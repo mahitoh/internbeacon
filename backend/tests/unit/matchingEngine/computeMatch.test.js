@@ -143,6 +143,42 @@ test('computeMatch — language factor (5%)', async (t) => {
     const r = computeMatch(makeStudent({ languages: [] }), offer);
     assert.equal(r.breakdown.language.score, 1);
   });
+
+  await t.test('required_languages field takes priority over text scanning', () => {
+    const offer = makeOffer({ description: 'Great team.', requirements: 'Motivated student.', required_languages: ['French'] });
+    const r = computeMatch(makeStudent({ languages: ['English'] }), offer);
+    assert.equal(r.breakdown.language.score, 0);
+  });
+
+  await t.test('a language tagged as a required skill is read as a language, not a missing skill', () => {
+    const offer = makeOffer({
+      required_skills: ['JavaScript', 'React', 'French'],
+      required_languages: ['French'],
+      description: 'Great team.', requirements: 'Motivated student.',
+    });
+    const r = computeMatch(makeStudent({ languages: ['English'] }), offer);
+    assert.deepEqual(r.breakdown.skills.missing, []);          // French never counted as a missing skill
+    assert.equal(r.breakdown.skills.matched.length, 2);          // JavaScript + React still matched
+    assert.equal(r.breakdown.language.score, 0);                 // but the language gap is still flagged
+  });
+});
+
+test('computeMatch — location factor: missing data', async (t) => {
+  await t.test('missing offer location is excluded, not scored as a 50% partial match', () => {
+    const r = computeMatch(makeStudent(), makeOffer({ location: '' }));
+    assert.equal(r.breakdown.location.unknown, true);
+    assert.equal(r.breakdown.location.score, 0.5); // neutral fallback, but explicitly flagged unknown
+  });
+
+  await t.test('missing student city is excluded, not scored as a 50% partial match', () => {
+    const r = computeMatch(makeStudent({ city: '' }), makeOffer());
+    assert.equal(r.breakdown.location.unknown, true);
+  });
+
+  await t.test('an unknown location never triggers the Excellent→Good mismatch downgrade', () => {
+    const r = computeMatch(makeStudent({ city: '' }), makeOffer());
+    assert.notEqual(r.verdict, 'Good Match');
+  });
 });
 
 test('computeMatch — determinism', async (t) => {

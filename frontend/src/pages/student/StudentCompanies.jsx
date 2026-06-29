@@ -5,13 +5,14 @@ import { Building2, MapPin, Briefcase, Search, ShieldCheck, ChevronRight, Chevro
 import { companiesApi } from '../../api/companies';
 import Spinner from '../../components/ui/Spinner';
 import SelectField from '../../components/ui/SelectField';
+import { CAMEROON_CITIES } from '../../constants/locations';
 
 const SECTORS = [
   'Information Technology', 'Finance & Banking', 'Telecommunications',
   'Marketing & Sales', 'Engineering', 'Healthcare', 'Education',
   'Oil & Gas', 'Agriculture', 'Other',
 ];
-const CITIES = ['Yaoundé', 'Douala', 'Bafoussam', 'Garoua', 'Bamenda', 'Ngaoundéré', 'Bertoua', 'Maroua'];
+const CITIES = CAMEROON_CITIES;
 
 const AVATAR_COLORS = [
   { bg: '#EDE9FE', text: '#5B21B6' },

@@ -13,9 +13,13 @@ import { profilesApi } from '../../api/profiles';
 import { uploadApi } from '../../api/upload';
 import api from '../../api/axios';
 import toast from 'react-hot-toast';
+import { CAMEROON_CITIES } from '../../constants/locations';
 
 const SKILLS_LIST = ['JavaScript', 'Python', 'React', 'Node.js', 'Java', 'SQL', 'Machine Learning', 'Data Analysis', 'Excel', 'Figma', 'Marketing', 'Finance'];
-const CITIES = ['Yaoundé', 'Douala', 'Bafoussam', 'Bamenda', 'Garoua', 'Maroua', 'Ngaoundéré', 'Bertoua', 'Ebolowa', 'Buea', 'Limbé'];
+// Matches the languages the CV parser can detect (backend extractLanguagesFromText)
+// and the ones offers can require (matchingEngine.js LANGUAGE_TOKENS).
+const LANGUAGES_LIST = ['English', 'French', 'Fulfulde', 'Spanish', 'German'];
+const CITIES = CAMEROON_CITIES;
 
 // Suggestion lists for the education combo-boxes. These are hints only —
 // the field stays a free-text input so a student can type anything not listed.
@@ -67,12 +71,14 @@ export default function StudentProfile() {
   const queryClient = useQueryClient();
   const profile  = user?.studentProfile;
   const [selectedSkills, setSelectedSkills] = useState(profile?.skills || []);
+  const [selectedLanguages, setSelectedLanguages] = useState(profile?.languages || []);
   const [uploadingCv,    setUploadingCv]    = useState(false);
   const [removingCv,     setRemovingCv]     = useState(false);
   const [cvViewerOpen,   setCvViewerOpen]   = useState(false);
   const [cvViewerUrl,    setCvViewerUrl]    = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [cvUploaded,     setCvUploaded]     = useState(!!profile?.cvUrl);
+  const cvExt = profile?.cvUrl?.toLowerCase().endsWith('.docx') ? 'docx' : 'pdf';
   const googleAvatarUrl  = user?.avatarUrl || null;
   const [avatarUrl,      setAvatarUrl]      = useState(profile?.avatarUrl || googleAvatarUrl || null);
   const isGoogleAvatar   = !profile?.avatarUrl && !!googleAvatarUrl && avatarUrl === googleAvatarUrl;
@@ -118,6 +124,7 @@ export default function StudentProfile() {
   useEffect(() => {
     if (!profile) return;
     setSelectedSkills(profile.skills || []);
+    setSelectedLanguages(profile.languages || []);
     setCvUploaded(!!profile.cvUrl);
     setAvatarUrl(profile.avatarUrl || googleAvatarUrl || null);
     reset({
@@ -140,6 +147,10 @@ export default function StudentProfile() {
     setSelectedSkills(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
   };
 
+  const toggleLanguage = (l) => {
+    setSelectedLanguages(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
+  };
+
   const handlePreviewCv = async () => {
     try {
       const r = await uploadApi.getCvUrl(user?.id);
@@ -157,7 +168,8 @@ export default function StudentProfile() {
     const tid = toast.loading('Analyzing your CV…');
     try {
       const r = await api.post('/ai/parse-cv');
-      const extracted = r.data.data?.skills || [];
+      const extracted      = r.data.data?.skills || [];
+      const extractedLangs = r.data.data?.languages || [];
       if (extracted.length) {
         // Replace with the CV's skills (the backend does the same) so each upload
         // reflects THAT CV instead of piling skills up across uploads.
@@ -168,6 +180,7 @@ export default function StudentProfile() {
           if (k && !lower.has(k)) { lower.add(k); deduped.push(s); }
         });
         setSelectedSkills(deduped);
+        if (extractedLangs.length) setSelectedLanguages(extractedLangs);
         await refetchUser();
         toast.success(`Loaded ${deduped.length} skill${deduped.length !== 1 ? 's' : ''} from your CV`, { id: tid });
       } else {
@@ -187,10 +200,14 @@ export default function StudentProfile() {
     }
   }, [refetchUser]);
 
+  const ALLOWED_CV_TYPES = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
   const handleCvFile = useCallback(async (file) => {
     if (!file) return;
-    if (file.type !== 'application/pdf') { toast.error('Only PDF files are accepted'); return; }
-    if (file.size > 5 * 1024 * 1024)    { toast.error('File too large — max 5 MB');   return; }
+    const lowerName = file.name.toLowerCase();
+    const okType = ALLOWED_CV_TYPES.includes(file.type) || lowerName.endsWith('.pdf') || lowerName.endsWith('.docx');
+    if (!okType) { toast.error('Only PDF or Word (.docx) files are accepted'); return; }
+    if (file.size > 5 * 1024 * 1024)          { toast.error('File too large — max 5 MB');   return; }
     setUploadingCv(true);
     try {
       await uploadApi.cv(file);
@@ -199,7 +216,7 @@ export default function StudentProfile() {
       toast.success('CV uploaded!');
       await analyzeCv();
     } catch {
-      toast.error('CV upload failed — max 5 MB PDF only');
+      toast.error('CV upload failed — max 5 MB, PDF or Word (.docx) only');
     } finally { setUploadingCv(false); }
   }, [refetchUser, analyzeCv]);
 
@@ -249,7 +266,7 @@ export default function StudentProfile() {
 
   const onSubmit = async (data) => {
     try {
-      await profilesApi.updateStudent({ ...data, skills: selectedSkills });
+      await profilesApi.updateStudent({ ...data, skills: selectedSkills, languages: selectedLanguages });
       await refetchUser();
       // Invalidate all offer/recommendation caches so match scores
       // recalculate immediately with the updated profile
@@ -279,7 +296,7 @@ export default function StudentProfile() {
       <CvViewerModal isOpen={cvViewerOpen} onClose={() => setCvViewerOpen(false)} url={cvViewerUrl} candidateName={displayName || undefined} />
 
       <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-      <input ref={cvInputRef}    type="file" accept=".pdf"    className="hidden" onChange={handleCvChange} />
+      <input ref={cvInputRef}    type="file" accept=".pdf,.docx" className="hidden" onChange={handleCvChange} />
 
       {cropSrc && (
         <CropModal imageSrc={cropSrc} shape="round" onConfirm={handleCropConfirm} onCancel={() => setCropSrc(null)} />
@@ -416,6 +433,30 @@ export default function StudentProfile() {
             </div>
           )}
 
+          <div className="mt-5 pt-4" style={{ borderTop: '1px solid #F0F0EA' }}>
+            <label className="block text-sm font-medium mb-2" style={{ color: '#6B6F69' }}>Languages</label>
+            <p className="text-xs mb-3 leading-relaxed" style={{ color: '#9A9E97' }}>
+              Detected automatically from your CV — review and adjust if anything's missing or wrong.
+              Companies score this separately from technical skills.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {LANGUAGES_LIST.map(l => {
+                const isSelected = selectedLanguages.includes(l);
+                return (
+                  <button type="button" key={l} onClick={() => toggleLanguage(l)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                    style={isSelected
+                      ? { background: '#B45309', color: '#fff', border: '1px solid #92400E' }
+                      : { background: '#F6F5F1', color: '#6B6F69', border: '1px solid #E7E6DF' }}>
+                    {l}
+                  </button>
+                );
+              })}
+            </div>
+            {selectedLanguages.length === 0 && (
+              <p className="text-xs mt-2" style={{ color: '#C0BFBA' }}>No languages detected yet — upload a CV or select them manually.</p>
+            )}
+          </div>
         </Section>
 
         {/* Links */}
@@ -461,7 +502,7 @@ export default function StudentProfile() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-semibold truncate" style={{ color: '#1B1D1A' }}>
-                    {displayName ? `${displayName} — CV.pdf` : 'Resume.pdf'}
+                    {displayName ? `${displayName} — CV.${cvExt}` : `Resume.${cvExt}`}
                   </p>
                   {cvAnalysed && (
                     <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
@@ -475,7 +516,7 @@ export default function StudentProfile() {
                 <p className="text-xs mt-0.5" style={{ color: '#9A9E97' }}>
                   {cvAnalysed
                     ? `${selectedSkills.length} skill${selectedSkills.length !== 1 ? 's' : ''} · ${cvLangCount} language${cvLangCount !== 1 ? 's' : ''} detected`
-                    : 'PDF uploaded · click "Re-analyze CV" to read it'}
+                    : `${cvExt.toUpperCase()} uploaded · click "Re-analyze CV" to read it`}
                 </p>
               </div>
               <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -521,11 +562,11 @@ export default function StudentProfile() {
                 </div>
               )}
               <p className="text-sm font-medium" style={{ color: isDraggingCv ? '#1E5B45' : '#6B6F69' }}>
-                {uploadingCv ? 'Uploading…' : isDraggingCv ? 'Drop your PDF here' : 'Drag & drop your CV here'}
+                {uploadingCv ? 'Uploading…' : isDraggingCv ? 'Drop your file here' : 'Drag & drop your CV here'}
               </p>
               {!uploadingCv && (
                 <p className="text-xs mt-1" style={{ color: '#9A9E97' }}>
-                  {isDraggingCv ? '' : 'or click to browse — '}PDF only, max 5 MB
+                  {isDraggingCv ? '' : 'or click to browse — '}PDF or Word (.docx), max 5 MB
                 </p>
               )}
             </div>

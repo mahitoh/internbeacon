@@ -200,7 +200,7 @@ export default function StudentDashboard() {
         >
           {[
             { step: '01', title: 'Complete your profile', desc: 'Add your university, programme, skills, and bio.', icon: User, color: '#6B9FD4', bg: '#EEF2FB', border: '#C4CFEB', cta: 'Go to profile', to: '/student/profile' },
-            { step: '02', title: 'Upload your CV', desc: 'Upload a PDF so companies can review your experience.', icon: Upload, color: '#1E5B45', bg: '#EDF2EE', border: '#C4DBCE', cta: 'Upload CV', to: '/student/profile' },
+            { step: '02', title: 'Upload your CV', desc: 'Upload a PDF or Word document so companies can review your experience.', icon: Upload, color: '#1E5B45', bg: '#EDF2EE', border: '#C4DBCE', cta: 'Upload CV', to: '/student/profile' },
             { step: '03', title: 'Browse internships', desc: 'Explore open offers and apply to positions that fit you.', icon: Search, color: '#9B7FD4', bg: '#F3EEFB', border: '#CFBDE8', cta: 'Browse offers', to: '/student/offers' },
           ].map(({ step, title, desc, icon: Icon, color, bg, border, cta, to }) => (
             <div key={step} className="rounded-2xl p-5 flex flex-col gap-3" style={{ background: '#fff', border: '1px solid #E7E6DF' }}>

@@ -1,7 +1,7 @@
-const { PDFParse } = require('pdf-parse'); // v2 class API — calling the module as a function throws
 const { supabaseAdmin } = require('../config/supabase');
 const { callAI, extractJSON, getActiveProviders } = require('../utils/aiProvider');
 const { computeMatch, extractSkillsFromText, extractLanguagesFromText } = require('../utils/matchingEngine');
+const { extractCvText, PDF_MIME, DOCX_MIME } = require('../utils/cvTextExtractor');
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -30,11 +30,13 @@ exports.parseCv = async (req, res, next) => {
     if (dlErr || !fileData) return res.status(404).json({ success: false, message: 'CV file not found in storage' });
 
     const buffer = Buffer.from(await fileData.arrayBuffer());
-    const parser = new PDFParse({ data: new Uint8Array(buffer) });
-    const parsed = await parser.getText();
-    const cvText = parsed.text?.slice(0, 8000) || '';
+    // cv_url's extension is trustworthy — it's set by our own upload pipeline,
+    // never the client — so it routes to the right parser without re-sniffing.
+    const mime = profile.cv_url.endsWith('.docx') ? DOCX_MIME : PDF_MIME;
+    const rawText = await extractCvText(buffer, mime);
+    const cvText = rawText.slice(0, 8000);
 
-    if (!cvText.trim()) return res.status(400).json({ success: false, message: 'We couldn’t read any text from this CV — it looks like a scanned image or photo. Please upload a text-based PDF (exported from Word or Google Docs, not a scan).' });
+    if (!cvText.trim()) return res.status(400).json({ success: false, message: 'We couldn’t read any text from this CV — it looks like a scanned image or photo. Please upload a text-based PDF or Word document (exported from Word or Google Docs, not a scan).' });
 
     const prompt = `You are a CV parser for an internship platform in Cameroon. Extract structured information from this CV.
 

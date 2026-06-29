@@ -1,5 +1,6 @@
 const multer = require('multer');
 const { supabaseAdmin } = require('../config/supabase');
+const { SUPPORTED_CV_MIMES, extensionForMime } = require('../utils/cvTextExtractor');
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 // file-type is ESM-only (v20+), so we use dynamic import
@@ -8,7 +9,7 @@ async function detectMime(buffer) {
   return fileTypeFromBuffer(buffer);
 }
 
-const ALLOWED_PDF   = new Set(['application/pdf']);
+const ALLOWED_PDF   = SUPPORTED_CV_MIMES; // PDF + DOCX
 const ALLOWED_IMAGE = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 
 // ── Multer instances ──────────────────────────────────────────────────────────
@@ -18,9 +19,9 @@ exports.cvMiddleware = multer({
   storage: mem,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_, file, cb) => {
-    file.mimetype === 'application/pdf'
+    SUPPORTED_CV_MIMES.has(file.mimetype)
       ? cb(null, true)
-      : cb(Object.assign(new Error('Only PDF files are allowed'), { status: 400 }));
+      : cb(Object.assign(new Error('Only PDF or Word (.docx) files are allowed'), { status: 400 }));
   },
 }).single('file');
 
@@ -41,15 +42,28 @@ exports.uploadCv = async (req, res, next) => {
 
     const detected = await detectMime(req.file.buffer);
     if (!detected || !ALLOWED_PDF.has(detected.mime)) {
-      return res.status(400).json({ success: false, message: 'Only PDF files are allowed' });
+      return res.status(400).json({ success: false, message: 'Only PDF or Word (.docx) files are allowed' });
     }
 
-    const storagePath = `${req.user.userId}.pdf`;
+    const storagePath = `${req.user.userId}.${extensionForMime(detected.mime)}`;
+
+    const { data: profile } = await supabaseAdmin
+      .from('student_profiles')
+      .select('cv_url')
+      .eq('user_id', req.user.userId)
+      .single();
+
     const { error } = await supabaseAdmin.storage
       .from('cvs')
-      .upload(storagePath, req.file.buffer, { contentType: 'application/pdf', upsert: true });
+      .upload(storagePath, req.file.buffer, { contentType: detected.mime, upsert: true });
 
     if (error) throw error;
+
+    // Switching formats (e.g. .pdf → .docx) uploads to a new path — remove the
+    // stale file under the old extension so it doesn't linger in storage.
+    if (profile?.cv_url && profile.cv_url !== storagePath) {
+      await supabaseAdmin.storage.from('cvs').remove([profile.cv_url]).catch(() => {});
+    }
 
     await supabaseAdmin
       .from('student_profiles')
@@ -98,13 +112,13 @@ exports.uploadCvSnapshot = async (req, res, next) => {
 
     const detected = await detectMime(req.file.buffer);
     if (!detected || !ALLOWED_PDF.has(detected.mime)) {
-      return res.status(400).json({ success: false, message: 'Only PDF files are allowed' });
+      return res.status(400).json({ success: false, message: 'Only PDF or Word (.docx) files are allowed' });
     }
 
-    const storagePath = `applications/${req.user.userId}/${Date.now()}.pdf`;
+    const storagePath = `applications/${req.user.userId}/${Date.now()}.${extensionForMime(detected.mime)}`;
     const { error } = await supabaseAdmin.storage
       .from('cvs')
-      .upload(storagePath, req.file.buffer, { contentType: 'application/pdf', upsert: false });
+      .upload(storagePath, req.file.buffer, { contentType: detected.mime, upsert: false });
 
     if (error) throw error;
 
@@ -221,7 +235,7 @@ exports.getCvSignedUrl = async (req, res, next) => {
     }
 
     // Allowed CV paths, derived entirely from the DB.
-    const allowed = new Set([`${studentUserId}.pdf`]);
+    const allowed = new Set([`${studentUserId}.pdf`, `${studentUserId}.docx`]);
     if (sp.cv_url) allowed.add(sp.cv_url);
     for (const a of (apps || [])) if (a.cv_snapshot_url) allowed.add(a.cv_snapshot_url);
 

@@ -53,6 +53,18 @@ function normalizeSkill(s) {
   return SKILL_ALIASES[cleaned] || cleaned;
 }
 
+// ── Language tokens ─────────────────────────────────────────────────────────────
+// Recognized language names — shared between languageScore() and the skills-tag
+// filter below, so a language mistakenly tagged as a "skill" (e.g. a company
+// typing "French" into Required Skills) is read as a language signal instead of
+// scored as a missing technical skill.
+
+const LANGUAGE_TOKENS = ['english', 'french', 'fulfulde', 'spanish', 'german'];
+
+function isLanguageToken(s) {
+  return LANGUAGE_TOKENS.includes(String(s || '').trim().toLowerCase());
+}
+
 // ── Academic field classification (student side) ───────────────────────────────
 // Maps a student's programme/faculty text to a canonical academic field.
 // Returns null when the programme is not recognized — never silently penalizes.
@@ -246,18 +258,24 @@ const CAMEROON_REGIONS = [
 // ── Core scoring functions ─────────────────────────────────────────────────────
 
 function skillsCoverage(studentSkills, offerSkills) {
-  if (!offerSkills || offerSkills.length === 0) {
-    // Offer lists no requirements — less information, not neutral
+  // Strip language names out first — a company that tagged "French" as a
+  // required skill meant it as a language requirement, not a technical skill,
+  // so it must never appear as a "missing skill" (see languageScore below,
+  // which is the actual home for language requirements).
+  const techSkills = (offerSkills || []).filter(s => !isLanguageToken(s));
+
+  if (techSkills.length === 0) {
+    // Offer lists no (non-language) requirements — less information, not neutral
     return { score: 30, matched: [], missing: [], noRequirements: true };
   }
   const have = new Set((studentSkills || []).map(normalizeSkill).filter(Boolean));
   const matched = [];
   const missing = [];
-  for (const skill of offerSkills) {
+  for (const skill of techSkills) {
     (have.has(normalizeSkill(skill)) ? matched : missing).push(skill);
   }
   return {
-    score: Math.max(5, Math.round((matched.length / offerSkills.length) * 100)),
+    score: Math.max(5, Math.round((matched.length / techSkills.length) * 100)),
     matched,
     missing,
     noRequirements: false,
@@ -275,12 +293,16 @@ function domainScore(programme, faculty, offerDomain) {
   return Math.round(strength * 100);
 }
 
+// Returns null (not a neutral 50) when either side's location data is missing —
+// "we don't know" must never look identical to a real same-region partial match.
+// computeMatch() redistributes this factor's weight when null, the same way it
+// already does for an unrecognized academic domain.
 function locationScore(studentCity, offerLocation) {
-  if (!offerLocation) return 50;
+  if (!offerLocation) return null;
   const loc = offerLocation.toLowerCase().trim();
 
   if (/remote|télétravail|teletravail|en ligne|online|à distance|distance/i.test(loc)) return 100;
-  if (!studentCity) return 50;
+  if (!studentCity) return null;
 
   const city = studentCity.toLowerCase().trim();
   if (city === loc || loc.includes(city) || city.includes(loc)) return 100;
@@ -312,20 +334,32 @@ function studyLevelScore(studentYear, requirements) {
   return 20;
 }
 
-function languageScore(studentLangs, requirements, description) {
-  const text = `${requirements || ''} ${description || ''}`.toLowerCase();
-  const needed = [];
-  if (/\benglish\b|\banglais\b/.test(text))          needed.push('english');
-  if (/\bfrench\b|\bfran[çc]ais\b/.test(text))        needed.push('french');
-  if (needed.length === 0) return 100;
+function languageScore(studentLangs, requirements, description, requiredLanguages) {
+  // The structured field is authoritative when the company has used it — it's
+  // an explicit choice, not a guess from prose. Only fall back to scanning
+  // requirements/description text for offers created before this field existed.
+  let needed;
+  if (Array.isArray(requiredLanguages) && requiredLanguages.length > 0) {
+    needed = [...new Set(requiredLanguages.map(l => String(l).trim().toLowerCase()).filter(isLanguageToken))];
+  } else {
+    const text = `${requirements || ''} ${description || ''}`.toLowerCase();
+    needed = [];
+    if (/\benglish\b|\banglais\b/.test(text))   needed.push('english');
+    if (/\bfrench\b|\bfran[çc]ais\b/.test(text)) needed.push('french');
+  }
+  if (needed.length === 0) return { score: 100, missing: [] };
   // Match either the English name or the French label a student may have typed.
   const have = (studentLangs || []).map(l => l.toLowerCase());
   const speaks = {
-    english: have.some(h => h.includes('english') || h.includes('anglais')),
-    french:  have.some(h => h.includes('french')  || h.includes('fran')),
+    english:  have.some(h => h.includes('english')  || h.includes('anglais')),
+    french:   have.some(h => h.includes('french')   || h.includes('fran')),
+    fulfulde: have.some(h => h.includes('fulfulde') || h.includes('fulani')),
+    spanish:  have.some(h => h.includes('spanish')  || h.includes('espagnol')),
+    german:   have.some(h => h.includes('german')   || h.includes('allemand')),
   };
   const covered = needed.filter(l => speaks[l]);
-  return Math.round((covered.length / needed.length) * 100);
+  const missing = needed.filter(l => !speaks[l]).map(l => l[0].toUpperCase() + l.slice(1));
+  return { score: Math.round((covered.length / needed.length) * 100), missing };
 }
 
 function getVerdict(score) {
@@ -356,8 +390,9 @@ function applyBlockingConditions(score, verdict, ls, lc, skillCoverage, offerHas
       warning: 'This role specifies a minimum study year you may not meet yet.',
     };
   }
-  // Clear location mismatch — downgrade Excellent → Good
-  if (lc <= 30 && verdict === 'Excellent Match') {
+  // Clear location mismatch — downgrade Excellent → Good (skip when location
+  // data is missing on either side — null must never be treated as a mismatch)
+  if (lc !== null && lc <= 30 && verdict === 'Excellent Match') {
     return {
       score,
       verdict: 'Good Match',
@@ -381,19 +416,32 @@ function computeMatch(student, offer) {
   const ds = domainScore(student.programme, student.faculty, offer.domain);
   const lc = locationScore(student.city, offer.location);
   const ls = studyLevelScore(student.study_year ?? student.studyYear, offer.requirements);
-  const lg = languageScore(student.languages, offer.requirements, offer.description);
+  const lgResult = languageScore(student.languages, offer.requirements, offer.description, offer.required_languages);
+  const lg = lgResult.score;
 
-  // When domain is unknown, redistribute its weight to skills for a fairer score
-  const domainUnknown = ds === null;
-  const dsValue = ds ?? 50; // neutral fallback when unrecognized
-  const effectiveWeights = domainUnknown
-    ? { ...WEIGHTS, skills: WEIGHTS.skills + WEIGHTS.domain * 0.5, domain: WEIGHTS.domain * 0.5 }
-    : WEIGHTS;
+  // When domain or location data is unrecognized/missing, redistribute half of
+  // that factor's weight to skills and keep the other half neutral — the same
+  // pattern applied to both factors so missing data never reads as a real
+  // partial match (a flat 50%) or silently skews the weighted total.
+  const domainUnknown   = ds === null;
+  const locationUnknown = lc === null;
+  const dsValue = ds ?? 50;
+  const lcValue = lc ?? 50;
+
+  const effectiveWeights = { ...WEIGHTS };
+  if (domainUnknown) {
+    effectiveWeights.skills += WEIGHTS.domain * 0.5;
+    effectiveWeights.domain  = WEIGHTS.domain * 0.5;
+  }
+  if (locationUnknown) {
+    effectiveWeights.skills  += WEIGHTS.location * 0.5;
+    effectiveWeights.location = WEIGHTS.location * 0.5;
+  }
 
   const rawScore = Math.min(100, Math.round(
     sk.score   * effectiveWeights.skills +
     dsValue    * effectiveWeights.domain +
-    lc         * effectiveWeights.location +
+    lcValue    * effectiveWeights.location +
     ls         * effectiveWeights.level +
     lg         * effectiveWeights.language
   ));
@@ -405,9 +453,9 @@ function computeMatch(student, offer) {
   const breakdown = {
     skills:   { score: sk.score / 100, matched: sk.matched, missing: sk.missing, noRequirements: sk.noRequirements },
     domain:   { score: dsValue / 100, unknown: domainUnknown },
-    location: { score: lc / 100 },
+    location: { score: lcValue / 100, unknown: locationUnknown },
     level:    { score: ls / 100 },
-    language: { score: lg / 100 },
+    language: { score: lg / 100, missing: lgResult.missing },
   };
 
   const strengths = [];
@@ -421,18 +469,22 @@ function computeMatch(student, offer) {
     strengths.push(`${student.programme || 'Your programme'} aligns with ${offer.domain}`);
   else if (!domainUnknown && dsValue < 35)
     gaps.push(`Programme may not match the ${offer.domain} domain`);
-  if (lc === 100)
+  if (!locationUnknown && lc === 100)
     strengths.push(/remote/i.test(offer.location || '') ? 'Remote — open to all locations' : `Located in ${offer.location}`);
-  else if (lc <= 30)
+  else if (!locationUnknown && lc <= 30)
     gaps.push(`Offer is in ${offer.location} — consider relocation`);
   if (ls >= 75)
     strengths.push(`Year ${student.study_year ?? student.studyYear} meets experience level`);
   else if (ls <= 40)
     gaps.push('Role may expect a more senior student');
+  if (lgResult.missing.length > 0)
+    gaps.push(`Missing language: ${lgResult.missing.join(', ')}`);
+  else if (lg === 100 && offer.required_languages?.length > 0)
+    strengths.push(`Speaks ${offer.required_languages.join(', ')}`);
   if (warning)
     gaps.push(warning);
 
-  const offerSkillSample = (offer.required_skills || []).slice(0, 2).join(' and ') || offer.domain || 'this role';
+  const offerSkillSample = (offer.required_skills || []).filter(s => !isLanguageToken(s)).slice(0, 2).join(' and ') || offer.domain || 'this role';
   const tip = gaps.length === 0
     ? `Strong match — highlight your ${offerSkillSample} experience in your cover letter.`
     : `Strengthen your profile by adding missing skills and tailoring your cover letter to ${offer.domain || 'this domain'}.`;
@@ -574,5 +626,5 @@ function extractLanguagesFromText(text) {
 
 module.exports = {
   computeMatch, computeRecommendationReasons, getVerdict, normalizeSkill,
-  extractSkillsFromText, extractLanguagesFromText,
+  extractSkillsFromText, extractLanguagesFromText, isLanguageToken, LANGUAGE_TOKENS,
 };

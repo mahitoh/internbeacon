@@ -5,13 +5,15 @@ import { motion } from 'framer-motion';
 import { Search, Building2, MapPin, Briefcase, ShieldCheck, X } from 'lucide-react';
 import { companiesApi } from '../../api/companies';
 import Spinner from '../../components/ui/Spinner';
+import { CAMEROON_CITIES } from '../../constants/locations';
 
 const SECTORS = [
   'Information Technology', 'Finance & Banking', 'Telecommunications',
   'Engineering', 'Marketing & Sales', 'Human Resources', 'Healthcare',
   'Agriculture', 'Education', 'Legal',
 ];
-const CITIES = ['Yaounde', 'Douala', 'Bafoussam', 'Garoua', 'Buea', 'Remote'];
+// Matches the values CompanyProfile.jsx actually writes to company_profiles.city
+const CITIES = [...CAMEROON_CITIES, 'Multiple cities'];
 
 const COLORS = ['bg-violet-500/20', 'bg-blue-500/20', 'bg-lime-500/20', 'bg-orange-500/20', 'bg-pink-500/20'];
 

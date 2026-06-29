@@ -6,9 +6,10 @@ import { Search, SlidersHorizontal, X, Briefcase, Diamond } from 'lucide-react';
 import { offersApi } from '../../api/offers';
 import OfferCard from '../../components/offers/OfferCard';
 import Spinner from '../../components/ui/Spinner';
+import { OFFER_LOCATIONS } from '../../constants/locations';
 
 const DOMAINS    = ['IT', 'Finance', 'Marketing', 'Engineering', 'HR', 'Telecommunications', 'Legal', 'Health'];
-const LOCATIONS  = ['Yaounde', 'Douala', 'Bafoussam', 'Garoua', 'Remote'];
+const LOCATIONS  = OFFER_LOCATIONS;
 const DURATIONS  = [{ label: 'Any', value: '' }, { label: '4–8 weeks', value: '4' }, { label: '8–12 weeks', value: '8' }, { label: '3+ months', value: '12' }];
 
 export default function OffersPage() {

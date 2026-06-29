@@ -8,10 +8,11 @@ import SelectField from '../../components/ui/SelectField';
 import { profilesApi } from '../../api/profiles';
 import { uploadApi } from '../../api/upload';
 import toast from 'react-hot-toast';
+import { CAMEROON_CITIES } from '../../constants/locations';
 
 const SECTORS = ['Information Technology', 'Finance & Banking', 'Telecommunications', 'Marketing & Sales', 'Engineering', 'Healthcare', 'Education', 'Oil & Gas', 'Other'];
 const SIZES   = ['1-10', '11-50', '51-200', '201-500', '500+'];
-const CITIES  = ['Yaoundé', 'Douala', 'Bafoussam', 'Garoua', 'Bamenda', 'Multiple cities'];
+const CITIES  = [...CAMEROON_CITIES, 'Multiple cities'];
 
 function Section({ title, icon: Icon, children }) {
   return (

@@ -138,6 +138,16 @@ export default function OfferDetailPage() {
                   </div>
                 </div>
               )}
+              {offer.requiredLanguages?.length > 0 && (
+                <div className="space-y-3 pt-6 border-t ">
+                  <h3 className="text-base font-black text-forest-950">Required Languages</h3>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {offer.requiredLanguages.map(l => (
+                      <span key={l} className="px-3.5 py-1 bg-amber-100/50 text-forest-950 border border-amber-300/30 rounded-lg text-xs font-bold">{l}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Apply form */}

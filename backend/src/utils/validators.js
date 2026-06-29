@@ -91,6 +91,13 @@ exports.createOfferRules = [
   body('status')
     .optional()
     .isIn(['draft', 'open']).withMessage('Status must be draft or open'),
+  body('requiredSkills')
+    .optional()
+    .isArray().withMessage('requiredSkills must be an array of strings'),
+  body('requiredLanguages')
+    .optional()
+    .isArray().withMessage('requiredLanguages must be an array of strings')
+    .custom(v => v.every(l => typeof l === 'string')).withMessage('requiredLanguages must contain only strings'),
 ];
 
 exports.updateOfferRules = [
@@ -106,6 +113,13 @@ exports.updateOfferRules = [
   body('status')
     .optional()
     .isIn(['draft', 'open', 'closed']).withMessage('Status must be draft, open, or closed'),
+  body('requiredSkills')
+    .optional()
+    .isArray().withMessage('requiredSkills must be an array of strings'),
+  body('requiredLanguages')
+    .optional()
+    .isArray().withMessage('requiredLanguages must be an array of strings')
+    .custom(v => v.every(l => typeof l === 'string')).withMessage('requiredLanguages must contain only strings'),
 ];
 
 exports.applyRules = [

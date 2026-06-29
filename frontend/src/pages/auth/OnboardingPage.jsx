@@ -10,10 +10,11 @@ import { DarkInput } from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import SelectField from '../../components/ui/SelectField';
 import toast from 'react-hot-toast';
+import { CAMEROON_CITIES } from '../../constants/locations';
 
 const UNIVERSITIES = ['ICT University', 'University of Yaoundé I', 'University of Yaoundé II', 'ESSEC Douala', 'IRIC', "SUP'TIC", 'ENSP Yaoundé', 'IUT Douala', 'ISTDI', 'Other'];
 const SECTORS      = ['Information Technology', 'Finance & Banking', 'Telecommunications', 'Marketing & Sales', 'Engineering', 'Healthcare', 'Education', 'Oil & Gas', 'Agriculture', 'Other'];
-const CITIES       = ['Yaoundé', 'Douala', 'Bafoussam', 'Garoua', 'Bamenda', 'Ngaoundéré', 'Bertoua', 'Maroua'];
+const CITIES       = CAMEROON_CITIES;
 
 export default function OnboardingPage() {
   const navigate            = useNavigate();

@@ -12,11 +12,13 @@ import SelectField from '../../components/ui/SelectField';
 // SelectField, so migrating in the chevron/handlers introduces no visual change.
 const SELECT_DIMS = { borderRadius: '10px', padding: '10px 38px 10px 14px' };
 import toast from 'react-hot-toast';
+import { OFFER_LOCATIONS } from '../../constants/locations';
 
 const DOMAINS    = ['Information Technology', 'Finance & Banking', 'Telecommunications', 'Marketing & Sales', 'Engineering', 'Human Resources', 'Legal', 'Healthcare', 'Agriculture', 'Other'];
-const LOCATIONS  = ['Yaoundé', 'Douala', 'Bafoussam', 'Garoua', 'Bamenda', 'Remote'];
+const LOCATIONS  = OFFER_LOCATIONS;
 const DURATIONS  = [4, 8, 12, 16, 24];
 const CURRENCIES = ['XAF', 'USD', 'EUR'];
+const LANGUAGES  = ['English', 'French'];
 
 export default function EditOffer() {
   const { id }   = useParams();
@@ -30,11 +32,13 @@ export default function EditOffer() {
   const { register, handleSubmit, watch, reset, formState: { errors, isSubmitting } } = useForm();
   const [skills,     setSkills]     = useState([]);
   const [skillInput, setSkillInput] = useState('');
+  const [languages,  setLanguages]  = useState([]);
   const isPaid = watch('isPaid');
 
   useEffect(() => {
     if (!offer) return;
     setSkills(offer.requiredSkills || []);
+    setLanguages(offer.requiredLanguages || []);
     reset({
       title:            offer.title            || '',
       domain:           offer.domain           || '',
@@ -52,10 +56,20 @@ export default function EditOffer() {
     });
   }, [offer, reset]);
 
+  const toggleLanguage = (lang) =>
+    setLanguages(prev => prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]);
+
   const addSkill = (raw) => {
     const trimmed = raw.trim();
     if (!trimmed) { setSkillInput(''); return; }
     const lc = trimmed.toLowerCase();
+    const asLanguage = LANGUAGES.find(l => l.toLowerCase() === lc);
+    if (asLanguage) {
+      setLanguages(prev => prev.includes(asLanguage) ? prev : [...prev, asLanguage]);
+      toast(`"${trimmed}" looks like a language — added it to Required Languages instead.`);
+      setSkillInput('');
+      return;
+    }
     if (!skills.some(s => s.toLowerCase() === lc)) setSkills(prev => [...prev, trimmed]);
     setSkillInput('');
   };
@@ -89,7 +103,8 @@ export default function EditOffer() {
         isPaid:           paid,
         stipendAmount:    amount,
         stipendCurrency:  paid ? (data.stipendCurrency || 'XAF') : undefined,
-        requiredSkills:   allSkills,
+        requiredSkills:    allSkills,
+        requiredLanguages: languages,
       });
       toast.success('Offer updated!');
       navigate('/company/offers');
@@ -149,6 +164,25 @@ export default function EditOffer() {
                 style={{ color: '#1B1D1A' }} />
             </div>
             <p className="text-[11px]" style={{ color: '#C0BFBA' }}>Press Enter or comma to add each skill</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>Required Languages</label>
+            <div className="flex gap-2">
+              {LANGUAGES.map(lang => {
+                const active = languages.includes(lang);
+                return (
+                  <button key={lang} type="button" onClick={() => toggleLanguage(lang)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+                    style={active
+                      ? { background: '#1E5B45', color: '#fff', borderColor: '#1E5B45' }
+                      : { background: '#F6F5F1', color: '#1B1D1A', borderColor: '#DDDBD2' }}>
+                    {lang}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px]" style={{ color: '#C0BFBA' }}>Scored separately from technical skills — only select a language if it's genuinely required.</p>
           </div>
         </FormSection>
 
@@ -218,7 +252,7 @@ function Field({ label, error, onFocus, onBlur, ...props }) {
   return (
     <div className="space-y-1.5">
       {label && <label className="block text-sm font-medium" style={{ color: '#6B6F69' }}>{label}</label>}
-      <input style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none' }}
+      <input style={{ background: '#F6F5F1', border: '1px solid #DDDBD2', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', color: '#1B1D1A', width: '100%', outline: 'none', colorScheme: 'light' }}
         {...props}
         onFocus={e => { e.target.style.borderColor = '#1E5B45'; onFocus?.(e); }}
         onBlur={e => { e.target.style.borderColor = '#DDDBD2'; onBlur?.(e); }} />
