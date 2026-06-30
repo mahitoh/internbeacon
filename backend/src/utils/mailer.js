@@ -28,7 +28,7 @@ async function sendMail({ to, subject, html }) {
       html,
     });
   } catch (err) {
-    console.warn('[MAILER] Failed to send email:', err.message);
+    console.warn('[MAILER] Failed to send email:', err.message, '| to:', to, '| code:', err.code);
   }
 }
 

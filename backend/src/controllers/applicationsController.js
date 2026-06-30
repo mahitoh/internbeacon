@@ -33,19 +33,18 @@ exports.apply = async (req, res, next) => {
   try {
     const { offerId, coverLetter, cvSnapshotUrl } = req.body;
 
-    const { data: sp } = await supabaseAdmin
-      .from('student_profiles')
-      .select('id, first_name, last_name, cv_url')
-      .eq('user_id', req.user.userId)
-      .single();
-
-    if (!sp) return res.status(400).json({ success: false, message: 'Student profile not found' });
-
-    const { data: offer } = await supabaseAdmin
-      .from('internship_offers')
-      .select('id, status, deadline, openings, filled_count')
-      .eq('id', offerId)
-      .single();
+    const [{ data: sp }, { data: offer }] = await Promise.all([
+      supabaseAdmin
+        .from('student_profiles')
+        .select('id, first_name, last_name, cv_url, university, faculty, programme, study_year, skills, bio, languages, avatar_url, linkedin_url, ai_summary')
+        .eq('user_id', req.user.userId)
+        .single(),
+      supabaseAdmin
+        .from('internship_offers')
+        .select('id, status, deadline, openings, filled_count')
+        .eq('id', offerId)
+        .single(),
+    ]);
 
     if (!offer) return res.status(404).json({ success: false, message: 'Offer not found' });
     if (offer.status !== 'open')
@@ -59,26 +58,20 @@ exports.apply = async (req, res, next) => {
     const resolvedCv = cvSnapshotUrl || sp.cv_url || null;
 
     // Build profile snapshot — immutable record of who applied and with what profile
-    const { data: fullProfile } = await supabaseAdmin
-      .from('student_profiles')
-      .select('first_name, last_name, university, faculty, programme, study_year, skills, bio, languages, avatar_url, cv_url, linkedin_url, ai_summary')
-      .eq('id', sp.id)
-      .single();
-
-    const profileSnapshot = fullProfile ? {
-      firstName:   fullProfile.first_name,
-      lastName:    fullProfile.last_name,
-      university:  fullProfile.university,
-      faculty:     fullProfile.faculty,
-      programme:   fullProfile.programme,
-      studyYear:   fullProfile.study_year,
-      skills:      fullProfile.skills,
-      bio:         fullProfile.bio,
-      languages:   fullProfile.languages,
-      avatarUrl:   fullProfile.avatar_url,
-      cvUrl:       fullProfile.cv_url,
-      linkedinUrl: fullProfile.linkedin_url,
-      aiSummary:   fullProfile.ai_summary,
+    const profileSnapshot = sp ? {
+      firstName:   sp.first_name,
+      lastName:    sp.last_name,
+      university:  sp.university,
+      faculty:     sp.faculty,
+      programme:   sp.programme,
+      studyYear:   sp.study_year,
+      skills:      sp.skills,
+      bio:         sp.bio,
+      languages:   sp.languages,
+      avatarUrl:   sp.avatar_url,
+      cvUrl:       sp.cv_url,
+      linkedinUrl: sp.linkedin_url,
+      aiSummary:   sp.ai_summary,
       snapshotAt:  new Date().toISOString(),
     } : null;
 
@@ -258,7 +251,12 @@ exports.updateStatus = async (req, res, next) => {
 
     const { data: app } = await supabaseAdmin
       .from('applications')
-      .select('id, status, offer_id, internship_offers ( id, title, company_id, openings, filled_count )')
+      .select(`
+        id, status, offer_id,
+        interview_date, interview_type, interview_location, interview_link, interview_notes,
+        internship_offers ( id, title, company_id, openings, filled_count ),
+        student_profiles ( user_id, first_name, last_name )
+      `)
       .eq('id', id)
       .single();
 
@@ -310,20 +308,12 @@ exports.updateStatus = async (req, res, next) => {
 
     await addHistory(id, status, req.user.userId, internalNote || null);
 
-    const { data: appFull } = await supabaseAdmin
-      .from('applications')
-      .select(`
-        interview_date, interview_type, interview_location, interview_link, interview_notes,
-        student_profiles ( user_id, first_name, last_name ),
-        internship_offers ( title )
-      `)
-      .eq('id', id)
-      .single();
-
-    if (appFull?.student_profiles?.user_id) {
-      const studentUserId = appFull.student_profiles.user_id;
-      const offerTitle    = appFull.internship_offers?.title || '';
+    if (app?.student_profiles?.user_id) {
+      const studentUserId = app.student_profiles.user_id;
+      const offerTitle    = app.internship_offers?.title || '';
       const meta          = STATUS_META[status];
+      const studentName   = [app.student_profiles.first_name, app.student_profiles.last_name]
+        .filter(Boolean).join(' ') || 'Student';
 
       notify({
         userId: studentUserId,
@@ -336,8 +326,6 @@ exports.updateStatus = async (req, res, next) => {
       supabaseAdmin.auth.admin.getUserById(studentUserId).then(({ data: au }) => {
         const email = au?.user?.email;
         if (!email) return;
-        const studentName = [appFull.student_profiles.first_name, appFull.student_profiles.last_name]
-          .filter(Boolean).join(' ') || 'Student';
 
         if (status === 'interview_scheduled') {
           sendMail({
@@ -346,11 +334,11 @@ exports.updateStatus = async (req, res, next) => {
             html:    interviewEmail({
               studentName,
               offerTitle,
-              interviewDate:     appFull.interview_date,
-              interviewType:     appFull.interview_type,
-              interviewLocation: appFull.interview_location,
-              interviewLink:     appFull.interview_link,
-              interviewNotes:    appFull.interview_notes,
+              interviewDate:     updates.interview_date     ?? app.interview_date,
+              interviewType:     updates.interview_type     ?? app.interview_type,
+              interviewLocation: updates.interview_location ?? app.interview_location,
+              interviewLink:     updates.interview_link     ?? app.interview_link,
+              interviewNotes:    updates.interview_notes    ?? app.interview_notes,
             }),
           });
         } else {

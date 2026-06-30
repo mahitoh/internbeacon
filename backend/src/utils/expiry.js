@@ -27,9 +27,9 @@ async function expireOffers() {
 
     console.log(`[EXPIRY] Auto-closed ${expired.length} expired offer(s)`);
 
-    for (const offer of expired) {
+    await Promise.all(expired.map(async (offer) => {
       const companyUserId = offer.company_profiles?.user_id;
-      if (!companyUserId) continue;
+      if (!companyUserId) return;
 
       notify({
         userId: companyUserId,
@@ -53,7 +53,7 @@ async function expireOffers() {
           });
         }
       } catch {}
-    }
+    }));
   } catch (err) {
     console.error('[EXPIRY] Unexpected error:', err.message);
   }

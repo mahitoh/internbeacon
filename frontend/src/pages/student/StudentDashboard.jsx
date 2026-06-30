@@ -102,7 +102,7 @@ export default function StudentDashboard() {
 
   const { data: appsData, isLoading: appsLoading } = useQuery({ queryKey: ['my-apps'],         queryFn: () => applicationsApi.my({ limit: 100 }).then(r => r.data.data) });
   const { data: recData, isLoading: recLoading } = useQuery({ queryKey: ['offers-rec'],      queryFn: () => offersApi.recommended(6).then(r => r.data.data) });
-  const { data: threadsData } = useQuery({ queryKey: ['message-threads'], queryFn: () => messagesApi.threads().then(r => r.data.data) });
+  const { data: threadsData } = useQuery({ queryKey: ['message-threads-student'], queryFn: () => messagesApi.threads().then(r => r.data.data) });
 
   const apps      = appsData  || [];
   const recOffers = recData   || [];
