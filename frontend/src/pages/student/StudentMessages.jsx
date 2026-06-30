@@ -117,7 +117,7 @@ export default function StudentMessages() {
     setInput('');
     const optimistic = {
       id: `opt-${Date.now()}`, appId: activeAppId,
-      senderId: user?.userId, content: text,
+      senderId: user?.id, content: text,
       isRead: false, sentAt: new Date().toISOString(),
     };
     setMessages(prev => [...prev, optimistic]);
