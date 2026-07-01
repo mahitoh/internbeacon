@@ -29,7 +29,7 @@ const Input = forwardRef(({ label, error, icon: Icon, className, ...props }, ref
 
 Input.displayName = 'Input';
 
-export const DarkInput = forwardRef(({ label, error, icon: Icon, className, ...props }, ref) => (
+export const DarkInput = forwardRef(({ label, error, icon: Icon, trailing, className, ...props }, ref) => (
   <div className="space-y-1.5">
     {label && <label className="block text-[13px] font-semibold" style={{ color: '#1B1D1A' }}>{label}</label>}
     <div className="relative">
@@ -43,15 +43,23 @@ export const DarkInput = forwardRef(({ label, error, icon: Icon, className, ...p
         className={cn(
           'w-full rounded-[11px] px-4 py-2.5 text-[14px] transition-colors duration-200 focus:outline-none focus:ring-2',
           Icon && 'pl-10',
+          trailing && 'pr-11',
           className
         )}
         style={{
           border: error ? '1px solid #EF4444' : '1px solid #DDDBD2',
           background: '#F6F5F1',
           color: '#1B1D1A',
+          colorScheme: 'light',
+          WebkitTextFillColor: '#1B1D1A',
         }}
         {...props}
       />
+      {trailing && (
+        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center">
+          {trailing}
+        </span>
+      )}
     </div>
     {error && <p className="text-xs" style={{ color: '#EF4444' }}>{error}</p>}
   </div>
@@ -79,6 +87,7 @@ export const LightInput = forwardRef(({ label, error, icon: Icon, trailing, clas
           error && 'border-red-400 focus:border-red-400 focus:ring-red-400/15',
           className
         )}
+        style={{ colorScheme: 'light', WebkitTextFillColor: '#1B1D1A' }}
         {...props}
       />
       {trailing && (

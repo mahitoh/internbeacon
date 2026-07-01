@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Compass, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Lock, Compass, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import Button from '../../components/ui/Button';
 import { DarkInput } from '../../components/ui/Input';
@@ -13,8 +13,10 @@ export default function ResetPasswordPage() {
   const [tokenError,  setTokenError]  = useState(false);
   const [password,    setPassword]    = useState('');
   const [confirm,     setConfirm]     = useState('');
-  const [loading,     setLoading]     = useState(false);
-  const [done,        setDone]        = useState(false);
+  const [loading,      setLoading]      = useState(false);
+  const [done,         setDone]         = useState(false);
+  const [showNew,      setShowNew]      = useState(false);
+  const [showConfirm,  setShowConfirm]  = useState(false);
 
   // Supabase puts the access_token in the URL hash after redirect
   useEffect(() => {
@@ -106,20 +108,34 @@ export default function ResetPasswordPage() {
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
               <DarkInput
                 label="New password"
-                type="password"
+                type={showNew ? 'text' : 'password'}
                 icon={Lock}
                 placeholder="Min. 8 characters"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                trailing={
+                  <button type="button" onClick={() => setShowNew(s => !s)}
+                    aria-label={showNew ? 'Hide password' : 'Show password'}
+                    className="text-[#A4A89F] hover:text-[#1B1D1A] transition-colors">
+                    {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                }
                 required
               />
               <DarkInput
                 label="Confirm password"
-                type="password"
+                type={showConfirm ? 'text' : 'password'}
                 icon={Lock}
                 placeholder="Repeat your password"
                 value={confirm}
                 onChange={e => setConfirm(e.target.value)}
+                trailing={
+                  <button type="button" onClick={() => setShowConfirm(s => !s)}
+                    aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                    className="text-[#A4A89F] hover:text-[#1B1D1A] transition-colors">
+                    {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                }
                 required
               />
               <Button

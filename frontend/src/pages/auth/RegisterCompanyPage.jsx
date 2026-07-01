@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Building2, MapPin, ArrowRight, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Building2, MapPin, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { LightInput } from '../../components/ui/Input';
 import SelectField from '../../components/ui/SelectField';
@@ -29,7 +29,8 @@ const selectCls = [
 
 export default function RegisterCompanyPage() {
   const navigate = useNavigate();
-  const [regError, setRegError] = useState('');
+  const [regError, setRegError]         = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
   const onSubmit = async (data) => {
@@ -153,8 +154,19 @@ export default function RegisterCompanyPage() {
                 onChange: () => setRegError(''),
               })} />
 
-            <LightInput label="Password" type="password" icon={Lock} placeholder="Min. 8 characters"
+            <LightInput
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              icon={Lock}
+              placeholder="Min. 8 characters"
               error={errors.password?.message}
+              trailing={
+                <button type="button" onClick={() => setShowPassword(s => !s)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="text-[#A4A89F] hover:text-[#1B1D1A] transition-colors">
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              }
               {...register('password', { required: 'Required', minLength: { value: 8, message: 'Min. 8 characters' } })} />
 
             <div className="space-y-1.5">
