@@ -174,6 +174,22 @@ function interviewEmail({ studentName, offerTitle, interviewDate, interviewType,
   `);
 }
 
+function messageEmail({ senderName, offerTitle, messagePreview, link }) {
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const preview = messagePreview?.length > 120
+    ? messagePreview.slice(0, 120) + '…'
+    : messagePreview || '';
+  return wrap(`
+    <p style="font-size:36px;margin:0 0 16px">💬</p>
+    <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 12px">New Message</h1>
+    <p style="color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;margin:0 0 24px">
+      <strong style="color:rgba(255,255,255,0.85)">${senderName}</strong> sent you a message about your internship application.
+    </p>
+    ${card([['Regarding', offerTitle], ['Preview', preview || '(no preview)']])}
+    ${btn(link, 'Read Message')}
+  `);
+}
+
 function offerResponseEmail({ studentName, offerTitle, accepted, applicationId }) {
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
   return wrap(`
@@ -192,4 +208,4 @@ function offerResponseEmail({ studentName, offerTitle, accepted, applicationId }
   `);
 }
 
-module.exports = { sendMail, statusUpdateEmail, newApplicationEmail, offerExpiredEmail, interviewEmail, offerResponseEmail };
+module.exports = { sendMail, statusUpdateEmail, newApplicationEmail, offerExpiredEmail, interviewEmail, offerResponseEmail, messageEmail };

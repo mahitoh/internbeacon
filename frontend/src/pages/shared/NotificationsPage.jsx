@@ -12,6 +12,7 @@ const TYPE_META = {
   new_application: { label: 'Application', bg: '#DBEAFE', text: '#1E40AF', border: '#BFDBFE' },
   new_message:     { label: 'Message',     bg: '#EDF2EE', text: '#1E5B45', border: '#C4DBCE' },
   status_update:   { label: 'Status',      bg: '#EEF2FF', text: '#4338CA', border: '#C7D2FE' },
+  note_update:     { label: 'Note',        bg: '#FFFBEB', text: '#B45309', border: '#FDE68A' },
   offer_closed:    { label: 'Offer',       bg: '#EDE9FE', text: '#6D28D9', border: '#DDD6FE' },
   offer:           { label: 'Offer',       bg: '#EDE9FE', text: '#6D28D9', border: '#DDD6FE' },
   system:          { label: 'System',      bg: '#F6F5F1', text: '#6B6F69', border: '#E7E6DF' },

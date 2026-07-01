@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider }   from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 
@@ -63,6 +64,10 @@ export default function App() {
   return (
     <AuthProvider>
       <SocketProvider>
+        <Toaster
+          position="top-right"
+          toastOptions={{ duration: 5000 }}
+        />
         <BrowserRouter>
           <Routes>
             {/* Public */}

@@ -318,7 +318,7 @@ function studyLevelScore(studentYear, requirements) {
   if (!studentYear) return 50;
   const req = (requirements || '').toLowerCase();
   const patterns = [
-    { re: /final[- ]?year|last[- ]?year|5[eè]me ann[ée]e|master/i, min: 4 },
+    { re: /final[- ]?year|last[- ]?year|5[eè]me ann[ée]e|master'?s?\s+degree|\bm\.?sc\b/i, min: 4 },
     { re: /4[eè]me|4th[- ]?year|year\s*4\b/i,                      min: 4 },
     // Licence 3 (LMD) is the 3rd / final bachelor year — not a 4th-year requirement.
     { re: /3[eè]me|3rd[- ]?year|year\s*3\b|licence\s*3\b/i,        min: 3 },

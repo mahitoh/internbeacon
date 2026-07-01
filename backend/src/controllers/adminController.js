@@ -419,12 +419,23 @@ exports.broadcast = async (req, res, next) => {
       link:    link || null,
     }));
 
-    const { error: insertErr } = await supabaseAdmin.from('notifications').insert(rows);
+    const { data: inserted, error: insertErr } = await supabaseAdmin.from('notifications').insert(rows).select();
     if (insertErr) throw insertErr;
 
-    // Push real-time notifications to connected users
+    // Push real-time notifications to connected users — use the DB-returned rows so
+    // each socket event carries a real id and created_at (needed by DashboardTopbar's
+    // markRead call and relative-time display).
     const { emitNotification } = require('../socket');
-    rows.forEach(r => emitNotification(r.user_id, { ...r, isRead: false }));
+    (inserted || []).forEach(row => emitNotification(row.user_id, {
+      id:        row.id,
+      userId:    row.user_id,
+      type:      row.type,
+      title:     row.title,
+      body:      row.body,
+      link:      row.link,
+      isRead:    row.is_read,
+      createdAt: row.created_at,
+    }));
 
     res.json({ success: true, message: `Broadcast sent to ${targets.length} user(s)`, sent: targets.length });
   } catch (err) {

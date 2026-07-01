@@ -136,7 +136,7 @@ exports.matchOffer = async (req, res, next) => {
         .single(),
       supabaseAdmin
         .from('internship_offers')
-        .select('title, domain, location, description, requirements, required_skills')
+        .select('title, domain, location, description, requirements, required_skills, required_languages')
         .eq('id', offerId)
         .single(),
     ]);
@@ -158,7 +158,7 @@ exports.rankApplicants = async (req, res, next) => {
 
     const { data: offer } = await supabaseAdmin
       .from('internship_offers')
-      .select('id, title, domain, location, description, requirements, required_skills')
+      .select('id, title, domain, location, description, requirements, required_skills, required_languages')
       .eq('id', offerId).eq('company_id', cp.id).single();
     if (!offer) return res.status(403).json({ success: false, message: 'Offer not found or access denied' });
 
@@ -205,7 +205,7 @@ exports.matchApplicant = async (req, res, next) => {
 
     const { data: app } = await supabaseAdmin
       .from('applications')
-      .select('id, student_profiles(skills, programme, faculty, study_year, city, languages), internship_offers(title, domain, location, description, requirements, required_skills, company_id)')
+      .select('id, student_profiles(skills, programme, faculty, study_year, city, languages), internship_offers(title, domain, location, description, requirements, required_skills, required_languages, company_id)')
       .eq('id', appId)
       .single();
 

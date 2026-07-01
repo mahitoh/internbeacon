@@ -426,7 +426,7 @@ exports.recommended = async (req, res, next) => {
 
     const { data: sp } = await supabaseAdmin
       .from('student_profiles')
-      .select('id, skills, programme, faculty, study_year, languages')
+      .select('id, skills, programme, faculty, study_year, city, languages')
       .eq('user_id', req.user.userId)
       .single();
 

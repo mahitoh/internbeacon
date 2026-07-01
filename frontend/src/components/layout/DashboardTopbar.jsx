@@ -1,11 +1,64 @@
 import { Search, Bell, Menu, CheckCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { notificationsApi } from '../../api/notifications';
 import { useSocket } from '../../context/SocketContext';
 import { useAuth } from '../../context/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { formatRelativeTime } from '../../lib/utils';
+import { playTone } from '../../lib/sounds';
+
+const NOTIF_ICONS = {
+  new_message:     '💬',
+  new_application: '📬',
+  status_update:   '📋',
+  note_update:     '📝',
+  offer_closed:    '⏰',
+  offer:           '✨',
+  system:          '🔔',
+};
+
+function showNotifToast(n, navigate) {
+  const icon = NOTIF_ICONS[n.type] || '🔔';
+  toast.custom(t => (
+    <div
+      onClick={() => { if (n.link) navigate(n.link); toast.dismiss(t.id); }}
+      style={{
+        display: 'flex', alignItems: 'flex-start', gap: '10px',
+        background: '#fff',
+        border: '1.5px solid #C4DBCE',
+        borderRadius: '14px',
+        padding: '12px 14px',
+        maxWidth: '310px',
+        boxShadow: '0 6px 24px rgba(30,91,69,.13)',
+        cursor: n.link ? 'pointer' : 'default',
+        fontFamily: "'Hanken Grotesk', system-ui, sans-serif",
+        opacity: t.visible ? 1 : 0,
+        transform: t.visible ? 'translateY(0) scale(1)' : 'translateY(-6px) scale(0.97)',
+        transition: 'opacity 0.2s ease, transform 0.2s ease',
+      }}>
+      <span style={{ fontSize: '18px', lineHeight: 1, flexShrink: 0, marginTop: '1px' }}>{icon}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#1B1D1A', lineHeight: 1.3 }}>
+          {n.title}
+        </p>
+        {n.body && (
+          <p style={{ margin: '3px 0 0', fontSize: '11px', color: '#6B6F69', lineHeight: 1.45,
+            overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            {n.body}
+          </p>
+        )}
+      </div>
+      <button
+        onClick={e => { e.stopPropagation(); toast.dismiss(t.id); }}
+        style={{ background: 'none', border: 'none', color: '#C0BFBA', cursor: 'pointer',
+          padding: '0 0 0 4px', fontSize: '18px', lineHeight: 1, flexShrink: 0, marginTop: '-1px' }}>
+        ×
+      </button>
+    </div>
+  ));
+}
 
 export default function DashboardTopbar({ title, role, onMenuToggle }) {
   const { user } = useAuth();
@@ -26,10 +79,38 @@ export default function DashboardTopbar({ title, role, onMenuToggle }) {
     const handler = (n) => {
       setNotifCount(c => c + 1);
       setNotifs(prev => [n, ...prev].slice(0, 8));
+      playTone(n.type === 'new_message' ? 'message' : 'notification');
+      showNotifToast(n, navigate);
+
+      // Invalidate cached data so visible pages update without a manual refresh.
+      // Each notification type maps to the queries it makes stale.
+      if (role === 'student') {
+        if (['status_update', 'note_update'].includes(n.type)) {
+          qc.invalidateQueries({ queryKey: ['my-apps'] });
+        }
+        if (n.type === 'new_message') {
+          qc.invalidateQueries({ queryKey: ['message-threads-student'] });
+        }
+        if (n.type === 'offer') {
+          qc.invalidateQueries({ queryKey: ['offers-rec'] });
+        }
+      } else if (role === 'company') {
+        if (n.type === 'new_application') {
+          qc.invalidateQueries({ queryKey: ['company-apps'] });
+          qc.invalidateQueries({ queryKey: ['my-offers'] });
+        }
+        if (n.type === 'status_update') {
+          // student accepted/declined offer
+          qc.invalidateQueries({ queryKey: ['company-apps'] });
+        }
+        if (n.type === 'new_message') {
+          qc.invalidateQueries({ queryKey: ['message-threads'] });
+        }
+      }
     };
     socket.on('new_notification', handler);
     return () => socket.off('new_notification', handler);
-  }, [socket]);
+  }, [socket, navigate, role, qc]);
 
   // Opening the panel should NOT mark everything read — a glance must not
   // destroy unread state. We only fetch; reads happen on click-through or via

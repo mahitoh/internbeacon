@@ -1,6 +1,7 @@
 const { supabaseAdmin }                              = require('../config/supabase');
 const { notify }                                     = require('../utils/notifier');
 const { emitNewMessage, emitReadReceipt }            = require('../socket');
+const { sendMail, messageEmail }                     = require('../utils/mailer');
 
 // ── Shared helper: resolve thread parties for an application ──────────────────
 // Returns { studentUserId, companyUserId, offerId } or throws
@@ -9,19 +10,24 @@ async function resolveThread(appId) {
     .from('applications')
     .select(`
       id, student_id, offer_id,
-      student_profiles ( user_id ),
-      internship_offers ( company_id, title, company_profiles ( user_id ) )
+      student_profiles ( user_id, first_name, last_name ),
+      internship_offers ( company_id, title, company_profiles ( user_id, company_name ) )
     `)
     .eq('id', appId)
     .single();
 
   if (error || !app) return null;
 
+  const sp = app.student_profiles;
+  const cp = app.internship_offers.company_profiles;
+
   return {
     app,
-    studentUserId: app.student_profiles.user_id,
-    companyUserId: app.internship_offers.company_profiles.user_id,
+    studentUserId: sp.user_id,
+    companyUserId: cp.user_id,
     offerTitle:    app.internship_offers.title,
+    studentName:   [sp.first_name, sp.last_name].filter(Boolean).join(' ') || 'Student',
+    companyName:   cp.company_name || 'Company',
   };
 }
 
@@ -185,6 +191,32 @@ exports.send = async (req, res, next) => {
       body:   `You have a new message about "${thread.offerTitle}"`,
       link:   `${receiverBase}/messages/${appId}`,
     });
+
+    // Email the recipient only for the FIRST unread message in this thread
+    // so active conversations don't spam the inbox.
+    const { count: unreadInThread } = await supabaseAdmin
+      .from('messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('app_id', appId)
+      .eq('receiver_id', receiverId)
+      .eq('is_read', false);
+
+    if (unreadInThread === 1) {
+      const senderName = senderIsStudent ? thread.studentName : thread.companyName;
+      supabaseAdmin.auth.admin.getUserById(receiverId).then(({ data: au }) => {
+        const email = au?.user?.email;
+        if (email) sendMail({
+          to:      email,
+          subject: `New message about "${thread.offerTitle}" — InternBeacon`,
+          html:    messageEmail({
+            senderName,
+            offerTitle:     thread.offerTitle,
+            messagePreview: content.trim(),
+            link:           `${process.env.CLIENT_URL || 'http://localhost:5173'}${receiverBase}/messages/${appId}`,
+          }),
+        });
+      }).catch(() => {});
+    }
 
     res.status(201).json({ success: true, data: msg });
   } catch (err) {

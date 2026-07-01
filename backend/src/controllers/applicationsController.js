@@ -361,10 +361,13 @@ exports.withdraw = async (req, res, next) => {
     const { id } = req.params;
 
     const { data: sp } = await supabaseAdmin
-      .from('student_profiles').select('id').eq('user_id', req.user.userId).single();
+      .from('student_profiles').select('id, first_name, last_name').eq('user_id', req.user.userId).single();
 
     const { data: app } = await supabaseAdmin
-      .from('applications').select('student_id, status').eq('id', id).single();
+      .from('applications')
+      .select('student_id, status, internship_offers ( id, title, company_profiles ( user_id ) )')
+      .eq('id', id)
+      .single();
 
     if (!app) return res.status(404).json({ success: false, message: 'Application not found' });
     if (!sp || app.student_id !== sp.id)
@@ -382,6 +385,20 @@ exports.withdraw = async (req, res, next) => {
     if (error) throw error;
 
     await addHistory(id, 'withdrawn', req.user.userId, null);
+
+    const companyUserId = app.internship_offers?.company_profiles?.user_id;
+    const offerTitle    = app.internship_offers?.title || '';
+    const studentName   = [sp.first_name, sp.last_name].filter(Boolean).join(' ') || 'A student';
+
+    if (companyUserId) {
+      notify({
+        userId: companyUserId,
+        type:   'status_update',
+        title:  'Application withdrawn',
+        body:   `${studentName} has withdrawn their application for "${offerTitle}"`,
+        link:   `/company/applications/${id}`,
+      });
+    }
 
     res.json({ success: true, data: normaliseApplication(data) });
   } catch (err) { next(err); }
@@ -481,7 +498,7 @@ exports.companyApplications = async (req, res, next) => {
         applied_at, reviewed_at, decided_at, offer_id,
         interview_date, interview_type,
         internship_offers ( id, title, location ),
-        student_profiles ( id, user_id, first_name, last_name, university, programme, study_year, avatar_url, skills )
+        student_profiles ( id, user_id, first_name, last_name, university, programme, study_year, avatar_url, linkedin_url, skills )
       `, { count: 'exact' })
       .in('offer_id', offerIds)
       .order('applied_at', { ascending: false });
@@ -607,6 +624,8 @@ function normaliseApplication(a, { showInternal = false } = {}) {
 
   // Use profile_snapshot when available (immutable record of what was submitted).
   // Fall back to live student_profiles join for older records that predate snapshots.
+  // Contact fields (linkedinUrl, avatarUrl) always use live data so students can
+  // update them after applying without being stuck on old values.
   const student = snap ? {
     id:          rawStudent?.id,
     userId:      rawStudent?.user_id,
@@ -619,9 +638,9 @@ function normaliseApplication(a, { showInternal = false } = {}) {
     skills:      snap.skills,
     bio:         snap.bio,
     languages:   snap.languages,
-    avatarUrl:   snap.avatarUrl,
+    avatarUrl:   rawStudent?.avatar_url   ?? snap.avatarUrl,
     cvUrl:       snap.cvUrl,
-    linkedinUrl: snap.linkedinUrl,
+    linkedinUrl: rawStudent?.linkedin_url ?? snap.linkedinUrl,
     aiSummary:   snap.aiSummary,
     snapshotAt:  snap.snapshotAt,
   } : rawStudent ? {
@@ -681,7 +700,7 @@ exports.patchNotes = async (req, res, next) => {
 
     const { data: app } = await supabaseAdmin
       .from('applications')
-      .select('id, internship_offers ( company_id )')
+      .select('id, internship_offers ( id, title, company_id ), student_profiles ( user_id )')
       .eq('id', id)
       .single();
 
@@ -697,6 +716,18 @@ exports.patchNotes = async (req, res, next) => {
       .from('applications').update(updates).eq('id', id).select().single();
 
     if (error) throw error;
+
+    // Notify the student when the company leaves them a visible note
+    const studentUserId = app.student_profiles?.user_id;
+    if (companyNote && studentUserId) {
+      notify({
+        userId: studentUserId,
+        type:   'note_update',
+        title:  'New note from recruiter',
+        body:   `The company left you a message on your application for "${app.internship_offers?.title || 'an offer'}"`,
+        link:   '/student/applications',
+      });
+    }
 
     res.json({ success: true, data: normaliseApplication(data, { showInternal: true }) });
   } catch (err) { next(err); }

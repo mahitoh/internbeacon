@@ -60,7 +60,7 @@ export default function StudentApplications() {
   });
 
   const { data: threadsData } = useQuery({
-    queryKey: ['message-threads'],
+    queryKey: ['message-threads-student'],
     queryFn:  () => messagesApi.threads().then(r => r.data.data),
   });
 

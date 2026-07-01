@@ -9,7 +9,7 @@ import StatCard from '../../components/dashboard/StatCard';
 import Avatar from '../../components/ui/Avatar';
 import { StatusBadge } from '../../components/ui/Badge';
 import { formatRelativeTime } from '../../lib/utils';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -226,11 +226,7 @@ export default function CompanyDashboard() {
                 <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#9A9E97', fontSize: 11 }} />
                 <YAxis hide />
                 <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(30,91,69,0.04)' }} />
-                <Bar dataKey="apps" radius={[6, 6, 0, 0]}>
-                  {chartData.map((d, i) => (
-                    <Cell key={i} fill={d.isCurrent ? '#1E5B45' : '#E7E6DF'} />
-                  ))}
-                </Bar>
+                <Bar dataKey="apps" fill="#1E5B45" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
